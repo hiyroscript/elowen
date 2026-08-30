@@ -4,8 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e8dfd1">
-  <meta name="description" content="Elowen — a calm desktop workspace for calculation, code, and writing.">
+  <meta id="meta-description" name="description" content="Elowen — a calm desktop workspace for calculation, code, and writing.">
   <title>Elowen</title>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      root.classList.add('i18n-loading');
+      try {
+        const saved = localStorage.getItem('elowen.language.v1');
+        if (saved !== 'en' && saved !== 'fr') root.classList.add('language-pending');
+      } catch (error) {
+        root.classList.add('language-pending');
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <style>
@@ -37,6 +49,7 @@
     }
 
     * { box-sizing: border-box; }
+    html.i18n-loading body { visibility: hidden; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
     body { background: var(--sand); color: var(--ink); font-size: 14px; line-height: 1.5; }
     button, input, select, textarea { color: inherit; font: inherit; }
@@ -62,15 +75,6 @@
     .desktop-mark { width: 56px; height: 56px; margin: 0 auto 22px; color: var(--brown-gray); }
     .desktop-message h1 { margin: 0 0 10px; font-size: 25px; font-weight: 600; letter-spacing: -.02em; }
     .desktop-message p { margin: 0; color: var(--muted); font-size: 15px; }
-    .language-gate { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px; background: rgba(64,58,53,.38); backdrop-filter: blur(8px); }
-    .language-gate[hidden] { display: none; }
-    .language-dialog { width: min(440px, 100%); padding: 34px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--paper); box-shadow: 0 24px 70px rgba(48,44,40,.2); text-align: center; }
-    .language-dialog .brand-mark { margin: 0 auto 14px; }
-    .language-dialog h1 { margin: 0 0 8px; font-size: 24px; }
-    .language-dialog p { margin: 0 0 24px; color: var(--muted); }
-    .language-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .language-choice { min-height: 58px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--sand-soft); font-size: 15px; font-weight: 650; }
-    .language-choice:hover { background: var(--sand-deep); border-color: var(--stone); }
     @media (max-width: 1050px), (orientation: portrait) {
       #app, #modal-layer, #toast-region { display: none !important; }
       .desktop-only { display: grid; }
@@ -93,7 +97,8 @@
     .home-view { background: var(--sand); }
     .home-header { height: var(--header-h); display: grid; grid-template-columns: 250px minmax(430px, 700px) 250px; align-items: center; gap: 28px; padding: 0 clamp(34px, 4vw, 72px); border-bottom: 1px solid var(--line); }
     .home-header .brand { justify-self: start; }
-    .header-note { justify-self: end; display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
+    .header-actions { justify-self: end; display: flex; align-items: center; gap: 10px; }
+    .header-note { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
     kbd { min-width: 24px; height: 23px; display: inline-grid; place-items: center; padding: 0 6px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; background: var(--sand-soft); color: var(--stone); font-family: inherit; font-size: 11px; }
     .search-wrap { position: relative; }
     .search-box { height: 46px; display: flex; align-items: center; gap: 11px; padding: 0 13px 0 16px; border: 1px solid var(--line-strong); border-radius: 13px; background: rgba(251,248,242,.68); box-shadow: 0 4px 16px rgba(64,56,48,.035); transition: background var(--ease), border-color var(--ease), box-shadow var(--ease); }
@@ -291,7 +296,7 @@
     .document-stage { flex: 1; min-height: 0; overflow: auto; padding: 30px 32px 70px; scroll-behavior: smooth; }
     .document-page { width: min(794px, calc(100vw - 190px)); min-height: 1028px; margin: 0 auto; padding: 74px 82px 92px; border: 1px solid rgba(80,70,61,.14); background: #fffdf8; box-shadow: 0 10px 32px rgba(58,49,41,.12); }
     #document-editor { min-height: 850px; outline: none; color: #342f2a; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.72; overflow-wrap: break-word; }
-    #document-editor:empty::before { content: "Begin your document…"; color: #aaa097; pointer-events: none; }
+    #document-editor:empty::before { content: var(--document-placeholder, "Begin your document…"); color: #aaa097; pointer-events: none; }
     #document-editor h1 { margin: 0 0 .75em; font-size: 32px; line-height: 1.2; font-weight: 600; letter-spacing: -.03em; }
     #document-editor h2 { margin: 1.35em 0 .55em; font-size: 23px; line-height: 1.3; font-weight: 600; letter-spacing: -.02em; }
     #document-editor h3 { margin: 1.25em 0 .45em; font-size: 18px; line-height: 1.4; font-weight: 600; }
@@ -306,10 +311,12 @@
     .export-menu button:hover { background: var(--sand-soft); color: var(--ink); }
 
     /* Modal and toast */
-    #modal-layer { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(52,46,41,.30); opacity: 0; visibility: hidden; transition: opacity var(--ease), visibility 0s linear 180ms; }
-    #modal-layer.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+    #modal-layer, #settings-layer, #language-layer { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(52,46,41,.30); opacity: 0; visibility: hidden; transition: opacity var(--ease), visibility 0s linear 180ms; }
+    #modal-layer.open, #settings-layer.open, #language-layer.open, .language-pending #language-layer { opacity: 1; visibility: visible; transition-delay: 0s; }
+    #settings-layer { z-index: 130; }
+    #language-layer { z-index: 10000; background: rgba(52,46,41,.46); }
     .modal { width: min(410px, 92vw); padding: 22px; border: 1px solid var(--line-strong); border-radius: 15px; background: var(--paper); box-shadow: 0 22px 60px rgba(44,38,33,.18); transform: translateY(7px); transition: transform var(--ease); }
-    #modal-layer.open .modal { transform: none; }
+    #modal-layer.open .modal, #settings-layer.open .modal, #language-layer.open .modal, .language-pending #language-layer .modal { transform: none; }
     .modal h2 { margin: 0 0 6px; font-size: 17px; font-weight: 630; letter-spacing: -.02em; }
     .modal p { margin: 0 0 17px; color: var(--muted); font-size: 12px; }
     .modal-field { display: grid; gap: 6px; margin: 12px 0; }
@@ -317,6 +324,14 @@
     .modal-field input, .modal-field select { height: 38px; width: 100%; border: 1px solid var(--line-strong); border-radius: 8px; background: #fffdf8; padding: 0 10px; outline: none; }
     .modal-field input:focus, .modal-field select:focus { border-color: var(--stone); box-shadow: 0 0 0 3px rgba(118,108,99,.09); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 19px; }
+    .language-modal { width: min(440px, 92vw); text-align: center; }
+    .language-modal .brand-mark { margin: 0 auto 12px; }
+    .language-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .language-choice { min-height: 58px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--sand-soft); color: var(--stone-deep); font-size: 14px; font-weight: 650; transition: background var(--ease), border-color var(--ease), transform 100ms ease; }
+    .language-choice:hover { background: var(--beige); border-color: var(--stone); }
+    .language-choice:active { transform: translateY(1px); }
+    .settings-modal .setting-row { min-height: 48px; }
+    .settings-modal select { min-width: 150px; height: 34px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--sand-soft); padding: 0 9px; }
     .danger-btn { border-color: #785f52; background: #785f52; color: var(--paper); }
     .danger-btn:hover { background: #634d43; }
     #toast-region { position: fixed; right: 20px; bottom: 20px; z-index: 120; display: grid; gap: 8px; pointer-events: none; }
@@ -342,9 +357,13 @@
       .document-stage { padding-top: 22px; }
     }
 
+    @media (max-width: 1050px), (orientation: portrait) {
+      #language-layer, #settings-layer { display: none !important; }
+    }
+
     @media print {
       html, body { overflow: visible !important; background: white !important; }
-      #app > .view:not(#text-view), .workspace-bar, .doc-toolbar, .text-find, .doc-statusbar, #modal-layer, #toast-region { display: none !important; }
+      #app > .view:not(#text-view), .workspace-bar, .doc-toolbar, .text-find, .doc-statusbar, #modal-layer, #settings-layer, #language-layer, #toast-region { display: none !important; }
       #text-view { position: static !important; display: block !important; opacity: 1 !important; visibility: visible !important; transform: none !important; background: white !important; }
       .document-stage { overflow: visible !important; padding: 0 !important; }
       .document-page { width: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
@@ -354,9 +373,6 @@
   </style>
 </head>
 <body>
-  <div id="language-gate" class="language-gate" role="dialog" aria-modal="true" aria-labelledby="language-gate-title" hidden>
-    <div class="language-dialog"><span class="brand-mark"><svg class="icon-lg"><use href="#i-leaf"></use></svg></span><h1 id="language-gate-title">Choose your language · Choisissez votre langue</h1><p>Select a language to begin · Choisissez une langue pour commencer</p><div class="language-choices"><button class="language-choice" type="button" data-language-choice="en" lang="en">English</button><button class="language-choice" type="button" data-language-choice="fr" lang="fr">Français</button></div></div>
-  </div>
   <div class="desktop-only" role="status">
     <div class="desktop-message">
       <svg class="desktop-mark" aria-hidden="true"><use href="#i-monitor"></use></svg>
@@ -431,7 +447,10 @@
             <button id="search-clear" class="search-clear" type="button" aria-label="Clear search" title="Clear search"><svg class="icon-sm"><use href="#i-x"></use></svg></button>
           </label>
         </div>
-        <div class="header-note"><kbd>↑</kbd><kbd>↓</kbd><span>navigate</span><kbd>↵</kbd><span>open</span></div>
+        <div class="header-actions">
+          <div class="header-note"><kbd>↑</kbd><kbd>↓</kbd><span>navigate</span><kbd>↵</kbd><span>open</span></div>
+          <button class="icon-btn" type="button" data-open-app-settings aria-label="Settings" title="Settings"><svg class="icon"><use href="#i-settings"></use></svg></button>
+        </div>
       </header>
       <main class="home-main">
         <div class="home-intro">
@@ -465,6 +484,7 @@
         <div class="bar-spacer"></div>
         <div class="segmented" aria-label="Angle mode"><button id="angle-deg" class="active" type="button" aria-pressed="true">DEG</button><button id="angle-rad" type="button" aria-pressed="false">RAD</button></div>
         <button id="history-toggle" class="soft-btn" type="button" aria-pressed="true"><svg class="icon-sm"><use href="#i-clock"></use></svg><span>History</span></button>
+        <button class="icon-btn" type="button" data-open-app-settings aria-label="Settings" title="Settings"><svg class="icon-sm"><use href="#i-settings"></use></svg></button>
       </header>
       <main id="calculator-workspace" class="calculator-workspace">
         <section class="calculator-panel" aria-label="Calculator keypad">
@@ -521,11 +541,11 @@
         <button id="settings-toggle" class="toolbar-label-btn" type="button" aria-expanded="false" title="Editor settings"><svg class="icon-sm"><use href="#i-settings"></use></svg><span>Settings</span></button>
         <div id="settings-popover" class="settings-popover" hidden>
           <h3>Editor settings</h3>
-          <label class="setting-row"><span>Font size <strong id="font-size-value">13</strong> px</span><input id="font-size-setting" type="range" min="11" max="20" step="1" value="13"></label>
-          <label class="setting-row"><span>Tab size</span><select id="tab-size-setting"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="8">8 spaces</option></select></label>
-          <div class="setting-row"><span>Word wrap</span><button id="wrap-setting" class="switch" type="button" role="switch" aria-checked="false" aria-label="Toggle word wrap"></button></div>
-          <div class="setting-row"><span>Auto-save</span><button id="autosave-setting" class="switch on" type="button" role="switch" aria-checked="true" aria-label="Toggle auto-save"></button></div>
-          <label class="setting-row"><span>Language</span><select id="language-setting" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select></label>
+          <label class="setting-row"><span><span id="font-size-label">Font size</span> <strong id="font-size-value">13</strong> px</span><input id="font-size-setting" type="range" min="11" max="20" step="1" value="13"></label>
+          <label class="setting-row"><span id="tab-size-label">Tab size</span><select id="tab-size-setting"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="8">8 spaces</option></select></label>
+          <div class="setting-row"><span id="word-wrap-label">Word wrap</span><button id="wrap-setting" class="switch" type="button" role="switch" aria-checked="false" aria-label="Toggle word wrap"></button></div>
+          <div class="setting-row"><span id="autosave-label">Auto-save</span><button id="autosave-setting" class="switch on" type="button" role="switch" aria-checked="true" aria-label="Toggle auto-save"></button></div>
+          <label class="setting-row"><span id="editor-language-label">Language</span><select id="editor-language-setting"><option value="en">English</option><option value="fr">Français</option></select></label>
         </div>
       </div>
       <main id="code-shell" class="code-shell">
@@ -571,6 +591,7 @@
         <button id="text-find-toggle" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-search"></use></svg><span>Find</span></button>
         <button id="text-print" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-print"></use></svg><span>Print</span></button>
         <button id="text-export-toggle" class="primary-btn" type="button" aria-expanded="false"><svg class="icon-sm"><use href="#i-download"></use></svg><span>Download</span></button>
+        <button class="icon-btn" type="button" data-open-app-settings aria-label="Settings" title="Settings"><svg class="icon-sm"><use href="#i-settings"></use></svg></button>
         <div id="export-menu" class="export-menu" hidden><button type="button" data-export="html"><svg class="icon-sm"><use href="#i-code"></use></svg>HTML document</button><button type="button" data-export="txt"><svg class="icon-sm"><use href="#i-file-text"></use></svg>Plain text</button><button type="button" data-export="doc"><svg class="icon-sm"><use href="#i-file"></use></svg>Word-compatible .doc</button></div>
       </header>
       <div id="doc-toolbar" class="doc-toolbar" aria-label="Formatting toolbar">
@@ -595,120 +616,37 @@
   </div>
 
   <div id="modal-layer" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><h2 id="modal-title"></h2><p id="modal-description"></p><div id="modal-fields"></div><div class="modal-actions"><button id="modal-cancel" class="soft-btn" type="button">Cancel</button><button id="modal-confirm" class="primary-btn" type="button">Confirm</button></div></div></div>
+  <div id="settings-layer" aria-hidden="true">
+    <div class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="app-settings-title">
+      <h2 id="app-settings-title">Settings</h2>
+      <p id="app-settings-description">Changes are applied immediately and saved on this device.</p>
+      <label class="setting-row" for="app-language-setting"><span id="app-language-label">Language</span><select id="app-language-setting"><option value="en">English</option><option value="fr">Français</option></select></label>
+      <div class="modal-actions"><button id="app-settings-close" class="primary-btn" type="button">Close</button></div>
+    </div>
+  </div>
+  <div id="language-layer" aria-hidden="true">
+    <div class="modal language-modal" role="dialog" aria-modal="true" aria-labelledby="language-title" aria-describedby="language-description">
+      <span class="brand-mark" aria-hidden="true"><svg class="icon-lg"><use href="#i-leaf"></use></svg></span>
+      <h2 id="language-title">Choose your language</h2>
+      <p id="language-description">You can change this later in Settings.</p>
+      <div class="language-options"><button class="language-choice" type="button" data-language-choice="en">English</button><button class="language-choice" type="button" data-language-choice="fr">Français</button></div>
+    </div>
+  </div>
   <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
   <script>
   (() => {
     'use strict';
-
-    const LANGUAGE_STORAGE_KEY = 'elowen.language';
-    const LANGUAGE_ENTRIES = [
-      ['desktop.title','Elowen is designed for desktop displays in landscape orientation.','Elowen est conçu pour les écrans d’ordinateur en orientation paysage.'],
-      ['desktop.help','Open this workspace on a laptop or desktop and widen the browser window.','Ouvrez cet espace sur un ordinateur portable ou de bureau, puis agrandissez la fenêtre.'],
-      ['nav.home','Elowen home','Accueil d’Elowen'], ['nav.back','Back to Elowen home','Retour à l’accueil d’Elowen'], ['nav.backTitle','Back to Home','Retour à l’accueil'],
-      ['search.tools','Search Elowen tools…','Rechercher dans les outils Elowen…'], ['search.clear','Clear search','Effacer la recherche'], ['search.navigate','navigate','naviguer'], ['search.open','open','ouvrir'],
-      ['home.eyebrow','Your quiet workspace','Votre espace de sérénité'], ['home.title','Three tools. One clear rhythm.','Trois outils. Un rythme fluide.'],
-      ['home.description','Calculate, build, and write without leaving your browser. Your work stays on this device.','Calculez, créez et rédigez sans quitter votre navigateur. Votre travail reste sur cet appareil.'],
-      ['home.tools','Elowen tools','Outils Elowen'], ['tool.calculator','Scientific Calculator','Calculatrice scientifique'], ['tool.calculator.description','Advanced calculations, functions, constants, and history.','Calculs avancés, fonctions, constantes et historique.'], ['tool.calculator.open','Open calculator','Ouvrir la calculatrice'],
-      ['tool.code','Code Editor','Éditeur de code'], ['tool.code.description','Write, edit, preview, and manage code directly in your browser.','Écrivez, modifiez, prévisualisez et gérez du code directement dans votre navigateur.'], ['tool.editor.open','Open editor','Ouvrir l’éditeur'],
-      ['tool.text','Text Editor','Éditeur de texte'], ['tool.text.description','Create and format rich documents in a distraction-free workspace.','Créez et mettez en forme des documents enrichis dans un espace sans distractions.'],
-      ['empty.tools','No tools found.','Aucun outil trouvé.'], ['empty.tools.help','Try “code”, “calculator”, or “text”.','Essayez « code », « calculatrice » ou « texte ».'], ['footer.workspace','Elowen workspace','Espace de travail Elowen'], ['footer.local','Stored locally · No account required','Stockage local · Aucun compte requis'],
-      ['calc.keyboard','Natural keyboard input supported','Saisie naturelle au clavier prise en charge'], ['calc.angle','Angle mode','Mode angulaire'], ['calc.history','History','Historique'], ['calc.keypad','Calculator keypad','Pavé de la calculatrice'], ['calc.expression','Expression','Expression'], ['calc.result','Result','Résultat'], ['calc.memory','Memory controls','Commandes de mémoire'], ['calc.memory.clear','Clear memory','Effacer la mémoire'], ['calc.memory.recall','Recall memory','Rappeler la mémoire'], ['calc.memory.add','Add to memory','Ajouter à la mémoire'], ['calc.memory.subtract','Subtract from memory','Soustraire de la mémoire'], ['calc.memory.store','Store in memory','Enregistrer en mémoire'], ['calc.scientific','Scientific functions','Fonctions scientifiques'], ['calc.basic','Basic operations','Opérations de base'], ['calc.backspace','Backspace','Retour arrière'], ['calc.historyLabel','Calculation history','Historique des calculs'], ['common.clear','Clear','Effacer'],
-      ['code.workspace','Browser workspace','Espace de travail du navigateur'], ['common.save','Save','Enregistrer'], ['common.run','Run','Exécuter'], ['code.toolbar','Code editor toolbar','Barre d’outils de l’éditeur de code'], ['common.files','Files','Fichiers'], ['files.toggle','Toggle files','Afficher ou masquer les fichiers'], ['common.undo','Undo','Annuler'], ['common.redo','Redo','Rétablir'], ['common.find','Find','Rechercher'], ['common.replace','Replace','Remplacer'], ['find.replace','Find and replace','Rechercher et remplacer'], ['find.shortcut','Find (Ctrl/Cmd+F)','Rechercher (Ctrl/Cmd+F)'], ['replace.shortcut','Find and replace (Ctrl/Cmd+H)','Rechercher et remplacer (Ctrl/Cmd+H)'], ['code.comment','Comment','Commenter'], ['code.commentToggle','Toggle comment (Ctrl/Cmd+/)','Ajouter ou retirer le commentaire (Ctrl/Cmd+/)'], ['common.download','Download','Télécharger'], ['code.downloadCurrent','Download current file','Télécharger le fichier actuel'], ['code.preview','Preview','Aperçu'], ['code.previewToggle','Toggle preview','Afficher ou masquer l’aperçu'], ['common.settings','Settings','Réglages'], ['code.editorSettings','Editor settings','Réglages de l’éditeur'],
-      ['settings.fontSize','Font size','Taille de police'], ['settings.tabSize','Tab size','Taille de tabulation'], ['settings.twoSpaces','2 spaces','2 espaces'], ['settings.fourSpaces','4 spaces','4 espaces'], ['settings.eightSpaces','8 spaces','8 espaces'], ['settings.wrap','Word wrap','Retour à la ligne'], ['settings.wrapToggle','Toggle word wrap','Activer ou désactiver le retour à la ligne'], ['settings.autosave','Auto-save','Enregistrement automatique'], ['settings.autosaveToggle','Toggle auto-save','Activer ou désactiver l’enregistrement automatique'], ['settings.language','Language','Langue'],
-      ['files.new','New file','Nouveau fichier'], ['files.rename','Rename','Renommer'], ['files.delete','Delete','Supprimer'], ['files.resize','Resize file panel','Redimensionner le panneau des fichiers'], ['code.area','Code editing area','Zone d’édition du code'], ['find.text','Find text','Texte à rechercher'], ['replace.text','Replacement text','Texte de remplacement'], ['find.previous','Previous match','Occurrence précédente'], ['find.next','Next match','Occurrence suivante'], ['common.all','All','Tout'], ['common.close','Close','Fermer'], ['find.close','Close find','Fermer la recherche'], ['code.editor','Code editor','Éditeur de code'], ['code.languageMode','Language mode','Mode de langage'], ['code.plainText','Plain Text','Texte brut'], ['preview.resize','Resize preview panel','Redimensionner le panneau d’aperçu'], ['preview.live','Live preview','Aperçu en direct'], ['preview.refresh','Refresh preview','Actualiser l’aperçu'], ['preview.expand','Expand preview','Agrandir l’aperçu'], ['preview.close','Close preview','Fermer l’aperçu'], ['preview.frame','Code preview','Aperçu du code'], ['preview.console','Console','Console'],
-      ['text.untitled','Untitled document','Document sans titre'], ['text.documentTitle','Document title','Titre du document'], ['common.saved','Saved','Enregistré'], ['common.print','Print','Imprimer'], ['text.htmlDocument','HTML document','Document HTML'], ['text.plainText','Plain text','Texte brut'], ['text.wordDocument','Word-compatible .doc','Document .doc compatible avec Word'], ['text.toolbar','Formatting toolbar','Barre d’outils de mise en forme'], ['text.paragraphStyle','Paragraph style','Style de paragraphe'], ['text.normal','Normal text','Texte normal'], ['text.title','Title','Titre'], ['text.heading1','Heading 1','Titre 1'], ['text.heading2','Heading 2','Titre 2'], ['text.heading3','Heading 3','Titre 3'], ['text.fontFamily','Font family','Police'], ['text.bold','Bold','Gras'], ['text.italic','Italic','Italique'], ['text.underline','Underline','Souligné'], ['text.strike','Strikethrough','Barré'], ['text.color','Text color','Couleur du texte'], ['text.highlight','Highlight color','Couleur de surlignage'], ['text.alignLeft','Align left','Aligner à gauche'], ['text.alignCenter','Align center','Centrer'], ['text.alignRight','Align right','Aligner à droite'], ['text.justify','Justify','Justifier'], ['text.bullets','Bulleted list','Liste à puces'], ['text.numbered','Numbered list','Liste numérotée'], ['text.outdent','Decrease indent','Diminuer le retrait'], ['text.indent','Increase indent','Augmenter le retrait'], ['text.insertLink','Insert link','Insérer un lien'], ['text.removeLink','Remove link','Supprimer le lien'], ['text.clearFormat','Clear formatting','Effacer la mise en forme'], ['text.findDocument','Find in document','Rechercher dans le document'], ['text.replaceWith','Replace with','Remplacer par'], ['text.content','Document content','Contenu du document'],
-      ['common.cancel','Cancel','Annuler'], ['common.confirm','Confirm','Confirmer'], ['common.saving','Saving…','Enregistrement…'], ['common.modified','Modified','Modifié'], ['code.unsaved','Unsaved changes','Modifications non enregistrées']
-    ];
-    const TRANSLATIONS = { en: {}, fr: {} };
-    const SOURCE_TO_KEY = new Map();
-    LANGUAGE_ENTRIES.forEach(([key, en, fr]) => { TRANSLATIONS.en[key] = en; TRANSLATIONS.fr[key] = fr; SOURCE_TO_KEY.set(en, key); SOURCE_TO_KEY.set(fr, key); });
-    let currentLanguage = 'en';
-    const t = (key, values = {}) => {
-      let result = (TRANSLATIONS[currentLanguage] && TRANSLATIONS[currentLanguage][key]) || TRANSLATIONS.en[key] || key;
-      Object.entries(values).forEach(([name, value]) => { result = result.replaceAll(`{${name}}`, value); });
-      return result;
-    };
-    function tr(message) {
-      const source = String(message ?? '');
-      const key = SOURCE_TO_KEY.get(source);
-      if (key) return t(key);
-      if (currentLanguage !== 'fr') return source;
-      const exact = {
-        'No calculations yet':'Aucun calcul pour le moment', 'Completed results will appear here.':'Les résultats terminés apparaîtront ici.',
-        'Invalid calculation':'Calcul non valide', 'Memory cleared':'Mémoire effacée', 'Calculation history cleared':'Historique des calculs effacé',
-        'Missing closing parenthesis':'Parenthèse fermante manquante', 'Incomplete expression':'Expression incomplète', 'Check the expression':'Vérifiez l’expression', 'Result is outside the supported range':'Le résultat dépasse la plage prise en charge', 'Cannot divide by zero':'Division par zéro impossible',
-        'Factorial needs a non-negative integer':'La factorielle exige un entier positif ou nul', 'Factorial is limited to 170':'La factorielle est limitée à 170', 'asin accepts values from −1 to 1':'asin accepte les valeurs de −1 à 1', 'acos accepts values from −1 to 1':'acos accepte les valeurs de −1 à 1', 'Logarithm needs a positive value':'Le logarithme exige une valeur positive', 'Natural log needs a positive value':'Le logarithme naturel exige une valeur positive', 'Square root needs a non-negative value':'La racine carrée exige une valeur positive ou nulle',
-        '0 results':'0 résultat', 'Stored data could not be read. A safe workspace was restored.':'Les données enregistrées n’ont pas pu être lues. Un espace de travail sûr a été restauré.',
-        'This browser could not save your latest changes.':'Ce navigateur n’a pas pu enregistrer vos dernières modifications.', 'The file could not be downloaded.':'Le fichier n’a pas pu être téléchargé.',
-        'Enhanced syntax highlighting is unavailable; the editor is using its reliable fallback.':'La coloration syntaxique avancée est indisponible ; l’éditeur utilise son mode de secours fiable.',
-        'Enter a file name.':'Saisissez un nom de fichier.', 'A file with that name already exists.':'Un fichier portant ce nom existe déjà.', 'File renamed':'Fichier renommé', 'File deleted':'Fichier supprimé',
-        'Preview could not run':'Impossible d’exécuter l’aperçu', 'Preview could not run. Check the console.':'Impossible d’exécuter l’aperçu. Consultez la console.',
-        'That formatting action is not supported by this browser.':'Cette action de mise en forme n’est pas prise en charge par ce navigateur.', 'Enter a valid http, https, or email link.':'Saisissez un lien HTTP, HTTPS ou une adresse courriel valide.',
-        'Document downloaded':'Document téléchargé', 'Document saved':'Document enregistré', 'Restore preview':'Rétablir l’aperçu',
-        'Create a new file':'Créer un fichier', 'Choose a name and editing mode.':'Choisissez un nom et un mode d’édition.', 'Create file':'Créer le fichier', 'File name':'Nom du fichier',
-        'Clear calculation history?':'Effacer l’historique des calculs ?', 'This removes all saved calculations from this browser.':'Cette action supprime du navigateur tous les calculs enregistrés.', 'Clear history':'Effacer l’historique',
-        'Rename file':'Renommer le fichier', 'Update the file name or its editing mode.':'Modifiez le nom du fichier ou son mode d’édition.', 'This removes the virtual file from this browser.':'Cette action supprime le fichier virtuel de ce navigateur.', 'Delete file':'Supprimer le fichier',
-        'Insert link':'Insérer un lien', 'Enter a secure web address for the selected text.':'Saisissez une adresse Web sécurisée pour le texte sélectionné.', 'Web address':'Adresse Web'
-      };
-      if (exact[source]) return exact[source];
-      let match;
-      if ((match = source.match(/^(\d+) of (\d+)$/))) return `${match[1]} sur ${match[2]}`;
-      if ((match = source.match(/^(\d+) results?$/))) return `${match[1]} résultat${match[1] === '1' ? '' : 's'}`;
-      if ((match = source.match(/^(\d+) words?$/))) return `${match[1]} mot${match[1] === '1' ? '' : 's'}`;
-      if ((match = source.match(/^(\d+) characters?$/))) return `${match[1]} caractère${match[1] === '1' ? '' : 's'}`;
-      if ((match = source.match(/^(\d+) replacements? made$/))) return `${match[1]} remplacement${match[1] === '1' ? '' : 's'} effectué${match[1] === '1' ? '' : 's'}`;
-      if ((match = source.match(/^Delete (.+)\?$/))) return `Supprimer ${match[1]} ?`;
-      if ((match = source.match(/^Unknown symbol “(.+)”$/))) return `Symbole inconnu « ${match[1]} »`;
-      if ((match = source.match(/^Unknown function “(.+)”$/))) return `Fonction inconnue « ${match[1]} »`;
-      if ((match = source.match(/^Memory: (.+)$/))) return `Mémoire : ${match[1]}`;
-      if ((match = source.match(/^Reuse (.+)$/))) return `Réutiliser ${match[1]}`;
-      if ((match = source.match(/^(.+) saved$/))) return `${match[1]} enregistré`;
-      if ((match = source.match(/^(.+) downloaded$/))) return `${match[1]} téléchargé`;
-      if ((match = source.match(/^Spaces: (\d+)$/))) return `Espaces : ${match[1]}`;
-      if ((match = source.match(/^Ln (\d+), Col (\d+)$/))) return `Lig. ${match[1]}, Col. ${match[2]}`;
-      return source;
-    }
-    function translateInterface(root = document) {
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-      const nodes = [];
-      while (walker.nextNode()) nodes.push(walker.currentNode);
-      nodes.forEach(node => {
-        if (node.parentElement && node.parentElement.closest('script,style,[contenteditable="true"],#language-gate')) return;
-        const raw = node.nodeValue; const trimmed = raw.trim(); const key = SOURCE_TO_KEY.get(trimmed);
-        if (key) node.nodeValue = raw.replace(trimmed, t(key));
-      });
-      root.querySelectorAll?.('[aria-label],[title],[placeholder]').forEach(element => ['aria-label','title','placeholder'].forEach(attr => {
-        if (!element.hasAttribute(attr)) return; const key = SOURCE_TO_KEY.get(element.getAttribute(attr)); if (key) element.setAttribute(attr, t(key));
-      }));
-    }
-    function applyLanguage(language, persist = true) {
-      currentLanguage = ['en','fr'].includes(language) ? language : 'en';
-      document.documentElement.lang = currentLanguage;
-      if (persist) { try { localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage); } catch (_) {} }
-      translateInterface();
-      const setting = document.getElementById('language-setting'); if (setting) setting.value = currentLanguage;
-      document.dispatchEvent(new CustomEvent('elowen:languagechange', { detail: { language: currentLanguage } }));
-    }
-    let savedLanguage = null;
-    try { savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch (_) {}
-    if (['en','fr'].includes(savedLanguage)) applyLanguage(savedLanguage, false);
-    window.addEventListener('DOMContentLoaded', () => {
-      if (['en','fr'].includes(savedLanguage)) applyLanguage(savedLanguage, false);
-      else { const gate = document.getElementById('language-gate'); gate.hidden = false; gate.querySelector('[data-language-choice="en"]').focus(); }
-      document.querySelectorAll('[data-language-choice]').forEach(button => button.addEventListener('click', () => { applyLanguage(button.dataset.languageChoice); document.getElementById('language-gate').hidden = true; }));
-      document.getElementById('language-setting')?.addEventListener('change', event => applyLanguage(event.target.value));
-    });
 
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -716,8 +654,902 @@
     const STORAGE = {
       calculator: 'elowen.calculator.v1',
       code: 'elowen.codeWorkspace.v1',
-      document: 'elowen.document.v1'
+      document: 'elowen.document.v1',
+      language: 'elowen.language.v1'
     };
+    const SUPPORTED_LANGUAGES = ['en', 'fr'];
+    const browserLanguage = (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+
+    function readLanguagePreference() {
+      try {
+        const saved = localStorage.getItem(STORAGE.language);
+        return SUPPORTED_LANGUAGES.includes(saved) ? saved : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    const savedLanguage = readLanguagePreference();
+    let currentLanguage = savedLanguage || browserLanguage;
+
+    const TRANSLATIONS = {
+      en: {
+        'meta.description': 'Elowen — a calm desktop workspace for calculation, code, and writing.',
+        'desktop.title': 'Elowen is designed for desktop displays in landscape orientation.',
+        'desktop.description': 'Open this workspace on a laptop or desktop and widen the browser window.',
+        'language.prompt.title': 'Choose your language',
+        'language.prompt.description': 'You can change this later in Settings.',
+        'language.english': 'English',
+        'language.french': 'Français',
+        'language.changed': 'Interface language changed to {language}',
+        'language.saveError': 'Your language choice could not be saved on this device.',
+        'settings.title': 'Settings',
+        'settings.description': 'Changes are applied immediately and saved on this device.',
+        'settings.language': 'Language',
+        'settings.close': 'Close',
+        'nav.home': 'Elowen home',
+        'nav.back': 'Back to Elowen home',
+        'nav.backTitle': 'Back to Home',
+        'nav.navigate': 'navigate',
+        'nav.open': 'open',
+        'home.searchPlaceholder': 'Search Elowen tools…',
+        'home.clearSearch': 'Clear search',
+        'home.eyebrow': 'Your quiet workspace',
+        'home.title': 'Three tools. One clear rhythm.',
+        'home.description': 'Calculate, build, and write without leaving your browser. Your work stays on this device.',
+        'home.toolsLabel': 'Elowen tools',
+        'home.calculator.title': 'Scientific Calculator',
+        'home.calculator.description': 'Advanced calculations, functions, constants, and history.',
+        'home.calculator.open': 'Open calculator',
+        'home.calculator.search': 'scientific calculator advanced calculations functions constants history math',
+        'home.code.title': 'Code Editor',
+        'home.code.description': 'Write, edit, preview, and manage code directly in your browser.',
+        'home.code.open': 'Open editor',
+        'home.code.search': 'code editor html css javascript json markdown plain text preview console programming',
+        'home.text.title': 'Text Editor',
+        'home.text.description': 'Create and format rich documents in a distraction-free workspace.',
+        'home.text.open': 'Open editor',
+        'home.text.search': 'text editor rich document writing formatting word processor',
+        'home.empty.title': 'No tools found.',
+        'home.empty.description': 'Try “code”, “calculator”, or “text”.',
+        'home.footer.workspace': 'Elowen workspace',
+        'home.footer.privacy': 'Stored locally · No account required',
+        'view.calculator': 'Scientific Calculator',
+        'view.code': 'Code Editor',
+        'view.text': 'Text Editor',
+        'dialog.cancel': 'Cancel',
+        'dialog.confirm': 'Confirm',
+        'storage.readError': 'Stored data could not be read. A safe workspace was restored.',
+        'storage.writeError': 'This browser could not save your latest changes.',
+        'download.error': 'The file could not be downloaded.',
+        'app.recoveredError': 'Elowen recovered from an error: {message}',
+        'calc.subtitle': 'Natural keyboard input supported',
+        'calc.history': 'History',
+        'calc.angleMode': 'Angle mode',
+        'calc.keypad': 'Calculator keypad',
+        'calc.expression': 'Expression',
+        'calc.result': 'Result',
+        'calc.memoryControls': 'Memory controls',
+        'calc.memory.clear': 'Clear memory',
+        'calc.memory.recall': 'Recall memory',
+        'calc.memory.add': 'Add to memory',
+        'calc.memory.subtract': 'Subtract from memory',
+        'calc.memory.store': 'Store in memory',
+        'calc.functions': 'Scientific functions',
+        'calc.operations': 'Basic operations',
+        'calc.backspace': 'Backspace',
+        'calc.answer': 'Ans',
+        'calc.historyLabel': 'Calculation history',
+        'calc.history.clear': 'Clear',
+        'calc.history.emptyTitle': 'No calculations yet',
+        'calc.history.emptyDescription': 'Completed results will appear here.',
+        'calc.history.reuse': 'Reuse {result}',
+        'calc.memory.cleared': 'Memory cleared',
+        'calc.memory.value': 'Memory: {value}',
+        'calc.history.confirmTitle': 'Clear calculation history?',
+        'calc.history.confirmDescription': 'This removes all saved calculations from this browser.',
+        'calc.history.confirm': 'Clear history',
+        'calc.history.cleared': 'Calculation history cleared',
+        'calc.error.generic': 'Error',
+        'calc.error.invalid': 'Invalid calculation',
+        'calc.error.unknownSymbol': 'Unknown symbol “{symbol}”',
+        'calc.error.missingParenthesis': 'Missing closing parenthesis',
+        'calc.error.incomplete': 'Incomplete expression',
+        'calc.error.checkExpression': 'Check the expression',
+        'calc.error.range': 'Result is outside the supported range',
+        'calc.error.divideZero': 'Cannot divide by zero',
+        'calc.error.factorialInteger': 'Factorial needs a non-negative integer',
+        'calc.error.factorialLimit': 'Factorial is limited to 170',
+        'calc.error.asinRange': 'asin accepts values from −1 to 1',
+        'calc.error.acosRange': 'acos accepts values from −1 to 1',
+        'calc.error.logPositive': 'Logarithm needs a positive value',
+        'calc.error.lnPositive': 'Natural log needs a positive value',
+        'calc.error.sqrtNonNegative': 'Square root needs a non-negative value',
+        'calc.error.unknownFunction': 'Unknown function “{name}”',
+        'code.subtitle.browser': 'Browser workspace',
+        'code.subtitle.unsaved': 'Unsaved changes',
+        'code.save': 'Save',
+        'code.run': 'Run',
+        'code.toolbarLabel': 'Code editor toolbar',
+        'code.files': 'Files',
+        'code.toggleFiles': 'Toggle files',
+        'code.undo': 'Undo',
+        'code.redo': 'Redo',
+        'code.find': 'Find',
+        'code.findShortcut': 'Find (Ctrl/Cmd+F)',
+        'code.replace': 'Replace',
+        'code.replaceShortcut': 'Find and replace (Ctrl/Cmd+H)',
+        'code.comment': 'Comment',
+        'code.commentShortcut': 'Toggle comment (Ctrl/Cmd+/)',
+        'code.download': 'Download',
+        'code.downloadCurrent': 'Download current file',
+        'code.preview': 'Preview',
+        'code.togglePreview': 'Toggle preview',
+        'code.settings': 'Editor settings',
+        'code.settings.fontSize': 'Font size',
+        'code.settings.tabSize': 'Tab size',
+        'code.settings.spaces': '{count} spaces',
+        'code.settings.wordWrap': 'Word wrap',
+        'code.settings.toggleWordWrap': 'Toggle word wrap',
+        'code.settings.autoSave': 'Auto-save',
+        'code.settings.toggleAutoSave': 'Toggle auto-save',
+        'code.explorer': 'Files',
+        'code.newFile': 'New file',
+        'code.rename': 'Rename',
+        'code.delete': 'Delete',
+        'code.resizeFiles': 'Resize file panel',
+        'code.editingArea': 'Code editing area',
+        'code.findReplace': 'Find and replace',
+        'code.findPlaceholder': 'Find',
+        'code.findText': 'Find text',
+        'code.replacePlaceholder': 'Replace',
+        'code.replacementText': 'Replacement text',
+        'code.results.none': '0 results',
+        'code.results.position': '{current} of {total}',
+        'code.previousMatch': 'Previous match',
+        'code.nextMatch': 'Next match',
+        'code.replaceAll': 'All',
+        'code.closeFind': 'Close find',
+        'code.editorLabel': 'Code editor',
+        'code.languageMode': 'Language mode',
+        'code.mode.text': 'Plain Text',
+        'code.cursor': 'Ln {line}, Col {column}',
+        'code.indent': 'Spaces: {count}',
+        'code.saved': 'Saved',
+        'code.saving': 'Saving…',
+        'code.modified': 'Modified',
+        'code.resizePreview': 'Resize preview panel',
+        'code.livePreview': 'Live preview',
+        'code.refreshPreview': 'Refresh preview',
+        'code.expandPreview': 'Expand preview',
+        'code.restorePreview': 'Restore preview',
+        'code.closePreview': 'Close preview',
+        'code.previewFrame': 'Code preview',
+        'code.console': 'Console',
+        'code.console.clear': 'Clear',
+        'code.console.info': 'INFO',
+        'code.console.warn': 'WARN',
+        'code.console.error': 'ERROR',
+        'code.console.log': 'LOG',
+        'code.file.modified': 'Modified',
+        'code.file.createTitle': 'Create a new file',
+        'code.file.createDescription': 'Choose a name and editing mode.',
+        'code.file.createConfirm': 'Create file',
+        'code.file.name': 'File name',
+        'code.file.language': 'Language',
+        'code.file.untitledHtml': 'untitled.html',
+        'code.file.untitledText': 'untitled.txt',
+        'code.file.enterName': 'Enter a file name.',
+        'code.file.exists': 'A file with that name already exists.',
+        'code.file.renameTitle': 'Rename file',
+        'code.file.renameDescription': 'Update the file name or its editing mode.',
+        'code.file.renameConfirm': 'Rename',
+        'code.file.renamed': 'File renamed',
+        'code.file.deleteTitle': 'Delete {name}?',
+        'code.file.deleteDescription': 'This removes the virtual file from this browser.',
+        'code.file.deleteConfirm': 'Delete file',
+        'code.file.deleted': 'File deleted',
+        'code.file.saved': '{name} saved',
+        'code.file.downloaded': '{name} downloaded',
+        'code.replacements.one': '1 replacement made',
+        'code.replacements.other': '{count} replacements made',
+        'code.fallback': 'Enhanced syntax highlighting is unavailable; the editor is using its reliable fallback.',
+        'code.preview.fallbackTitle': 'Preview',
+        'code.preview.fallbackDescription': 'Add an HTML file to begin.',
+        'code.preview.running': 'Running preview…',
+        'code.preview.ready': 'Preview ready',
+        'code.preview.runError': 'Preview could not run',
+        'code.preview.runErrorToast': 'Preview could not run. Check the console.',
+        'code.preview.unhandled': 'Unhandled promise rejection:',
+        'code.preview.at': 'at',
+        'code.default.eyebrow': 'A small beginning',
+        'code.default.title': 'Hello from Elowen.',
+        'code.default.description': 'Edit the HTML, CSS, or JavaScript, then press Run.',
+        'code.default.button': 'Say hello',
+        'code.default.console': 'Hello from the preview console.',
+        'code.default.buttonDone': 'Hello, Elowen!',
+        'text.untitled': 'Untitled document',
+        'text.documentTitle': 'Document title',
+        'text.saved': 'Saved',
+        'text.saving': 'Saving…',
+        'text.find': 'Find',
+        'text.print': 'Print',
+        'text.download': 'Download',
+        'text.export.html': 'HTML document',
+        'text.export.text': 'Plain text',
+        'text.export.doc': 'Word-compatible .doc',
+        'text.formattingToolbar': 'Formatting toolbar',
+        'text.paragraphStyle': 'Paragraph style',
+        'text.style.normal': 'Normal text',
+        'text.style.title': 'Title',
+        'text.style.heading1': 'Heading 1',
+        'text.style.heading2': 'Heading 2',
+        'text.style.heading3': 'Heading 3',
+        'text.fontFamily': 'Font family',
+        'text.fontSize': 'Font size',
+        'text.bold': 'Bold',
+        'text.italic': 'Italic',
+        'text.underline': 'Underline',
+        'text.strikethrough': 'Strikethrough',
+        'text.textColor': 'Text color',
+        'text.highlightColor': 'Highlight color',
+        'text.alignLeft': 'Align left',
+        'text.alignCenter': 'Align center',
+        'text.alignRight': 'Align right',
+        'text.justify': 'Justify',
+        'text.bulletedList': 'Bulleted list',
+        'text.numberedList': 'Numbered list',
+        'text.decreaseIndent': 'Decrease indent',
+        'text.increaseIndent': 'Increase indent',
+        'text.insertLink': 'Insert link',
+        'text.removeLink': 'Remove link',
+        'text.clearFormatting': 'Clear formatting',
+        'text.findReplace': 'Find and replace',
+        'text.findInDocument': 'Find in document',
+        'text.replaceWith': 'Replace with',
+        'text.documentContent': 'Document content',
+        'text.placeholder': 'Begin your document…',
+        'text.results.none': '0 results',
+        'text.results.position': '{current} of {total}',
+        'text.words.one': '{count} word',
+        'text.words.other': '{count} words',
+        'text.characters.one': '{count} character',
+        'text.characters.other': '{count} characters',
+        'text.formatUnsupported': 'That formatting action is not supported by this browser.',
+        'text.link.title': 'Insert link',
+        'text.link.description': 'Enter a secure web address for the selected text.',
+        'text.link.confirm': 'Insert link',
+        'text.link.address': 'Web address',
+        'text.link.invalid': 'Enter a valid http, https, or email link.',
+        'text.replacements.one': '1 replacement made',
+        'text.replacements.other': '{count} replacements made',
+        'text.downloaded': 'Document downloaded',
+        'text.documentSaved': 'Document saved'
+      },
+      fr: {
+        'meta.description': 'Elowen — un espace de travail serein pour calculer, programmer et écrire.',
+        'desktop.title': 'Elowen est conçu pour les écrans d’ordinateur en orientation paysage.',
+        'desktop.description': 'Ouvrez cet espace sur un ordinateur portable ou de bureau, puis élargissez la fenêtre du navigateur.',
+        'language.prompt.title': 'Choisissez votre langue',
+        'language.prompt.description': 'Vous pourrez modifier ce choix plus tard dans les réglages.',
+        'language.english': 'English',
+        'language.french': 'Français',
+        'language.changed': 'Langue de l’interface : {language}',
+        'language.saveError': 'Votre choix de langue n’a pas pu être enregistré sur cet appareil.',
+        'settings.title': 'Réglages',
+        'settings.description': 'Les changements sont appliqués immédiatement et enregistrés sur cet appareil.',
+        'settings.language': 'Langue',
+        'settings.close': 'Fermer',
+        'nav.home': 'Accueil d’Elowen',
+        'nav.back': 'Retour à l’accueil d’Elowen',
+        'nav.backTitle': 'Retour à l’accueil',
+        'nav.navigate': 'naviguer',
+        'nav.open': 'ouvrir',
+        'home.searchPlaceholder': 'Rechercher un outil Elowen…',
+        'home.clearSearch': 'Effacer la recherche',
+        'home.eyebrow': 'Votre espace de sérénité',
+        'home.title': 'Trois outils. Un rythme fluide.',
+        'home.description': 'Calculez, programmez et écrivez sans quitter votre navigateur. Votre travail reste sur cet appareil.',
+        'home.toolsLabel': 'Outils Elowen',
+        'home.calculator.title': 'Calculatrice scientifique',
+        'home.calculator.description': 'Calculs avancés, fonctions, constantes et historique.',
+        'home.calculator.open': 'Ouvrir la calculatrice',
+        'home.calculator.search': 'calculatrice scientifique calculs avancés fonctions constantes historique mathématiques maths',
+        'home.code.title': 'Éditeur de code',
+        'home.code.description': 'Écrivez, modifiez, prévisualisez et gérez du code directement dans votre navigateur.',
+        'home.code.open': 'Ouvrir l’éditeur',
+        'home.code.search': 'éditeur code html css javascript json markdown texte brut aperçu console programmation',
+        'home.text.title': 'Éditeur de texte',
+        'home.text.description': 'Créez et mettez en forme des documents riches dans un espace sans distraction.',
+        'home.text.open': 'Ouvrir l’éditeur',
+        'home.text.search': 'éditeur texte document riche écriture mise en forme traitement de texte',
+        'home.empty.title': 'Aucun outil trouvé.',
+        'home.empty.description': 'Essayez « code », « calculatrice » ou « texte ».',
+        'home.footer.workspace': 'Espace de travail Elowen',
+        'home.footer.privacy': 'Enregistré localement · Aucun compte requis',
+        'view.calculator': 'Calculatrice scientifique',
+        'view.code': 'Éditeur de code',
+        'view.text': 'Éditeur de texte',
+        'dialog.cancel': 'Annuler',
+        'dialog.confirm': 'Confirmer',
+        'storage.readError': 'Les données enregistrées n’ont pas pu être lues. Un espace de travail sûr a été restauré.',
+        'storage.writeError': 'Ce navigateur n’a pas pu enregistrer vos dernières modifications.',
+        'download.error': 'Le fichier n’a pas pu être téléchargé.',
+        'app.recoveredError': 'Elowen a récupéré après une erreur : {message}',
+        'calc.subtitle': 'Saisie au clavier prise en charge',
+        'calc.history': 'Historique',
+        'calc.angleMode': 'Unité d’angle',
+        'calc.keypad': 'Clavier de la calculatrice',
+        'calc.expression': 'Expression',
+        'calc.result': 'Résultat',
+        'calc.memoryControls': 'Commandes de mémoire',
+        'calc.memory.clear': 'Effacer la mémoire',
+        'calc.memory.recall': 'Rappeler la mémoire',
+        'calc.memory.add': 'Ajouter à la mémoire',
+        'calc.memory.subtract': 'Soustraire de la mémoire',
+        'calc.memory.store': 'Enregistrer en mémoire',
+        'calc.functions': 'Fonctions scientifiques',
+        'calc.operations': 'Opérations de base',
+        'calc.backspace': 'Effacer le dernier caractère',
+        'calc.answer': 'Rép.',
+        'calc.historyLabel': 'Historique des calculs',
+        'calc.history.clear': 'Effacer',
+        'calc.history.emptyTitle': 'Aucun calcul pour le moment',
+        'calc.history.emptyDescription': 'Les résultats terminés s’afficheront ici.',
+        'calc.history.reuse': 'Réutiliser {result}',
+        'calc.memory.cleared': 'Mémoire effacée',
+        'calc.memory.value': 'Mémoire : {value}',
+        'calc.history.confirmTitle': 'Effacer l’historique des calculs ?',
+        'calc.history.confirmDescription': 'Tous les calculs enregistrés seront supprimés de ce navigateur.',
+        'calc.history.confirm': 'Effacer l’historique',
+        'calc.history.cleared': 'Historique des calculs effacé',
+        'calc.error.generic': 'Erreur',
+        'calc.error.invalid': 'Calcul non valide',
+        'calc.error.unknownSymbol': 'Symbole inconnu « {symbol} »',
+        'calc.error.missingParenthesis': 'Parenthèse fermante manquante',
+        'calc.error.incomplete': 'Expression incomplète',
+        'calc.error.checkExpression': 'Vérifiez l’expression',
+        'calc.error.range': 'Le résultat dépasse la plage prise en charge',
+        'calc.error.divideZero': 'Division par zéro impossible',
+        'calc.error.factorialInteger': 'La factorielle nécessite un entier positif ou nul',
+        'calc.error.factorialLimit': 'La factorielle est limitée à 170',
+        'calc.error.asinRange': 'asin accepte les valeurs de −1 à 1',
+        'calc.error.acosRange': 'acos accepte les valeurs de −1 à 1',
+        'calc.error.logPositive': 'Le logarithme nécessite une valeur positive',
+        'calc.error.lnPositive': 'Le logarithme naturel nécessite une valeur positive',
+        'calc.error.sqrtNonNegative': 'La racine carrée nécessite une valeur positive ou nulle',
+        'calc.error.unknownFunction': 'Fonction inconnue « {name} »',
+        'code.subtitle.browser': 'Espace de travail dans le navigateur',
+        'code.subtitle.unsaved': 'Modifications non enregistrées',
+        'code.save': 'Enregistrer',
+        'code.run': 'Exécuter',
+        'code.toolbarLabel': 'Barre d’outils de l’éditeur de code',
+        'code.files': 'Fichiers',
+        'code.toggleFiles': 'Afficher ou masquer les fichiers',
+        'code.undo': 'Annuler',
+        'code.redo': 'Rétablir',
+        'code.find': 'Rechercher',
+        'code.findShortcut': 'Rechercher (Ctrl/Cmd+F)',
+        'code.replace': 'Remplacer',
+        'code.replaceShortcut': 'Rechercher et remplacer (Ctrl/Cmd+H)',
+        'code.comment': 'Commenter',
+        'code.commentShortcut': 'Ajouter ou retirer un commentaire (Ctrl/Cmd+/)',
+        'code.download': 'Télécharger',
+        'code.downloadCurrent': 'Télécharger le fichier actuel',
+        'code.preview': 'Aperçu',
+        'code.togglePreview': 'Afficher ou masquer l’aperçu',
+        'code.settings': 'Réglages de l’éditeur',
+        'code.settings.fontSize': 'Taille du texte',
+        'code.settings.tabSize': 'Taille de tabulation',
+        'code.settings.spaces': '{count} espaces',
+        'code.settings.wordWrap': 'Retour à la ligne',
+        'code.settings.toggleWordWrap': 'Activer ou désactiver le retour à la ligne',
+        'code.settings.autoSave': 'Enregistrement automatique',
+        'code.settings.toggleAutoSave': 'Activer ou désactiver l’enregistrement automatique',
+        'code.explorer': 'Fichiers',
+        'code.newFile': 'Nouveau fichier',
+        'code.rename': 'Renommer',
+        'code.delete': 'Supprimer',
+        'code.resizeFiles': 'Redimensionner le panneau des fichiers',
+        'code.editingArea': 'Zone d’édition du code',
+        'code.findReplace': 'Rechercher et remplacer',
+        'code.findPlaceholder': 'Rechercher',
+        'code.findText': 'Texte à rechercher',
+        'code.replacePlaceholder': 'Remplacer',
+        'code.replacementText': 'Texte de remplacement',
+        'code.results.none': '0 résultat',
+        'code.results.position': '{current} sur {total}',
+        'code.previousMatch': 'Résultat précédent',
+        'code.nextMatch': 'Résultat suivant',
+        'code.replaceAll': 'Tout',
+        'code.closeFind': 'Fermer la recherche',
+        'code.editorLabel': 'Éditeur de code',
+        'code.languageMode': 'Langage du fichier',
+        'code.mode.text': 'Texte brut',
+        'code.cursor': 'Ligne {line}, col. {column}',
+        'code.indent': 'Espaces : {count}',
+        'code.saved': 'Enregistré',
+        'code.saving': 'Enregistrement…',
+        'code.modified': 'Modifié',
+        'code.resizePreview': 'Redimensionner le panneau d’aperçu',
+        'code.livePreview': 'Aperçu en direct',
+        'code.refreshPreview': 'Actualiser l’aperçu',
+        'code.expandPreview': 'Agrandir l’aperçu',
+        'code.restorePreview': 'Rétablir l’aperçu',
+        'code.closePreview': 'Fermer l’aperçu',
+        'code.previewFrame': 'Aperçu du code',
+        'code.console': 'Console',
+        'code.console.clear': 'Effacer',
+        'code.console.info': 'INFO',
+        'code.console.warn': 'AVERT.',
+        'code.console.error': 'ERREUR',
+        'code.console.log': 'JOURNAL',
+        'code.file.modified': 'Modifié',
+        'code.file.createTitle': 'Créer un fichier',
+        'code.file.createDescription': 'Choisissez un nom et un langage d’édition.',
+        'code.file.createConfirm': 'Créer le fichier',
+        'code.file.name': 'Nom du fichier',
+        'code.file.language': 'Langage',
+        'code.file.untitledHtml': 'sans-titre.html',
+        'code.file.untitledText': 'sans-titre.txt',
+        'code.file.enterName': 'Saisissez un nom de fichier.',
+        'code.file.exists': 'Un fichier portant ce nom existe déjà.',
+        'code.file.renameTitle': 'Renommer le fichier',
+        'code.file.renameDescription': 'Modifiez le nom du fichier ou son langage d’édition.',
+        'code.file.renameConfirm': 'Renommer',
+        'code.file.renamed': 'Fichier renommé',
+        'code.file.deleteTitle': 'Supprimer {name} ?',
+        'code.file.deleteDescription': 'Ce fichier virtuel sera supprimé de ce navigateur.',
+        'code.file.deleteConfirm': 'Supprimer le fichier',
+        'code.file.deleted': 'Fichier supprimé',
+        'code.file.saved': '{name} enregistré',
+        'code.file.downloaded': '{name} téléchargé',
+        'code.replacements.one': '1 remplacement effectué',
+        'code.replacements.other': '{count} remplacements effectués',
+        'code.fallback': 'La coloration syntaxique avancée n’est pas disponible ; l’éditeur utilise son mode de secours fiable.',
+        'code.preview.fallbackTitle': 'Aperçu',
+        'code.preview.fallbackDescription': 'Ajoutez un fichier HTML pour commencer.',
+        'code.preview.running': 'Exécution de l’aperçu…',
+        'code.preview.ready': 'Aperçu prêt',
+        'code.preview.runError': 'Impossible d’exécuter l’aperçu',
+        'code.preview.runErrorToast': 'Impossible d’exécuter l’aperçu. Consultez la console.',
+        'code.preview.unhandled': 'Rejet de promesse non géré :',
+        'code.preview.at': 'à',
+        'code.default.eyebrow': 'Un nouveau départ',
+        'code.default.title': 'Bonjour d’Elowen.',
+        'code.default.description': 'Modifiez le HTML, le CSS ou le JavaScript, puis cliquez sur Exécuter.',
+        'code.default.button': 'Dire bonjour',
+        'code.default.console': 'Bonjour depuis la console de l’aperçu.',
+        'code.default.buttonDone': 'Bonjour, Elowen !',
+        'text.untitled': 'Document sans titre',
+        'text.documentTitle': 'Titre du document',
+        'text.saved': 'Enregistré',
+        'text.saving': 'Enregistrement…',
+        'text.find': 'Rechercher',
+        'text.print': 'Imprimer',
+        'text.download': 'Télécharger',
+        'text.export.html': 'Document HTML',
+        'text.export.text': 'Texte brut',
+        'text.export.doc': 'Format .doc compatible avec Word',
+        'text.formattingToolbar': 'Barre d’outils de mise en forme',
+        'text.paragraphStyle': 'Style de paragraphe',
+        'text.style.normal': 'Texte normal',
+        'text.style.title': 'Titre',
+        'text.style.heading1': 'Titre 1',
+        'text.style.heading2': 'Titre 2',
+        'text.style.heading3': 'Titre 3',
+        'text.fontFamily': 'Police',
+        'text.fontSize': 'Taille du texte',
+        'text.bold': 'Gras',
+        'text.italic': 'Italique',
+        'text.underline': 'Souligné',
+        'text.strikethrough': 'Barré',
+        'text.textColor': 'Couleur du texte',
+        'text.highlightColor': 'Couleur de surlignage',
+        'text.alignLeft': 'Aligner à gauche',
+        'text.alignCenter': 'Centrer',
+        'text.alignRight': 'Aligner à droite',
+        'text.justify': 'Justifier',
+        'text.bulletedList': 'Liste à puces',
+        'text.numberedList': 'Liste numérotée',
+        'text.decreaseIndent': 'Diminuer le retrait',
+        'text.increaseIndent': 'Augmenter le retrait',
+        'text.insertLink': 'Insérer un lien',
+        'text.removeLink': 'Supprimer le lien',
+        'text.clearFormatting': 'Effacer la mise en forme',
+        'text.findReplace': 'Rechercher et remplacer',
+        'text.findInDocument': 'Rechercher dans le document',
+        'text.replaceWith': 'Remplacer par',
+        'text.documentContent': 'Contenu du document',
+        'text.placeholder': 'Commencez votre document…',
+        'text.results.none': '0 résultat',
+        'text.results.position': '{current} sur {total}',
+        'text.words.one': '{count} mot',
+        'text.words.other': '{count} mots',
+        'text.characters.one': '{count} caractère',
+        'text.characters.other': '{count} caractères',
+        'text.formatUnsupported': 'Cette mise en forme n’est pas prise en charge par ce navigateur.',
+        'text.link.title': 'Insérer un lien',
+        'text.link.description': 'Saisissez une adresse web sécurisée pour le texte sélectionné.',
+        'text.link.confirm': 'Insérer le lien',
+        'text.link.address': 'Adresse web',
+        'text.link.invalid': 'Saisissez un lien http, https ou de courriel valide.',
+        'text.replacements.one': '1 remplacement effectué',
+        'text.replacements.other': '{count} remplacements effectués',
+        'text.downloaded': 'Document téléchargé',
+        'text.documentSaved': 'Document enregistré'
+      }
+    };
+
+    function t(key, variables = {}) {
+      const source = TRANSLATIONS[currentLanguage]?.[key] ?? TRANSLATIONS.en[key] ?? key;
+      return String(source).replace(/\{(\w+)\}/g, (match, name) => Object.prototype.hasOwnProperty.call(variables, name) ? String(variables[name]) : match);
+    }
+
+    function tp(oneKey, otherKey, count, variables = {}) {
+      const form = new Intl.PluralRules(currentLanguage).select(count) === 'one' ? oneKey : otherKey;
+      return t(form, { ...variables, count });
+    }
+
+    function setTranslatedText(selector, key) {
+      $$(selector).forEach(element => { element.textContent = t(key); });
+    }
+
+    function setTranslatedAttribute(selector, attribute, key) {
+      $$(selector).forEach(element => { element.setAttribute(attribute, t(key)); });
+    }
+
+    function setIconButtonLabel(selector, key) {
+      $$(selector).forEach(button => {
+        let label = $('[data-i18n-button-label]', button);
+        if (!label) {
+          Array.from(button.childNodes).filter(node => node.nodeType === Node.TEXT_NODE).forEach(node => node.remove());
+          label = document.createElement('span');
+          label.dataset.i18nButtonLabel = '';
+          button.appendChild(label);
+        }
+        label.textContent = t(key);
+      });
+    }
+
+    function applyStaticTranslations() {
+      const textBindings = [
+        ['.desktop-message h1', 'desktop.title'],
+        ['.desktop-message p', 'desktop.description'],
+        ['.header-note span:first-of-type', 'nav.navigate'],
+        ['.header-note span:last-of-type', 'nav.open'],
+        ['.home-intro .eyebrow', 'home.eyebrow'],
+        ['#home-title', 'home.title'],
+        ['.home-intro > p', 'home.description'],
+        ['#tool-calculator h2', 'home.calculator.title'],
+        ['#tool-calculator .tool-card-body > p', 'home.calculator.description'],
+        ['#tool-calculator .tool-open span', 'home.calculator.open'],
+        ['#tool-code h2', 'home.code.title'],
+        ['#tool-code .tool-card-body > p', 'home.code.description'],
+        ['#tool-code .tool-open span', 'home.code.open'],
+        ['#tool-text h2', 'home.text.title'],
+        ['#tool-text .tool-card-body > p', 'home.text.description'],
+        ['#tool-text .tool-open span', 'home.text.open'],
+        ['#empty-tools strong', 'home.empty.title'],
+        ['#empty-tools span', 'home.empty.description'],
+        ['.home-footer span:first-child', 'home.footer.workspace'],
+        ['.home-footer span:last-child', 'home.footer.privacy'],
+        ['#calculator-view .workspace-title h1', 'view.calculator'],
+        ['#calculator-view .workspace-title p', 'calc.subtitle'],
+        ['#history-toggle span', 'calc.history'],
+        ['[data-calc="char:ans"]', 'calc.answer'],
+        ['#history-panel .panel-heading h2', 'calc.historyLabel'],
+        ['#history-clear', 'calc.history.clear'],
+        ['#code-view .workspace-title h1', 'view.code'],
+        ['#code-save span', 'code.save'],
+        ['#code-run span', 'code.run'],
+        ['#explorer-toggle span', 'code.files'],
+        ['[data-code-command="undo"] span', 'code.undo'],
+        ['[data-code-command="redo"] span', 'code.redo'],
+        ['[data-code-command="find"] span', 'code.find'],
+        ['[data-code-command="replace"] span', 'code.replace'],
+        ['[data-code-command="comment"] span', 'code.comment'],
+        ['#download-code span', 'code.download'],
+        ['#preview-toggle span', 'code.preview'],
+        ['#settings-toggle span', 'settings.title'],
+        ['#settings-popover h3', 'code.settings'],
+        ['#font-size-label', 'code.settings.fontSize'],
+        ['#tab-size-label', 'code.settings.tabSize'],
+        ['#word-wrap-label', 'code.settings.wordWrap'],
+        ['#autosave-label', 'code.settings.autoSave'],
+        ['#editor-language-label', 'settings.language'],
+        ['#explorer .explorer-head > span', 'code.explorer'],
+        ['#rename-file', 'code.rename'],
+        ['#delete-file', 'code.delete'],
+        ['#code-replace-one', 'code.replace'],
+        ['#code-replace-all', 'code.replaceAll'],
+        ['#language-mode option[value="text"]', 'code.mode.text'],
+        ['.console-head span', 'code.console'],
+        ['#console-clear', 'code.console.clear'],
+        ['#text-find-toggle span', 'text.find'],
+        ['#text-print span', 'text.print'],
+        ['#text-export-toggle span', 'text.download'],
+        ['#block-style option[value="p"]', 'text.style.normal'],
+        ['#block-style option[value="h1"]', 'text.style.title'],
+        ['#block-style option[value="h2"]', 'text.style.heading1'],
+        ['#block-style option[value="h3"]', 'text.style.heading2'],
+        ['#block-style option[value="h4"]', 'text.style.heading3'],
+        ['#text-replace-one', 'code.replace'],
+        ['#text-replace-all', 'code.replaceAll'],
+        ['#modal-cancel', 'dialog.cancel'],
+        ['#app-settings-title', 'settings.title'],
+        ['#app-settings-description', 'settings.description'],
+        ['#app-language-label', 'settings.language'],
+        ['#app-settings-close', 'settings.close'],
+        ['#language-title', 'language.prompt.title'],
+        ['#language-description', 'language.prompt.description'],
+        ['.language-choice[data-language-choice="en"]', 'language.english'],
+        ['.language-choice[data-language-choice="fr"]', 'language.french']
+      ];
+      textBindings.forEach(([selector, key]) => setTranslatedText(selector, key));
+
+      setIconButtonLabel('#export-menu [data-export="html"]', 'text.export.html');
+      setIconButtonLabel('#export-menu [data-export="txt"]', 'text.export.text');
+      setIconButtonLabel('#export-menu [data-export="doc"]', 'text.export.doc');
+
+      applyTranslatedAttributes();
+      $('#meta-description').content = t('meta.description');
+      $('#tool-calculator').dataset.search = t('home.calculator.search');
+      $('#tool-code').dataset.search = t('home.code.search');
+      $('#tool-text').dataset.search = t('home.text.search');
+      $('#tab-size-setting option[value="2"]').textContent = t('code.settings.spaces', { count: 2 });
+      $('#tab-size-setting option[value="4"]').textContent = t('code.settings.spaces', { count: 4 });
+      $('#tab-size-setting option[value="8"]').textContent = t('code.settings.spaces', { count: 8 });
+      document.documentElement.style.setProperty('--document-placeholder', JSON.stringify(t('text.placeholder')));
+      $('#app-language-setting').value = currentLanguage;
+      $('#editor-language-setting').value = currentLanguage;
+      const previewActionKey = $('#preview-panel').classList.contains('expanded') ? 'code.restorePreview' : 'code.expandPreview';
+      $('#preview-expand').title = t(previewActionKey);
+      $('#preview-expand').setAttribute('aria-label', t(previewActionKey));
+    }
+
+    function applyTranslatedAttributes() {
+      const bindings = [
+        ['.home-header .brand', 'aria-label', 'nav.home'],
+        ['[data-open-app-settings]', 'aria-label', 'settings.title'],
+        ['[data-open-app-settings]', 'title', 'settings.title'],
+        ['#tool-search', 'placeholder', 'home.searchPlaceholder'],
+        ['#search-clear', 'aria-label', 'home.clearSearch'],
+        ['#search-clear', 'title', 'home.clearSearch'],
+        ['#tool-list', 'aria-label', 'home.toolsLabel'],
+        ['#calculator-view', 'aria-label', 'view.calculator'],
+        ['[data-back]', 'aria-label', 'nav.back'],
+        ['[data-back]', 'title', 'nav.backTitle'],
+        ['#calculator-view .segmented', 'aria-label', 'calc.angleMode'],
+        ['.calculator-panel', 'aria-label', 'calc.keypad'],
+        ['#calc-expression', 'aria-label', 'calc.expression'],
+        ['#calc-value', 'aria-label', 'calc.result'],
+        ['.calc-memory', 'aria-label', 'calc.memoryControls'],
+        ['[data-memory="mc"]', 'title', 'calc.memory.clear'],
+        ['[data-memory="mr"]', 'title', 'calc.memory.recall'],
+        ['[data-memory="mplus"]', 'title', 'calc.memory.add'],
+        ['[data-memory="mminus"]', 'title', 'calc.memory.subtract'],
+        ['[data-memory="ms"]', 'title', 'calc.memory.store'],
+        ['.science-grid', 'aria-label', 'calc.functions'],
+        ['.basic-grid', 'aria-label', 'calc.operations'],
+        ['[data-calc="backspace"]', 'aria-label', 'calc.backspace'],
+        ['#history-panel', 'aria-label', 'calc.historyLabel'],
+        ['#code-view', 'aria-label', 'view.code'],
+        ['.code-toolbar', 'aria-label', 'code.toolbarLabel'],
+        ['#explorer-toggle', 'title', 'code.toggleFiles'],
+        ['[data-code-command="undo"]', 'title', 'code.undo'],
+        ['[data-code-command="redo"]', 'title', 'code.redo'],
+        ['[data-code-command="find"]', 'title', 'code.findShortcut'],
+        ['[data-code-command="replace"]', 'title', 'code.replaceShortcut'],
+        ['[data-code-command="comment"]', 'title', 'code.commentShortcut'],
+        ['#download-code', 'title', 'code.downloadCurrent'],
+        ['#preview-toggle', 'title', 'code.togglePreview'],
+        ['#settings-toggle', 'title', 'code.settings'],
+        ['#wrap-setting', 'aria-label', 'code.settings.toggleWordWrap'],
+        ['#autosave-setting', 'aria-label', 'code.settings.toggleAutoSave'],
+        ['#explorer', 'aria-label', 'code.explorer'],
+        ['#new-file', 'title', 'code.newFile'],
+        ['#new-file', 'aria-label', 'code.newFile'],
+        ['#explorer-resizer', 'aria-label', 'code.resizeFiles'],
+        ['.editor-column', 'aria-label', 'code.editingArea'],
+        ['#code-find', 'aria-label', 'code.findReplace'],
+        ['#code-find-input', 'placeholder', 'code.findPlaceholder'],
+        ['#code-find-input', 'aria-label', 'code.findText'],
+        ['#code-replace-input', 'placeholder', 'code.replacePlaceholder'],
+        ['#code-replace-input', 'aria-label', 'code.replacementText'],
+        ['#code-find-prev', 'title', 'code.previousMatch'],
+        ['#code-find-prev', 'aria-label', 'code.previousMatch'],
+        ['#code-find-next', 'title', 'code.nextMatch'],
+        ['#code-find-next', 'aria-label', 'code.nextMatch'],
+        ['#code-find-close', 'title', 'settings.close'],
+        ['#code-find-close', 'aria-label', 'code.closeFind'],
+        ['#code-textarea', 'aria-label', 'code.editorLabel'],
+        ['#language-mode', 'aria-label', 'code.languageMode'],
+        ['#preview-resizer', 'aria-label', 'code.resizePreview'],
+        ['#preview-panel', 'aria-label', 'code.livePreview'],
+        ['#preview-refresh', 'title', 'code.refreshPreview'],
+        ['#preview-refresh', 'aria-label', 'code.refreshPreview'],
+        ['#preview-expand', 'title', 'code.expandPreview'],
+        ['#preview-expand', 'aria-label', 'code.expandPreview'],
+        ['#preview-close', 'title', 'code.closePreview'],
+        ['#preview-close', 'aria-label', 'code.closePreview'],
+        ['#preview-frame', 'title', 'code.previewFrame']
+      ];
+      bindings.forEach(([selector, attribute, key]) => setTranslatedAttribute(selector, attribute, key));
+      applyTranslatedTextEditorAttributes();
+    }
+
+    function applyTranslatedTextEditorAttributes() {
+      const bindings = [
+        ['#text-view', 'aria-label', 'view.text'],
+        ['#document-title', 'aria-label', 'text.documentTitle'],
+        ['#doc-toolbar', 'aria-label', 'text.formattingToolbar'],
+        ['#block-style', 'title', 'text.paragraphStyle'],
+        ['#block-style', 'aria-label', 'text.paragraphStyle'],
+        ['#font-family', 'title', 'text.fontFamily'],
+        ['#font-family', 'aria-label', 'text.fontFamily'],
+        ['#font-size', 'title', 'text.fontSize'],
+        ['#font-size', 'aria-label', 'text.fontSize'],
+        ['[data-doc-command="undo"]', 'title', 'code.undo'],
+        ['[data-doc-command="undo"]', 'aria-label', 'code.undo'],
+        ['[data-doc-command="redo"]', 'title', 'code.redo'],
+        ['[data-doc-command="redo"]', 'aria-label', 'code.redo'],
+        ['[data-doc-command="bold"]', 'title', 'text.bold'],
+        ['[data-doc-command="bold"]', 'aria-label', 'text.bold'],
+        ['[data-doc-command="italic"]', 'title', 'text.italic'],
+        ['[data-doc-command="italic"]', 'aria-label', 'text.italic'],
+        ['[data-doc-command="underline"]', 'title', 'text.underline'],
+        ['[data-doc-command="underline"]', 'aria-label', 'text.underline'],
+        ['[data-doc-command="strikeThrough"]', 'title', 'text.strikethrough'],
+        ['[data-doc-command="strikeThrough"]', 'aria-label', 'text.strikethrough'],
+        ['#text-color', 'aria-label', 'text.textColor'],
+        ['#highlight-color', 'aria-label', 'text.highlightColor'],
+        ['[data-doc-command="justifyLeft"]', 'title', 'text.alignLeft'],
+        ['[data-doc-command="justifyLeft"]', 'aria-label', 'text.alignLeft'],
+        ['[data-doc-command="justifyCenter"]', 'title', 'text.alignCenter'],
+        ['[data-doc-command="justifyCenter"]', 'aria-label', 'text.alignCenter'],
+        ['[data-doc-command="justifyRight"]', 'title', 'text.alignRight'],
+        ['[data-doc-command="justifyRight"]', 'aria-label', 'text.alignRight'],
+        ['[data-doc-command="justifyFull"]', 'title', 'text.justify'],
+        ['[data-doc-command="justifyFull"]', 'aria-label', 'text.justify'],
+        ['[data-doc-command="insertUnorderedList"]', 'title', 'text.bulletedList'],
+        ['[data-doc-command="insertUnorderedList"]', 'aria-label', 'text.bulletedList'],
+        ['[data-doc-command="insertOrderedList"]', 'title', 'text.numberedList'],
+        ['[data-doc-command="insertOrderedList"]', 'aria-label', 'text.numberedList'],
+        ['[data-doc-command="outdent"]', 'title', 'text.decreaseIndent'],
+        ['[data-doc-command="outdent"]', 'aria-label', 'text.decreaseIndent'],
+        ['[data-doc-command="indent"]', 'title', 'text.increaseIndent'],
+        ['[data-doc-command="indent"]', 'aria-label', 'text.increaseIndent'],
+        ['#insert-link', 'title', 'text.insertLink'],
+        ['#insert-link', 'aria-label', 'text.insertLink'],
+        ['[data-doc-command="unlink"]', 'title', 'text.removeLink'],
+        ['[data-doc-command="unlink"]', 'aria-label', 'text.removeLink'],
+        ['[data-doc-command="removeFormat"]', 'title', 'text.clearFormatting'],
+        ['[data-doc-command="removeFormat"]', 'aria-label', 'text.clearFormatting'],
+        ['#text-find', 'aria-label', 'text.findReplace'],
+        ['#text-find-input', 'placeholder', 'text.findInDocument'],
+        ['#text-find-input', 'aria-label', 'text.findInDocument'],
+        ['#text-replace-input', 'placeholder', 'text.replaceWith'],
+        ['#text-replace-input', 'aria-label', 'text.replaceWith'],
+        ['#text-find-prev', 'title', 'code.previousMatch'],
+        ['#text-find-prev', 'aria-label', 'code.previousMatch'],
+        ['#text-find-next', 'title', 'code.nextMatch'],
+        ['#text-find-next', 'aria-label', 'code.nextMatch'],
+        ['#text-find-close', 'title', 'settings.close'],
+        ['#text-find-close', 'aria-label', 'code.closeFind'],
+        ['#document-editor', 'aria-label', 'text.documentContent']
+      ];
+      bindings.forEach(([selector, attribute, key]) => setTranslatedAttribute(selector, attribute, key));
+      $('#text-color').closest('.color-control').title = t('text.textColor');
+      $('#highlight-color').closest('.color-control').title = t('text.highlightColor');
+    }
+
+    function updatePageTitle() {
+      const key = currentView === 'calculator' ? 'view.calculator' : currentView === 'code' ? 'view.code' : currentView === 'text' ? 'view.text' : '';
+      document.title = key ? `${t(key)} — Elowen` : 'Elowen';
+    }
+
+    function refreshLocalizedDynamicUI() {
+      if (documentTitleIsDefault) documentTitle.value = t('text.untitled');
+      if (codeUsesLocalizedDefaults && !codeInitialized) codeState = freshCodeState();
+      renderCalculator();
+      renderHistory();
+      if (codeInitialized) {
+        setEditorOptions();
+        renderCodeFiles();
+        updateCursorStatus();
+        updateCodeSaveStatus();
+        $$('.console-line').forEach(line => {
+          const badge = $('.level', line);
+          const value = $('span:last-child', line);
+          if (badge && line.dataset.level) badge.textContent = t(`code.console.${line.dataset.level}`);
+          if (value && line.dataset.messageKey) value.textContent = t(line.dataset.messageKey);
+        });
+        if ($('#code-find').classList.contains('open')) updateCodeFindResults(false);
+      }
+      documentCounts();
+      setDocumentSaveStatus(documentSaveStatusCode);
+      if ($('#text-find').classList.contains('open')) updateTextFind(false);
+      updateToolSearch();
+      updatePageTitle();
+    }
+
+    function persistLanguagePreference(language) {
+      try {
+        localStorage.setItem(STORAGE.language, language);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function applyLanguage(language, { persist = false, announce = false } = {}) {
+      currentLanguage = SUPPORTED_LANGUAGES.includes(language) ? language : 'en';
+      document.documentElement.lang = currentLanguage;
+      applyStaticTranslations();
+      refreshLocalizedDynamicUI();
+      const saved = !persist || persistLanguagePreference(currentLanguage);
+      if (announce) $('#toast-region').replaceChildren();
+      if (announce) toast(t('language.changed', { language: t(currentLanguage === 'fr' ? 'language.french' : 'language.english') }));
+      if (!saved) toast(t('language.saveError'), 'error', 4200);
+      return saved;
+    }
+
+    function setLanguageDialogOpen(open) {
+      const layer = $('#language-layer');
+      layer.classList.toggle('open', open);
+      layer.setAttribute('aria-hidden', String(!open));
+      document.documentElement.classList.toggle('language-pending', open);
+      $('#app').inert = open;
+      if (open) window.setTimeout(() => $(`[data-language-choice="${browserLanguage}"]`).focus(), 30);
+    }
+
+    let settingsLastFocus = null;
+    function openAppSettings() {
+      settingsLastFocus = document.activeElement;
+      $('#app-language-setting').value = currentLanguage;
+      $('#settings-layer').classList.add('open');
+      $('#settings-layer').setAttribute('aria-hidden', 'false');
+      $('#app').inert = true;
+      window.setTimeout(() => $('#app-language-setting').focus(), 30);
+    }
+
+    function closeAppSettings() {
+      $('#settings-layer').classList.remove('open');
+      $('#settings-layer').setAttribute('aria-hidden', 'true');
+      $('#app').inert = document.documentElement.classList.contains('language-pending');
+      if (settingsLastFocus && document.contains(settingsLastFocus)) settingsLastFocus.focus();
+    }
+
+    $$('[data-language-choice]').forEach(button => button.addEventListener('click', () => {
+      setLanguageDialogOpen(false);
+      applyLanguage(button.dataset.languageChoice, { persist: true });
+    }));
+    $$('[data-open-app-settings]').forEach(button => button.addEventListener('click', openAppSettings));
+    $('#app-settings-close').addEventListener('click', closeAppSettings);
+    $('#settings-layer').addEventListener('mousedown', event => { if (event.target === $('#settings-layer')) closeAppSettings(); });
+    $('#app-language-setting').addEventListener('change', event => applyLanguage(event.target.value, { persist: true, announce: true }));
+    $('#editor-language-setting').addEventListener('change', event => applyLanguage(event.target.value, { persist: true, announce: true }));
+    $('#settings-layer').addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); closeAppSettings(); return; }
+      if (event.key !== 'Tab') return;
+      const focusable = $$('button, select', $('#settings-layer')).filter(element => !element.disabled && !element.hidden);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+    $('#language-layer').addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); return; }
+      if (event.key !== 'Tab') return;
+      const choices = $$('.language-choice', $('#language-layer'));
+      const first = choices[0];
+      const last = choices[choices.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+
     let storageWarningShown = false;
 
     function toast(message, type = 'info', duration = 2600) {
@@ -725,7 +1557,7 @@
       if (!region) return;
       const item = document.createElement('div');
       item.className = `toast ${type === 'error' ? 'error' : ''}`;
-      item.textContent = tr(message);
+      item.textContent = message;
       region.appendChild(item);
       window.setTimeout(() => {
         item.classList.add('out');
@@ -741,7 +1573,7 @@
       } catch (error) {
         if (!storageWarningShown) {
           storageWarningShown = true;
-          window.setTimeout(() => toast('Stored data could not be read. A safe workspace was restored.', 'error', 4200), 0);
+          window.setTimeout(() => toast(t('storage.readError'), 'error', 4200), 0);
         }
         return fallback;
       }
@@ -754,7 +1586,7 @@
       } catch (error) {
         if (!storageWarningShown) {
           storageWarningShown = true;
-          toast('This browser could not save your latest changes.', 'error', 4200);
+          toast(t('storage.writeError'), 'error', 4200);
         }
         return false;
       }
@@ -772,7 +1604,7 @@
         link.remove();
         window.setTimeout(() => URL.revokeObjectURL(url), 500);
       } catch (error) {
-        toast('The file could not be downloaded.', 'error');
+        toast(t('download.error'), 'error');
       }
     }
 
@@ -789,7 +1621,7 @@
       if (!views[name]) return;
       Object.entries(views).forEach(([key, view]) => view.classList.toggle('active', key === name));
       currentView = name;
-      document.title = name === 'home' ? 'Elowen' : `${name === 'calculator' ? t('tool.calculator') : name === 'code' ? t('tool.code') : t('tool.text')} — Elowen`;
+      updatePageTitle();
       if (name === 'code') {
         initializeCodeEditor();
         window.setTimeout(() => { refreshEditor(); editorFocus(); }, 190);
@@ -884,8 +1716,8 @@
 
     function openModal(config) {
       modalLastFocus = document.activeElement;
-      $('#modal-title').textContent = tr(config.title || 'Confirm');
-      $('#modal-description').textContent = tr(config.description || '');
+      $('#modal-title').textContent = config.title || t('dialog.confirm');
+      $('#modal-description').textContent = config.description || '';
       const fieldsHost = $('#modal-fields');
       fieldsHost.replaceChildren();
       (config.fields || []).forEach(field => {
@@ -893,14 +1725,14 @@
         wrap.className = 'modal-field';
         const label = document.createElement('label');
         label.htmlFor = `modal-field-${field.name}`;
-        label.textContent = tr(field.label);
+        label.textContent = field.label;
         let control;
         if (field.type === 'select') {
           control = document.createElement('select');
           (field.options || []).forEach(option => {
             const element = document.createElement('option');
             element.value = option.value;
-            element.textContent = tr(option.label);
+            element.textContent = option.label;
             element.selected = option.value === field.value;
             control.appendChild(element);
           });
@@ -918,7 +1750,7 @@
         fieldsHost.appendChild(wrap);
       });
       const confirm = $('#modal-confirm');
-      confirm.textContent = tr(config.confirmText || 'Confirm');
+      confirm.textContent = config.confirmText || t('dialog.confirm');
       confirm.className = `primary-btn${config.danger ? ' danger-btn' : ''}`;
       modalConfirmHandler = () => {
         const values = {};
@@ -982,19 +1814,19 @@
           if (identifier) { tokens.push({ type: 'identifier', value: identifier[0].toLowerCase() }); index += identifier[0].length; continue; }
           const char = rest[0];
           if ('+-*/^()!%'.includes(char)) { tokens.push({ type: char, value: char }); index += 1; continue; }
-          throw new Error(`Unknown symbol “${char}”`);
+          throw new Error(t('calc.error.unknownSymbol', { symbol: char }));
         }
         tokens.push({ type: 'eof', value: '' });
         return tokens;
       }
       current() { return this.tokens[this.position]; }
       match(type) { if (this.current().type === type) { this.position += 1; return true; } return false; }
-      expect(type) { if (!this.match(type)) throw new Error(type === ')' ? 'Missing closing parenthesis' : 'Incomplete expression'); }
+      expect(type) { if (!this.match(type)) throw new Error(type === ')' ? t('calc.error.missingParenthesis') : t('calc.error.incomplete')); }
       parse() {
         if (this.current().type === 'eof') return 0;
         const result = this.parseAdd();
-        if (this.current().type !== 'eof') throw new Error('Check the expression');
-        if (!Number.isFinite(result)) throw new Error('Result is outside the supported range');
+        if (this.current().type !== 'eof') throw new Error(t('calc.error.checkExpression'));
+        if (!Number.isFinite(result)) throw new Error(t('calc.error.range'));
         return Object.is(result, -0) ? 0 : result;
       }
       parseAdd() {
@@ -1013,7 +1845,7 @@
           if (this.match('*')) value *= this.parseUnary();
           else if (this.match('/')) {
             const divisor = this.parseUnary();
-            if (divisor === 0) throw new Error('Cannot divide by zero');
+            if (divisor === 0) throw new Error(t('calc.error.divideZero'));
             value /= divisor;
           } else if (this.startsPrimary(this.current())) value *= this.parseUnary();
           else break;
@@ -1053,11 +1885,11 @@
           this.expect(')');
           return this.applyFunction(name, argument);
         }
-        throw new Error('Incomplete expression');
+        throw new Error(t('calc.error.incomplete'));
       }
       factorial(value) {
-        if (!Number.isInteger(value) || value < 0) throw new Error('Factorial needs a non-negative integer');
-        if (value > 170) throw new Error('Factorial is limited to 170');
+        if (!Number.isInteger(value) || value < 0) throw new Error(t('calc.error.factorialInteger'));
+        if (value > 170) throw new Error(t('calc.error.factorialLimit'));
         let result = 1;
         for (let number = 2; number <= value; number += 1) result *= number;
         return result;
@@ -1069,20 +1901,20 @@
           case 'sin': return Math.sin(radians);
           case 'cos': return Math.cos(radians);
           case 'tan': return Math.tan(radians);
-          case 'asin': if (value < -1 || value > 1) throw new Error('asin accepts values from −1 to 1'); return fromRadians(Math.asin(value));
-          case 'acos': if (value < -1 || value > 1) throw new Error('acos accepts values from −1 to 1'); return fromRadians(Math.acos(value));
+          case 'asin': if (value < -1 || value > 1) throw new Error(t('calc.error.asinRange')); return fromRadians(Math.asin(value));
+          case 'acos': if (value < -1 || value > 1) throw new Error(t('calc.error.acosRange')); return fromRadians(Math.acos(value));
           case 'atan': return fromRadians(Math.atan(value));
           case 'sinh': return Math.sinh(value);
           case 'cosh': return Math.cosh(value);
           case 'tanh': return Math.tanh(value);
-          case 'log': if (value <= 0) throw new Error('Logarithm needs a positive value'); return Math.log10(value);
-          case 'ln': if (value <= 0) throw new Error('Natural log needs a positive value'); return Math.log(value);
+          case 'log': if (value <= 0) throw new Error(t('calc.error.logPositive')); return Math.log10(value);
+          case 'ln': if (value <= 0) throw new Error(t('calc.error.lnPositive')); return Math.log(value);
           case 'pow10': return Math.pow(10, value);
           case 'exp': return Math.exp(value);
-          case 'sqrt': if (value < 0) throw new Error('Square root needs a non-negative value'); return Math.sqrt(value);
+          case 'sqrt': if (value < 0) throw new Error(t('calc.error.sqrtNonNegative')); return Math.sqrt(value);
           case 'cbrt': return Math.cbrt(value);
           case 'abs': return Math.abs(value);
-          default: throw new Error(`Unknown function “${name}”`);
+          default: throw new Error(t('calc.error.unknownFunction', { name }));
         }
       }
     }
@@ -1092,7 +1924,7 @@
     }
 
     function formatNumber(value) {
-      if (!Number.isFinite(value)) return 'Error';
+      if (!Number.isFinite(value)) return t('calc.error.generic');
       if (Math.abs(value) < 1e-14) value = 0;
       const absolute = Math.abs(value);
       if ((absolute >= 1e13 || (absolute > 0 && absolute < 1e-9))) {
@@ -1110,7 +1942,7 @@
       const value = $('#calc-value');
       expression.textContent = calcState.expression || '\u00a0';
       value.classList.toggle('error', Boolean(errorMessage));
-      if (errorMessage) value.textContent = tr(errorMessage);
+      if (errorMessage) value.textContent = errorMessage;
       else if (!calcState.expression) value.textContent = formatNumber(calcState.value || 0);
       else {
         try { value.textContent = formatNumber(calculate(calcState.expression)); }
@@ -1129,7 +1961,11 @@
       if (!calcState.history.length) {
         const empty = document.createElement('div');
         empty.className = 'history-empty';
-        empty.innerHTML = `<div><strong>${tr('No calculations yet')}</strong><br>${tr('Completed results will appear here.')}</div>`;
+        const content = document.createElement('div');
+        const title = document.createElement('strong');
+        title.textContent = t('calc.history.emptyTitle');
+        content.append(title, document.createElement('br'), document.createTextNode(t('calc.history.emptyDescription')));
+        empty.appendChild(content);
         list.appendChild(empty);
         return;
       }
@@ -1144,7 +1980,7 @@
         result.className = 'history-result';
         result.textContent = `= ${item.result}`;
         button.append(expression, result);
-        button.title = tr(`Reuse ${item.result}`);
+        button.title = t('calc.history.reuse', { result: item.result });
         button.addEventListener('click', () => {
           calcState.expression = item.result;
           calcState.value = Number(item.result);
@@ -1186,7 +2022,7 @@
         renderHistory();
         saveCalculator();
       } catch (error) {
-        renderCalculator(error.message || 'Invalid calculation');
+        renderCalculator(error.message || t('calc.error.invalid'));
       }
     }
 
@@ -1232,7 +2068,7 @@
       if (operation === 'mminus') calcState.memory -= current;
       if (operation === 'ms') calcState.memory = current;
       saveCalculator();
-      if (operation !== 'mr') toast(operation === 'mc' ? 'Memory cleared' : `Memory: ${formatNumber(calcState.memory)}`);
+      if (operation !== 'mr') toast(operation === 'mc' ? t('calc.memory.cleared') : t('calc.memory.value', { value: formatNumber(calcState.memory) }));
     }));
     $('#angle-deg').addEventListener('click', () => { calcState.angle = 'DEG'; saveCalculator(); renderCalculator(); });
     $('#angle-rad').addEventListener('click', () => { calcState.angle = 'RAD'; saveCalculator(); renderCalculator(); });
@@ -1246,10 +2082,10 @@
     $('#history-clear').addEventListener('click', () => {
       if (!calcState.history.length) return;
       openModal({
-        title: 'Clear calculation history?',
-        description: 'This removes all saved calculations from this browser.',
-        confirmText: 'Clear history', danger: true,
-        onConfirm: () => { calcState.history = []; saveCalculator(); renderHistory(); toast('Calculation history cleared'); }
+        title: t('calc.history.confirmTitle'),
+        description: t('calc.history.confirmDescription'),
+        confirmText: t('calc.history.confirm'), danger: true,
+        onConfirm: () => { calcState.history = []; saveCalculator(); renderHistory(); toast(t('calc.history.cleared')); }
       });
     });
 
@@ -1276,25 +2112,28 @@
     const modeLabels = { html: 'HTML', css: 'CSS', javascript: 'JavaScript', json: 'JSON', markdown: 'Markdown', text: 'Plain Text' };
     const modeExtensions = { html: 'html', css: 'css', javascript: 'js', json: 'json', markdown: 'md', text: 'txt' };
     const codeMirrorModes = { html: 'htmlmixed', css: 'css', javascript: 'javascript', json: { name: 'javascript', json: true }, markdown: 'markdown', text: null };
-    const defaultFiles = [
-      {
-        id: 'file-index', name: 'index.html', mode: 'html',
-        content: '<main class="welcome">\n  <p class="eyebrow">A small beginning</p>\n  <h1>Hello from Elowen.</h1>\n  <p>Edit the HTML, CSS, or JavaScript, then press Run.</p>\n  <button id="hello" type="button">Say hello</button>\n</main>', savedContent: ''
-      },
-      {
-        id: 'file-style', name: 'styles.css', mode: 'css',
-        content: ':root {\n  font-family: Inter, system-ui, sans-serif;\n  color: #302c28;\n  background: #f5efe6;\n}\n\nbody {\n  min-height: 100vh;\n  margin: 0;\n  display: grid;\n  place-items: center;\n}\n\n.welcome {\n  width: min(520px, 80vw);\n  padding: 48px;\n  border: 1px solid #d4c8b8;\n  background: #fffdf8;\n}\n\n.eyebrow {\n  color: #766c63;\n  font-size: 11px;\n  letter-spacing: .12em;\n  text-transform: uppercase;\n}\n\nbutton {\n  padding: 10px 16px;\n  border: 0;\n  border-radius: 8px;\n  color: #fffdf8;\n  background: #5d554d;\n  cursor: pointer;\n}', savedContent: ''
-      },
-      {
-        id: 'file-script', name: 'script.js', mode: 'javascript',
-        content: "const button = document.querySelector('#hello');\n\nbutton.addEventListener('click', () => {\n  console.log('Hello from the preview console.');\n  button.textContent = 'Hello, Elowen!';\n});", savedContent: ''
-      }
-    ].map(file => ({ ...file, savedContent: file.content }));
+    function createDefaultFiles() {
+      const files = [
+        {
+          id: 'file-index', name: 'index.html', mode: 'html',
+          content: `<main class="welcome">\n  <p class="eyebrow">${t('code.default.eyebrow')}</p>\n  <h1>${t('code.default.title')}</h1>\n  <p>${t('code.default.description')}</p>\n  <button id="hello" type="button">${t('code.default.button')}</button>\n</main>`, savedContent: ''
+        },
+        {
+          id: 'file-style', name: 'styles.css', mode: 'css',
+          content: ':root {\n  font-family: Inter, system-ui, sans-serif;\n  color: #302c28;\n  background: #f5efe6;\n}\n\nbody {\n  min-height: 100vh;\n  margin: 0;\n  display: grid;\n  place-items: center;\n}\n\n.welcome {\n  width: min(520px, 80vw);\n  padding: 48px;\n  border: 1px solid #d4c8b8;\n  background: #fffdf8;\n}\n\n.eyebrow {\n  color: #766c63;\n  font-size: 11px;\n  letter-spacing: .12em;\n  text-transform: uppercase;\n}\n\nbutton {\n  padding: 10px 16px;\n  border: 0;\n  border-radius: 8px;\n  color: #fffdf8;\n  background: #5d554d;\n  cursor: pointer;\n}', savedContent: ''
+        },
+        {
+          id: 'file-script', name: 'script.js', mode: 'javascript',
+          content: `const button = document.querySelector('#hello');\n\nbutton.addEventListener('click', () => {\n  console.log(${JSON.stringify(t('code.default.console'))});\n  button.textContent = ${JSON.stringify(t('code.default.buttonDone'))};\n});`, savedContent: ''
+        }
+      ];
+      return files.map(file => ({ ...file, savedContent: file.content }));
+    }
 
     function freshCodeState() {
       return {
         version: 1,
-        files: defaultFiles.map(file => ({ ...file })),
+        files: createDefaultFiles(),
         activeId: 'file-index',
         prefs: { fontSize: 13, wrap: false, tabSize: 2, autoSave: true, explorerOpen: true, previewOpen: true, explorerWidth: 215, previewWidth: 520 }
       };
@@ -1304,7 +2143,7 @@
       if (!input || !Array.isArray(input.files) || !input.files.length) return freshCodeState();
       const files = input.files.filter(file => file && typeof file.id === 'string' && typeof file.name === 'string' && typeof file.content === 'string').map(file => ({
         id: file.id,
-        name: file.name || 'untitled.txt',
+        name: file.name || t('code.file.untitledText'),
         mode: modeLabels[file.mode] ? file.mode : inferMode(file.name),
         content: file.content,
         savedContent: typeof file.savedContent === 'string' ? file.savedContent : file.content
@@ -1333,7 +2172,9 @@
       return 'text';
     }
 
-    let codeState = validateCodeState(readStorage(STORAGE.code, null));
+    const storedCodeState = readStorage(STORAGE.code, null);
+    let codeUsesLocalizedDefaults = !storedCodeState;
+    let codeState = validateCodeState(storedCodeState);
     let codeEditor = null;
     let codeInitialized = false;
     let suppressCodeChange = false;
@@ -1414,12 +2255,12 @@
       $('#wrap-setting').setAttribute('aria-checked', String(codeState.prefs.wrap));
       $('#autosave-setting').classList.toggle('on', codeState.prefs.autoSave);
       $('#autosave-setting').setAttribute('aria-checked', String(codeState.prefs.autoSave));
-      $('#indent-status').textContent = tr(`Spaces: ${codeState.prefs.tabSize}`);
+      $('#indent-status').textContent = t('code.indent', { count: codeState.prefs.tabSize });
     }
 
     function updateCursorStatus() {
       const cursor = editorCursor();
-      $('#cursor-position').textContent = tr(`Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`);
+      $('#cursor-position').textContent = t('code.cursor', { line: cursor.line + 1, column: cursor.ch + 1 });
     }
 
     function handleCodeChange() {
@@ -1431,7 +2272,7 @@
       persistCodeState();
       window.clearTimeout(codeAutoSaveTimer);
       if (codeState.prefs.autoSave) {
-        $('#editor-save-state').textContent = t('common.saving');
+        $('#editor-save-state').textContent = t('code.saving');
         codeAutoSaveTimer = window.setTimeout(() => {
           file.savedContent = file.content;
           writeStorage(STORAGE.code, codeState);
@@ -1443,13 +2284,14 @@
 
     function updateCodeSaveStatus() {
       const modified = fileModified(activeFile());
-      $('#editor-save-state').textContent = modified ? (codeState.prefs.autoSave ? t('common.saving') : t('common.modified')) : t('common.saved');
-      $('#code-header-status').textContent = modified ? t('code.unsaved') : t('code.workspace');
+      $('#editor-save-state').textContent = modified ? (codeState.prefs.autoSave ? t('code.saving') : t('code.modified')) : t('code.saved');
+      $('#code-header-status').textContent = modified ? t('code.subtitle.unsaved') : t('code.subtitle.browser');
     }
 
     function initializeCodeEditor() {
       if (codeInitialized) return;
       codeInitialized = true;
+      codeUsesLocalizedDefaults = false;
       const textarea = $('#code-textarea');
       if (window.CodeMirror) {
         codeEditor = window.CodeMirror.fromTextArea(textarea, {
@@ -1485,7 +2327,7 @@
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
           }
         });
-        toast('Enhanced syntax highlighting is unavailable; the editor is using its reliable fallback.', 'error', 4200);
+        toast(t('code.fallback'), 'error', 4200);
       }
       editorSet(activeFile().content);
       setEditorOptions();
@@ -1508,7 +2350,7 @@
         row.title = file.name;
         row.innerHTML = '<svg class="icon-sm" aria-hidden="true"><use href="#i-file"></use></svg>';
         const name = document.createElement('span'); name.className = 'file-name'; name.textContent = file.name;
-        const dot = document.createElement('span'); dot.className = 'modified-dot'; dot.setAttribute('aria-label', 'Modified');
+        const dot = document.createElement('span'); dot.className = 'modified-dot'; dot.setAttribute('aria-label', t('code.file.modified'));
         row.append(name, dot);
         row.addEventListener('click', () => switchCodeFile(file.id));
         list.appendChild(row);
@@ -1554,14 +2396,16 @@
       return window.crypto && crypto.randomUUID ? crypto.randomUUID() : `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     }
 
-    const modeOptions = Object.entries(modeLabels).map(([value, label]) => ({ value, label }));
+    function getModeOptions() {
+      return Object.entries(modeLabels).map(([value, label]) => ({ value, label: value === 'text' ? t('code.mode.text') : label }));
+    }
     $('#new-file').addEventListener('click', () => openModal({
-      title: 'Create a new file', description: 'Choose a name and editing mode.', confirmText: 'Create file',
-      fields: [{ name: 'name', label: 'File name', value: 'untitled.html', maxLength: 100 }, { name: 'mode', label: 'Language', type: 'select', value: 'html', options: modeOptions }],
+      title: t('code.file.createTitle'), description: t('code.file.createDescription'), confirmText: t('code.file.createConfirm'),
+      fields: [{ name: 'name', label: t('code.file.name'), value: t('code.file.untitledHtml'), maxLength: 100 }, { name: 'mode', label: t('code.file.language'), type: 'select', value: 'html', options: getModeOptions() }],
       onConfirm: values => {
         const name = normalizeFileName(values.name, values.mode);
-        if (!name) { toast('Enter a file name.', 'error'); return false; }
-        if (!uniqueFileName(name)) { toast('A file with that name already exists.', 'error'); return false; }
+        if (!name) { toast(t('code.file.enterName'), 'error'); return false; }
+        if (!uniqueFileName(name)) { toast(t('code.file.exists'), 'error'); return false; }
         const file = { id: createId(), name, mode: values.mode, content: '', savedContent: '' };
         codeState.files.push(file);
         codeState.activeId = file.id;
@@ -1572,14 +2416,14 @@
     $('#rename-file').addEventListener('click', () => {
       const file = activeFile();
       openModal({
-        title: 'Rename file', description: 'Update the file name or its editing mode.', confirmText: 'Rename',
-        fields: [{ name: 'name', label: 'File name', value: file.name, maxLength: 100 }, { name: 'mode', label: 'Language', type: 'select', value: file.mode, options: modeOptions }],
+        title: t('code.file.renameTitle'), description: t('code.file.renameDescription'), confirmText: t('code.file.renameConfirm'),
+        fields: [{ name: 'name', label: t('code.file.name'), value: file.name, maxLength: 100 }, { name: 'mode', label: t('code.file.language'), type: 'select', value: file.mode, options: getModeOptions() }],
         onConfirm: values => {
           const name = normalizeFileName(values.name, values.mode);
-          if (!name) { toast('Enter a file name.', 'error'); return false; }
-          if (!uniqueFileName(name, file.id)) { toast('A file with that name already exists.', 'error'); return false; }
+          if (!name) { toast(t('code.file.enterName'), 'error'); return false; }
+          if (!uniqueFileName(name, file.id)) { toast(t('code.file.exists'), 'error'); return false; }
           file.name = name; file.mode = values.mode;
-          setEditorOptions(); renderCodeFiles(); persistCodeState(); toast('File renamed');
+          setEditorOptions(); renderCodeFiles(); persistCodeState(); toast(t('code.file.renamed'));
         }
       });
     });
@@ -1587,13 +2431,13 @@
     $('#delete-file').addEventListener('click', () => {
       const file = activeFile();
       openModal({
-        title: `Delete ${file.name}?`, description: 'This removes the virtual file from this browser.', confirmText: 'Delete file', danger: true,
+        title: t('code.file.deleteTitle', { name: file.name }), description: t('code.file.deleteDescription'), confirmText: t('code.file.deleteConfirm'), danger: true,
         onConfirm: () => {
           const index = codeState.files.findIndex(item => item.id === file.id);
           codeState.files.splice(index, 1);
-          if (!codeState.files.length) codeState.files.push({ id: createId(), name: 'untitled.txt', mode: 'text', content: '', savedContent: '' });
+          if (!codeState.files.length) codeState.files.push({ id: createId(), name: t('code.file.untitledText'), mode: 'text', content: '', savedContent: '' });
           codeState.activeId = codeState.files[Math.min(index, codeState.files.length - 1)].id;
-          editorSet(activeFile().content); setEditorOptions(); renderCodeFiles(); updateCodeSaveStatus(); writeStorage(STORAGE.code, codeState); toast('File deleted');
+          editorSet(activeFile().content); setEditorOptions(); renderCodeFiles(); updateCodeSaveStatus(); writeStorage(STORAGE.code, codeState); toast(t('code.file.deleted'));
         }
       });
     });
@@ -1605,7 +2449,7 @@
       file.savedContent = file.content;
       window.clearTimeout(codeAutoSaveTimer);
       writeStorage(STORAGE.code, codeState);
-      renderCodeFiles(); updateCodeSaveStatus(); toast(`${file.name} saved`);
+      renderCodeFiles(); updateCodeSaveStatus(); toast(t('code.file.saved', { name: file.name }));
     }
 
     $('#code-save').addEventListener('click', saveActiveFile);
@@ -1613,7 +2457,7 @@
       const file = activeFile();
       file.content = editorGet();
       downloadBlob(file.name, file.content, file.mode === 'html' ? 'text/html;charset=utf-8' : file.mode === 'css' ? 'text/css;charset=utf-8' : file.mode === 'javascript' ? 'text/javascript;charset=utf-8' : file.mode === 'json' ? 'application/json;charset=utf-8' : 'text/plain;charset=utf-8');
-      toast(`${file.name} downloaded`);
+      toast(t('code.file.downloaded', { name: file.name }));
     });
 
     $('#language-mode').addEventListener('change', event => {
@@ -1662,7 +2506,7 @@
       const query = $('#code-find-input').value;
       codeFindMatches = findAllIndices(editorGet(), query);
       if (reset) codeFindIndex = codeFindMatches.length ? 0 : -1;
-      $('#code-find-count').textContent = codeFindMatches.length ? `${codeFindIndex + 1} of ${codeFindMatches.length}` : '0 results';
+      $('#code-find-count').textContent = codeFindMatches.length ? t('code.results.position', { current: codeFindIndex + 1, total: codeFindMatches.length }) : t('code.results.none');
       if (codeFindIndex >= 0) editorSelectIndices(codeFindMatches[codeFindIndex], codeFindMatches[codeFindIndex] + query.length);
     }
 
@@ -1671,7 +2515,7 @@
       if (!codeFindMatches.length) return;
       codeFindIndex = (codeFindIndex + direction + codeFindMatches.length) % codeFindMatches.length;
       const query = $('#code-find-input').value;
-      $('#code-find-count').textContent = `${codeFindIndex + 1} of ${codeFindMatches.length}`;
+      $('#code-find-count').textContent = t('code.results.position', { current: codeFindIndex + 1, total: codeFindMatches.length });
       editorSelectIndices(codeFindMatches[codeFindIndex], codeFindMatches[codeFindIndex] + query.length);
     }
 
@@ -1711,7 +2555,7 @@
       activeFile().content = next;
       handleCodeChange();
       updateCodeFindResults();
-      toast(`${matches.length} replacement${matches.length === 1 ? '' : 's'} made`);
+      toast(tp('code.replacements.one', 'code.replacements.other', matches.length));
     });
 
     function applyPanelPreferences() {
@@ -1786,11 +2630,13 @@
       else { window.clearTimeout(codeAutoSaveTimer); updateCodeSaveStatus(); persistCodeState(); }
     });
 
-    function addConsoleLine(level, message) {
+    function addConsoleLine(level, message, messageKey = '') {
       const output = $('#console-output');
       const line = document.createElement('div');
       line.className = `console-line ${level}`;
-      const badge = document.createElement('span'); badge.className = 'level'; badge.textContent = level;
+      line.dataset.level = level;
+      if (messageKey) line.dataset.messageKey = messageKey;
+      const badge = document.createElement('span'); badge.className = 'level'; badge.textContent = t(`code.console.${level}`);
       const value = document.createElement('span'); value.textContent = String(message);
       line.append(badge, value);
       output.appendChild(line);
@@ -1808,12 +2654,15 @@
       const htmlFiles = codeState.files.filter(file => file.mode === 'html');
       const css = codeState.files.filter(file => file.mode === 'css').map(file => `/* ${file.name} */\n${file.content}`).join('\n\n');
       const javascript = codeState.files.filter(file => file.mode === 'javascript').map(file => `// ${file.name}\n${file.content}`).join('\n\n');
-      let html = htmlFiles.length ? htmlFiles.map(file => file.content).join('\n') : '<main style="font-family:system-ui;padding:2rem"><h1>Preview</h1><p>Add an HTML file to begin.</p></main>';
+      let html = htmlFiles.length ? htmlFiles.map(file => file.content).join('\n') : `<main style="font-family:system-ui;padding:2rem"><h1>${t('code.preview.fallbackTitle')}</h1><p>${t('code.preview.fallbackDescription')}</p></main>`;
       const bridgeCode = `(function(){
+        const unhandled=${JSON.stringify(t('code.preview.unhandled'))};
+        const atLabel=${JSON.stringify(t('code.preview.at'))};
+        const previewLabel=${JSON.stringify(t('code.preview.fallbackTitle').toLowerCase())};
         const send=(level,args)=>{const safe=args.map(value=>{try{if(typeof value==='string')return value;if(value instanceof Error)return value.stack||value.message;const json=JSON.stringify(value,null,2);return json===undefined?String(value):json}catch(error){return String(value)}});parent.postMessage({source:'elowen-preview',level,message:safe.join(' ')},'*')};
         ['log','info','warn','error'].forEach(level=>{const original=console[level];console[level]=function(...args){send(level,args);original.apply(console,args)}});
-        window.addEventListener('error',event=>send('error',[event.message+' at '+(event.filename||'preview')+':'+event.lineno]));
-        window.addEventListener('unhandledrejection',event=>send('error',['Unhandled promise rejection:',event.reason]));
+        window.addEventListener('error',event=>send('error',[event.message+' '+atLabel+' '+(event.filename||previewLabel)+':'+event.lineno]));
+        window.addEventListener('unhandledrejection',event=>send('error',[unhandled,event.reason]));
       })();`;
       const bridge = '<script>' + bridgeCode + '<' + '/script>';
       const style = css ? '<style>' + escapeClosingTag(css, 'style') + '<' + '/style>' : '';
@@ -1832,13 +2681,15 @@
       try {
         if (!codeState.prefs.previewOpen) togglePreview(true);
         clearConsole();
-        addConsoleLine('info', 'Running preview…');
+        addConsoleLine('info', t('code.preview.running'), 'code.preview.running');
         const frame = $('#preview-frame');
         frame.srcdoc = buildPreviewDocument();
-        frame.onload = () => addConsoleLine('info', 'Preview ready');
+        frame.onload = () => addConsoleLine('info', t('code.preview.ready'), 'code.preview.ready');
         writeStorage(STORAGE.code, codeState);
       } catch (error) {
-        clearConsole(); addConsoleLine('error', error.message || 'Preview could not run'); toast('Preview could not run. Check the console.', 'error');
+        clearConsole();
+        addConsoleLine('error', error.message || t('code.preview.runError'), error.message ? '' : 'code.preview.runError');
+        toast(t('code.preview.runErrorToast'), 'error');
       }
     }
     $('#code-run').addEventListener('click', runPreview);
@@ -1847,8 +2698,8 @@
       const panel = $('#preview-panel');
       panel.classList.toggle('expanded');
       const expanded = panel.classList.contains('expanded');
-      $('#preview-expand').title = expanded ? 'Restore preview' : 'Expand preview';
-      $('#preview-expand').setAttribute('aria-label', expanded ? 'Restore preview' : 'Expand preview');
+      $('#preview-expand').title = expanded ? t('code.restorePreview') : t('code.expandPreview');
+      $('#preview-expand').setAttribute('aria-label', expanded ? t('code.restorePreview') : t('code.expandPreview'));
     });
     window.addEventListener('message', event => {
       const frame = $('#preview-frame');
@@ -1874,6 +2725,7 @@
     const documentEditor = $('#document-editor');
     const documentTitle = $('#document-title');
     let documentSaveTimer = 0;
+    let documentSaveStatusCode = 'saved';
     let savedTextRange = null;
     let textFindOccurrences = [];
     let textFindIndex = -1;
@@ -1895,8 +2747,9 @@
     }
 
     const storedDocument = readStorage(STORAGE.document, null);
+    let documentTitleIsDefault = !storedDocument || !storedDocument.title || [TRANSLATIONS.en['text.untitled'], TRANSLATIONS.fr['text.untitled']].includes(storedDocument.title);
     if (storedDocument && typeof storedDocument === 'object') {
-      documentTitle.value = typeof storedDocument.title === 'string' && storedDocument.title.trim() ? storedDocument.title.slice(0, 120) : 'Untitled document';
+      documentTitle.value = typeof storedDocument.title === 'string' && storedDocument.title.trim() ? storedDocument.title.slice(0, 120) : t('text.untitled');
       documentEditor.innerHTML = sanitizeDocumentHTML(typeof storedDocument.content === 'string' ? storedDocument.content : '');
     }
 
@@ -1904,32 +2757,33 @@
       const text = (documentEditor.innerText || '').replace(/\u00a0/g, ' ').trim();
       const words = text ? (text.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu) || []).length : 0;
       const characters = (documentEditor.innerText || '').replace(/\n$/, '').length;
-      $('#word-count').textContent = tr(`${words} word${words === 1 ? '' : 's'}`);
-      $('#character-count').textContent = tr(`${characters} character${characters === 1 ? '' : 's'}`);
+      $('#word-count').textContent = tp('text.words.one', 'text.words.other', words);
+      $('#character-count').textContent = tp('text.characters.one', 'text.characters.other', characters);
     }
 
-    function setDocumentSaveStatus(label) {
-      $('#document-save-status span').textContent = tr(label);
-      $('#document-save-status svg').style.opacity = label === 'Saved' ? '1' : '.35';
+    function setDocumentSaveStatus(status) {
+      documentSaveStatusCode = status === 'saving' ? 'saving' : 'saved';
+      $('#document-save-status span').textContent = t(documentSaveStatusCode === 'saved' ? 'text.saved' : 'text.saving');
+      $('#document-save-status svg').style.opacity = documentSaveStatusCode === 'saved' ? '1' : '.35';
     }
 
     function saveDocument(immediate = false) {
       window.clearTimeout(documentSaveTimer);
       const commit = () => {
         const clean = sanitizeDocumentHTML(documentEditor.innerHTML);
-        if (writeStorage(STORAGE.document, { title: documentTitle.value.trim() || 'Untitled document', content: clean, savedAt: Date.now() })) setDocumentSaveStatus('Saved');
+        if (writeStorage(STORAGE.document, { title: documentTitle.value.trim() || t('text.untitled'), content: clean, savedAt: Date.now() })) setDocumentSaveStatus('saved');
       };
       if (immediate) commit();
       else {
-        setDocumentSaveStatus('Saving…');
+        setDocumentSaveStatus('saving');
         documentSaveTimer = window.setTimeout(commit, 520);
       }
     }
 
     function documentChanged() { documentCounts(); saveDocument(); }
     documentEditor.addEventListener('input', documentChanged);
-    documentTitle.addEventListener('input', () => saveDocument());
-    documentTitle.addEventListener('blur', () => { if (!documentTitle.value.trim()) documentTitle.value = 'Untitled document'; saveDocument(true); });
+    documentTitle.addEventListener('input', () => { documentTitleIsDefault = false; saveDocument(); });
+    documentTitle.addEventListener('blur', () => { if (!documentTitle.value.trim()) { documentTitleIsDefault = true; documentTitle.value = t('text.untitled'); } saveDocument(true); });
     documentEditor.addEventListener('paste', event => {
       event.preventDefault();
       const html = event.clipboardData.getData('text/html');
@@ -1960,7 +2814,7 @@
         documentChanged();
         updateDocumentToolbarState();
       } catch (error) {
-        toast('That formatting action is not supported by this browser.', 'error');
+        toast(t('text.formatUnsupported'), 'error');
       }
     }
 
@@ -1997,11 +2851,11 @@
     $('#insert-link').addEventListener('click', () => {
       saveDocumentSelection();
       openModal({
-        title: 'Insert link', description: 'Enter a secure web address for the selected text.', confirmText: 'Insert link',
-        fields: [{ name: 'url', label: 'Web address', type: 'url', placeholder: 'https://example.com', maxLength: 500 }],
+        title: t('text.link.title'), description: t('text.link.description'), confirmText: t('text.link.confirm'),
+        fields: [{ name: 'url', label: t('text.link.address'), type: 'url', placeholder: 'https://example.com', maxLength: 500 }],
         onConfirm: values => {
           const url = normalizeLink(values.url);
-          if (!url) { toast('Enter a valid http, https, or email link.', 'error'); return false; }
+          if (!url) { toast(t('text.link.invalid'), 'error'); return false; }
           restoreDocumentSelection();
           execDocumentCommand('createLink', url);
           $$('a', documentEditor).forEach(link => { link.target = '_blank'; link.rel = 'noopener noreferrer'; });
@@ -2053,7 +2907,7 @@
       const map = documentTextMap();
       textFindOccurrences = findAllIndices(map.text, query);
       if (reset) textFindIndex = textFindOccurrences.length ? 0 : -1;
-      $('#text-find-count').textContent = tr(textFindOccurrences.length ? `${textFindIndex + 1} of ${textFindOccurrences.length}` : '0 results');
+      $('#text-find-count').textContent = textFindOccurrences.length ? t('text.results.position', { current: textFindIndex + 1, total: textFindOccurrences.length }) : t('text.results.none');
       if (textFindIndex >= 0) selectTextOccurrence(map, query);
     }
 
@@ -2066,14 +2920,14 @@
       selection.removeAllRanges(); selection.addRange(range);
       range.startContainer.parentElement?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       savedTextRange = range.cloneRange();
-      $('#text-find-count').textContent = tr(`${textFindIndex + 1} of ${textFindOccurrences.length}`);
+      $('#text-find-count').textContent = t('text.results.position', { current: textFindIndex + 1, total: textFindOccurrences.length });
     }
 
     function moveTextFind(direction) {
       const query = $('#text-find-input').value;
       const map = documentTextMap();
       textFindOccurrences = findAllIndices(map.text, query);
-      if (!textFindOccurrences.length) { textFindIndex = -1; $('#text-find-count').textContent = tr('0 results'); return; }
+      if (!textFindOccurrences.length) { textFindIndex = -1; $('#text-find-count').textContent = t('text.results.none'); return; }
       textFindIndex = (textFindIndex + direction + textFindOccurrences.length) % textFindOccurrences.length;
       selectTextOccurrence(map, query);
     }
@@ -2117,7 +2971,7 @@
       nodes.forEach(node => {
         node.nodeValue = node.nodeValue.replace(expression, match => { count += 1; return $('#text-replace-input').value; });
       });
-      if (count) { documentChanged(); updateTextFind(); toast(`${count} replacement${count === 1 ? '' : 's'} made`); }
+      if (count) { documentChanged(); updateTextFind(); toast(tp('text.replacements.one', 'text.replacements.other', count)); }
     });
 
     $('#text-print').addEventListener('click', () => { saveDocument(true); window.print(); });
@@ -2131,11 +2985,11 @@
     document.addEventListener('click', () => { $('#export-menu').hidden = true; $('#text-export-toggle').setAttribute('aria-expanded', 'false'); });
 
     function safeDocumentFilename(extension) {
-      const base = (documentTitle.value.trim() || 'Untitled document').replace(/[\\/:*?"<>|]/g, '-').slice(0, 80);
+      const base = (documentTitle.value.trim() || t('text.untitled')).replace(/[\\/:*?"<>|]/g, '-').slice(0, 80);
       return `${base}.${extension}`;
     }
     function exportedDocumentHTML() {
-      const title = documentTitle.value.trim() || 'Untitled document';
+      const title = documentTitle.value.trim() || t('text.untitled');
       const safeTitle = title.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
       const content = sanitizeDocumentHTML(documentEditor.innerHTML);
       return `<!doctype html><html lang="${currentLanguage}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{max-width:720px;margin:64px auto;padding:0 32px;color:#342f2a;font:15px/1.72 Arial,sans-serif}h1{font-size:32px}h2{font-size:23px}h3{font-size:18px}a{color:#665448}@media print{body{margin:0;max-width:none}}</style></head><body>${content}</body></html>`;
@@ -2146,12 +3000,12 @@
       if (type === 'html') downloadBlob(safeDocumentFilename('html'), exportedDocumentHTML(), 'text/html;charset=utf-8');
       if (type === 'txt') downloadBlob(safeDocumentFilename('txt'), documentEditor.innerText, 'text/plain;charset=utf-8');
       if (type === 'doc') {
-        const content = exportedDocumentHTML().replace(`<html lang="${currentLanguage}">`, `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="${currentLanguage}">`);
+        const content = exportedDocumentHTML().replace('<html ', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" ');
         downloadBlob(safeDocumentFilename('doc'), '\ufeff' + content, 'application/msword');
       }
       $('#export-menu').hidden = true;
       $('#text-export-toggle').setAttribute('aria-expanded', 'false');
-      toast('Document downloaded');
+      toast(t('text.downloaded'));
     }));
 
     document.addEventListener('keydown', event => {
@@ -2161,12 +3015,12 @@
       const key = event.key.toLowerCase();
       if (key === 'f') { event.preventDefault(); openTextFind(false); }
       else if (key === 'h') { event.preventDefault(); openTextFind(true); }
-      else if (key === 's') { event.preventDefault(); saveDocument(true); toast('Document saved'); }
+      else if (key === 's') { event.preventDefault(); saveDocument(true); toast(t('text.documentSaved')); }
       else if (key === 'p') { event.preventDefault(); saveDocument(true); window.print(); }
     }, true);
 
     documentCounts();
-    setDocumentSaveStatus('Saved');
+    setDocumentSaveStatus('saved');
 
     /* Global safeguards */
     document.addEventListener('keydown', event => {
@@ -2181,15 +3035,12 @@
     });
     window.addEventListener('error', event => {
       if (event.target !== window || !event.message) return;
-      toast(`Elowen recovered from an error: ${event.message}`, 'error', 5000);
+      toast(t('app.recoveredError', { message: event.message }), 'error', 5000);
     });
 
-    document.addEventListener('elowen:languagechange', () => {
-      updateToolSearch(); renderHistory(); documentCounts();
-      if (codeInitialized) { updateCodeSaveStatus(); updateCursorStatus(); setEditorOptions(); }
-      openView(currentView);
-    });
-    updateToolSearch();
+    applyLanguage(currentLanguage);
+    setLanguageDialogOpen(!savedLanguage);
+    document.documentElement.classList.remove('i18n-loading');
   })();
   </script>
 </body>
