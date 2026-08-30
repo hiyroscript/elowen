@@ -6,6 +6,14 @@
   <meta name="theme-color" content="#e8dfd1">
   <meta name="description" content="Elowen — a calm desktop workspace for calculation, code, and writing.">
   <title>Elowen</title>
+  <script>
+    (() => {
+      try {
+        const appearance = localStorage.getItem('elowen.appearance');
+        document.documentElement.dataset.appearance = appearance === 'dark' ? 'dark' : 'light';
+      } catch (_) { document.documentElement.dataset.appearance = 'light'; }
+    })();
+  </script>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <style>
@@ -28,12 +36,55 @@
       --shadow: 0 14px 38px rgba(63, 54, 45, .08);
       --shadow-soft: 0 5px 18px rgba(63, 54, 45, .06);
       --focus: #6e6257;
+      --surface-raised: #fbf8f2;
+      --surface-recessed: #ded3c5;
+      --surface-editor: #f8f4ed;
+      --surface-editor-muted: #eee6db;
+      --surface-control: #f3ede4;
+      --surface-control-hover: #ebe2d6;
+      --surface-display: #f6f0e7;
+      --surface-overlay: rgba(64,58,53,.38);
+      --syntax-text: #3a342f;
+      --syntax-gutter: #eee6dc;
+      --syntax-muted: #9b9085;
       --radius-sm: 8px;
       --radius: 12px;
       --radius-lg: 18px;
       --ease: 160ms cubic-bezier(.2, .75, .25, 1);
       --header-h: 78px;
       font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    :root[data-appearance="dark"] {
+      color-scheme: dark;
+      --sand: #1c1b1a;
+      --sand-deep: #302e2b;
+      --sand-soft: #242321;
+      --paper: #2a2926;
+      --beige: #35322e;
+      --taupe: #827b72;
+      --taupe-soft: #4a4641;
+      --stone: #d0c7bc;
+      --stone-deep: #eee7de;
+      --brown-gray: #b6ada2;
+      --ink: #f2ece4;
+      --muted: #b8afa5;
+      --line: rgba(239,231,220,.13);
+      --line-strong: rgba(239,231,220,.24);
+      --shadow: 0 16px 42px rgba(0,0,0,.34);
+      --shadow-soft: 0 6px 20px rgba(0,0,0,.22);
+      --focus: #d8c3a9;
+      --surface-raised: #2a2926;
+      --surface-recessed: #211f1e;
+      --surface-editor: #262522;
+      --surface-editor-muted: #302e2b;
+      --surface-control: #35322e;
+      --surface-control-hover: #403c37;
+      --surface-display: #22211f;
+      --surface-overlay: rgba(8,8,8,.66);
+      --syntax-text: #e8e0d6;
+      --syntax-gutter: #201f1d;
+      --syntax-muted: #8f887f;
     }
 
     * { box-sizing: border-box; }
@@ -62,6 +113,15 @@
     .desktop-mark { width: 56px; height: 56px; margin: 0 auto 22px; color: var(--brown-gray); }
     .desktop-message h1 { margin: 0 0 10px; font-size: 25px; font-weight: 600; letter-spacing: -.02em; }
     .desktop-message p { margin: 0; color: var(--muted); font-size: 15px; }
+    .language-gate { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px; background: var(--surface-overlay); backdrop-filter: blur(8px); }
+    .language-gate[hidden] { display: none; }
+    .language-dialog { width: min(440px, 100%); padding: 34px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--paper); box-shadow: 0 24px 70px rgba(48,44,40,.2); text-align: center; }
+    .language-dialog .brand-mark { margin: 0 auto 14px; }
+    .language-dialog h1 { margin: 0 0 8px; font-size: 24px; }
+    .language-dialog p { margin: 0 0 24px; color: var(--muted); }
+    .language-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .language-choice { min-height: 58px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--sand-soft); font-size: 15px; font-weight: 650; }
+    .language-choice:hover { background: var(--sand-deep); border-color: var(--stone); }
     @media (max-width: 1050px), (orientation: portrait) {
       #app, #modal-layer, #toast-region { display: none !important; }
       .desktop-only { display: grid; }
@@ -90,7 +150,7 @@
     .search-box { height: 46px; display: flex; align-items: center; gap: 11px; padding: 0 13px 0 16px; border: 1px solid var(--line-strong); border-radius: 13px; background: rgba(251,248,242,.68); box-shadow: 0 4px 16px rgba(64,56,48,.035); transition: background var(--ease), border-color var(--ease), box-shadow var(--ease); }
     .search-box:focus-within { background: var(--paper); border-color: rgba(82,72,63,.45); box-shadow: 0 0 0 3px rgba(118,108,99,.10); }
     .search-box input { width: 100%; border: 0; outline: 0; background: none; font-size: 14px; }
-    .search-box input::placeholder { color: #8a8179; }
+    .search-box input::placeholder { color: var(--muted); }
     .search-clear { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--brown-gray); opacity: 0; pointer-events: none; transition: opacity var(--ease), background var(--ease); }
     .search-clear.visible { opacity: 1; pointer-events: auto; }
     .search-clear:hover { background: var(--sand-deep); }
@@ -142,7 +202,7 @@
     .calculator-workspace.history-closed { grid-template-columns: minmax(680px, 980px); }
     .calculator-panel, .history-panel { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--paper); box-shadow: var(--shadow-soft); overflow: hidden; }
     .calculator-panel { min-width: 0; display: flex; flex-direction: column; }
-    .calc-display { min-height: 132px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px 25px 18px; border-bottom: 1px solid var(--line); background: #f6f0e7; }
+    .calc-display { min-height: 132px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px 25px 18px; border-bottom: 1px solid var(--line); background: var(--surface-display); }
     .calc-expression { height: 32px; overflow-x: auto; overflow-y: hidden; white-space: nowrap; color: var(--muted); text-align: right; font-size: 16px; line-height: 32px; }
     .calc-value { min-height: 50px; overflow-x: auto; overflow-y: hidden; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; font-size: clamp(31px, 3.1vw, 46px); line-height: 1.1; font-weight: 470; letter-spacing: -.04em; }
     .calc-value.error { color: #745c50; font-size: 23px; letter-spacing: -.01em; }
@@ -152,12 +212,12 @@
     .calc-keys { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(370px, 1.35fr) minmax(265px, .95fr); gap: 13px; padding: 12px 14px 14px; }
     .science-grid { display: grid; grid-template-columns: repeat(6, minmax(48px, 1fr)); grid-template-rows: repeat(5, minmax(42px, 1fr)); gap: 7px; }
     .basic-grid { display: grid; grid-template-columns: repeat(4, minmax(50px, 1fr)); grid-template-rows: repeat(5, minmax(42px, 1fr)); gap: 7px; }
-    .calc-key { min-width: 0; border: 1px solid var(--line); border-radius: 9px; background: #f3ede4; color: var(--stone); font-size: 13px; font-weight: 560; transition: background 120ms ease, border-color var(--ease), transform 90ms ease; }
-    .calc-key:hover { background: #ebe2d6; border-color: var(--line-strong); }
+    .calc-key { min-width: 0; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-control); color: var(--stone); font-size: 13px; font-weight: 560; transition: background 120ms ease, border-color var(--ease), transform 90ms ease; }
+    .calc-key:hover { background: var(--surface-control-hover); border-color: var(--line-strong); }
     .calc-key:active { transform: translateY(1px); background: var(--beige); }
-    .calc-key.number { background: #faf7f1; color: var(--ink); font-size: 15px; }
-    .calc-key.operator { background: #ddd1c3; color: var(--stone-deep); font-size: 17px; }
-    .calc-key.utility { color: #725e52; }
+    .calc-key.number { background: var(--surface-raised); color: var(--ink); font-size: 15px; }
+    .calc-key.operator { background: var(--sand-deep); color: var(--stone-deep); font-size: 17px; }
+    .calc-key.utility { color: var(--brown-gray); }
     .calc-key.equals { background: var(--stone); color: var(--paper); border-color: var(--stone); font-size: 18px; }
     .calc-key.equals:hover { background: var(--stone-deep); }
     .history-panel { display: flex; flex-direction: column; min-width: 0; animation: panelIn var(--ease); }
@@ -176,14 +236,14 @@
 
     /* Code editor */
     .code-view { --explorer-w: 215px; --preview-w: min(38vw, 560px); }
-    .code-toolbar { height: 44px; flex: 0 0 44px; display: flex; align-items: center; gap: 5px; padding: 0 12px; border-bottom: 1px solid var(--line); background: #ded3c5; position: relative; z-index: 15; }
+    .code-toolbar { height: 44px; flex: 0 0 44px; display: flex; align-items: center; gap: 5px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--surface-recessed); position: relative; z-index: 15; }
     .tool-divider { width: 1px; height: 21px; margin: 0 5px; background: var(--line-strong); }
     .toolbar-label-btn { height: 30px; display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--stone); font-size: 11px; font-weight: 600; }
     .toolbar-label-btn:hover { border-color: var(--line); background: rgba(255,255,255,.35); }
     .code-shell { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--explorer-w) 5px minmax(390px, 1fr) 5px var(--preview-w); background: var(--paper); }
     .code-shell.explorer-closed { --explorer-w: 0px; }
     .code-shell.preview-closed { --preview-w: 0px; }
-    .explorer { min-width: 0; overflow: hidden; display: flex; flex-direction: column; border-right: 1px solid var(--line); background: #eee6db; }
+    .explorer { min-width: 0; overflow: hidden; display: flex; flex-direction: column; border-right: 1px solid var(--line); background: var(--surface-editor-muted); }
     .explorer[hidden], .preview-panel[hidden] { display: none; }
     .explorer-head { height: 43px; flex: 0 0 43px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 14px; border-bottom: 1px solid var(--line); }
     .explorer-head span { font-size: 10px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); }
@@ -197,28 +257,28 @@
     .explorer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; border-top: 1px solid var(--line); }
     .explorer-actions button { height: 31px; border: 1px solid var(--line); border-radius: 7px; background: rgba(255,255,255,.28); color: var(--muted); font-size: 10px; }
     .explorer-actions button:hover { background: var(--paper); color: var(--ink); }
-    .resize-handle { position: relative; z-index: 6; background: #ded4c7; cursor: col-resize; transition: background var(--ease); }
+    .resize-handle { position: relative; z-index: 6; background: var(--surface-recessed); cursor: col-resize; transition: background var(--ease); }
     .resize-handle:hover, .resize-handle.dragging { background: var(--taupe); }
     .resize-handle[hidden] { display: none; }
-    .editor-column { min-width: 0; display: flex; flex-direction: column; background: #f8f4ed; }
-    .editor-tabs { height: 39px; flex: 0 0 39px; display: flex; overflow-x: auto; overflow-y: hidden; border-bottom: 1px solid var(--line); background: #e9dfd3; }
+    .editor-column { min-width: 0; display: flex; flex-direction: column; background: var(--surface-editor); }
+    .editor-tabs { height: 39px; flex: 0 0 39px; display: flex; overflow-x: auto; overflow-y: hidden; border-bottom: 1px solid var(--line); background: var(--surface-editor-muted); }
     .editor-tab { min-width: 110px; max-width: 190px; height: 39px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 11px; }
     .editor-tab:hover { background: rgba(255,255,255,.27); }
-    .editor-tab.active { background: #f8f4ed; color: var(--ink); }
+    .editor-tab.active { background: var(--surface-editor); color: var(--ink); }
     .tab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tab-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--stone); opacity: 0; }
     .editor-tab.modified .tab-dot { opacity: 1; }
-    .code-find { display: none; align-items: center; gap: 6px; padding: 7px 9px; border-bottom: 1px solid var(--line); background: #f0e8dd; box-shadow: 0 4px 12px rgba(59,50,43,.06); }
+    .code-find { display: none; align-items: center; gap: 6px; padding: 7px 9px; border-bottom: 1px solid var(--line); background: var(--sand-soft); box-shadow: 0 4px 12px rgba(59,50,43,.06); }
     .code-find.open { display: flex; animation: dropIn var(--ease); }
     @keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
     .mini-input { height: 29px; min-width: 90px; flex: 1; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--paper); padding: 0 9px; font-size: 11px; outline: none; }
     .mini-input:focus { border-color: var(--stone); }
     .find-count { min-width: 54px; color: var(--muted); font-size: 10px; text-align: center; }
     .editor-host { flex: 1; min-height: 0; position: relative; }
-    #code-textarea { width: 100%; height: 100%; resize: none; border: 0; outline: 0; padding: 16px; background: #f8f4ed; color: var(--ink); font: 13px/1.65 "SFMono-Regular", Consolas, "Liberation Mono", monospace; tab-size: 2; }
-    .CodeMirror { width: 100%; height: 100%; background: #f8f4ed; color: #3a342f; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; line-height: 1.62; }
-    .CodeMirror-gutters { border-right: 1px solid var(--line); background: #eee6dc; }
-    .CodeMirror-linenumber { color: #9b9085; padding: 0 9px 0 5px; }
+    #code-textarea { width: 100%; height: 100%; resize: none; border: 0; outline: 0; padding: 16px; background: var(--surface-editor); color: var(--ink); font: 13px/1.65 "SFMono-Regular", Consolas, "Liberation Mono", monospace; tab-size: 2; }
+    .CodeMirror { width: 100%; height: 100%; background: var(--surface-editor); color: var(--syntax-text); font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; line-height: 1.62; }
+    .CodeMirror-gutters { border-right: 1px solid var(--line); background: var(--syntax-gutter); }
+    .CodeMirror-linenumber { color: var(--syntax-muted); padding: 0 9px 0 5px; }
     .CodeMirror-cursor { border-left-color: var(--stone-deep); }
     .CodeMirror-selected { background: #d8cbbb !important; }
     .CodeMirror-activeline-background { background: rgba(196,181,165,.16); }
@@ -231,15 +291,15 @@
     .cm-s-default .cm-comment { color: #978b80; font-style: italic; }
     .cm-s-default .cm-tag { color: #7c5b52; }
     .cm-s-default .cm-attribute { color: #786950; }
-    .editor-status { height: 26px; flex: 0 0 26px; display: flex; align-items: center; gap: 15px; padding: 0 10px; border-top: 1px solid var(--line); background: #e6dbce; color: var(--muted); font-size: 10px; }
+    .editor-status { height: 26px; flex: 0 0 26px; display: flex; align-items: center; gap: 15px; padding: 0 10px; border-top: 1px solid var(--line); background: var(--surface-recessed); color: var(--muted); font-size: 10px; }
     .editor-status select { height: 20px; border: 0; background: transparent; color: var(--muted); font-size: 10px; outline: none; }
     .status-right { margin-left: auto; }
-    .preview-panel { min-width: 0; position: relative; display: flex; flex-direction: column; background: #eee7dd; }
+    .preview-panel { min-width: 0; position: relative; display: flex; flex-direction: column; background: var(--surface-editor-muted); }
     .preview-panel.expanded { position: fixed; inset: 62px 0 0; z-index: 40; width: auto !important; }
-    .preview-toolbar { height: 43px; flex: 0 0 43px; display: flex; align-items: center; gap: 6px; padding: 0 8px; border-bottom: 1px solid var(--line); background: #ded3c5; }
+    .preview-toolbar { height: 43px; flex: 0 0 43px; display: flex; align-items: center; gap: 6px; padding: 0 8px; border-bottom: 1px solid var(--line); background: var(--surface-recessed); }
     .preview-address { min-width: 0; flex: 1; height: 27px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; background: rgba(251,248,242,.55); color: var(--muted); font-size: 10px; }
     .preview-address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .preview-frame-wrap { flex: 1; min-height: 0; padding: 9px; background: #e7ddd1; }
+    .preview-frame-wrap { flex: 1; min-height: 0; padding: 9px; background: var(--surface-recessed); }
     #preview-frame { width: 100%; height: 100%; border: 1px solid var(--line-strong); border-radius: 8px; background: white; }
     .console-panel { height: 155px; flex: 0 0 155px; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: #443e39; color: #eae2d7; }
     .console-head { height: 33px; flex: 0 0 33px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; border-bottom: 1px solid rgba(255,255,255,.10); color: #cfc3b6; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
@@ -252,6 +312,7 @@
     .settings-popover { position: absolute; top: 39px; right: 12px; z-index: 30; width: 260px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow); animation: dropIn var(--ease); }
     .settings-popover[hidden] { display: none; }
     .settings-popover h3 { margin: 0 0 10px; font-size: 12px; }
+    .settings-section-title { margin: 10px 0 4px; color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
     .setting-row { min-height: 38px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); font-size: 11px; }
     .setting-row input[type="range"] { width: 100px; accent-color: var(--stone); }
     .setting-row select { height: 27px; border: 1px solid var(--line); border-radius: 6px; background: var(--sand-soft); font-size: 10px; }
@@ -260,13 +321,45 @@
     .switch.on { background: var(--stone); }
     .switch.on::after { transform: translateX(15px); }
 
+    [data-appearance="dark"] .tool-card-top { background: rgba(255,255,255,.035); }
+    [data-appearance="dark"] .search-box,
+    [data-appearance="dark"] .tool-card,
+    [data-appearance="dark"] .soft-btn,
+    [data-appearance="dark"] .segmented,
+    [data-appearance="dark"] .explorer-actions button,
+    [data-appearance="dark"] .preview-address { background: rgba(255,255,255,.035); }
+    [data-appearance="dark"] .search-box:focus-within,
+    [data-appearance="dark"] .tool-card:hover,
+    [data-appearance="dark"] .tool-card.search-active,
+    [data-appearance="dark"] .soft-btn:hover,
+    [data-appearance="dark"] .explorer-actions button:hover { background: var(--surface-control); }
+    [data-appearance="dark"] .calc-key.utility,
+    [data-appearance="dark"] .calc-value.error { color: #e0a397; }
+    [data-appearance="dark"] .CodeMirror-selected { background: #514a42 !important; }
+    [data-appearance="dark"] .CodeMirror-activeline-background { background: rgba(255,255,255,.035); }
+    [data-appearance="dark"] .CodeMirror-matchingbracket { color: #fff3df !important; background: #665a4b; border-color: #d8b98e; }
+    [data-appearance="dark"] .cm-s-default .cm-keyword { color: #dca99a; }
+    [data-appearance="dark"] .cm-s-default .cm-atom,
+    [data-appearance="dark"] .cm-s-default .cm-number { color: #d8b27e; }
+    [data-appearance="dark"] .cm-s-default .cm-def,
+    [data-appearance="dark"] .cm-s-default .cm-variable-2 { color: #9fc5ae; }
+    [data-appearance="dark"] .cm-s-default .cm-variable,
+    [data-appearance="dark"] .cm-s-default .cm-property { color: #e8e0d6; }
+    [data-appearance="dark"] .cm-s-default .cm-string { color: #b8c58f; }
+    [data-appearance="dark"] .cm-s-default .cm-comment { color: #9b938b; }
+    [data-appearance="dark"] .cm-s-default .cm-tag { color: #d9a399; }
+    [data-appearance="dark"] .cm-s-default .cm-attribute { color: #cbb88f; }
+    [data-appearance="dark"] .document-page { border-color: var(--line); box-shadow: var(--shadow); }
+    [data-appearance="dark"] input[type="color"] { color-scheme: dark; }
+    [data-appearance="dark"] ::selection { background: #675b4e; color: #fff8ef; }
+
     /* Rich text editor */
-    .text-view { background: #ded4c7; }
+    .text-view { background: var(--surface-recessed); }
     .document-title-input { width: min(34vw, 420px); height: 35px; border: 1px solid transparent; border-radius: 7px; background: transparent; padding: 0 9px; font-size: 14px; font-weight: 610; outline: none; }
     .document-title-input:hover { border-color: var(--line); }
     .document-title-input:focus { border-color: var(--line-strong); background: rgba(255,255,255,.38); }
     .save-status { min-width: 58px; display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px; }
-    .doc-toolbar { min-height: 50px; flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 7px 14px; border-bottom: 1px solid var(--line); background: #eee6db; overflow-x: auto; overflow-y: hidden; }
+    .doc-toolbar { min-height: 50px; flex: 0 0 auto; display: flex; align-items: center; gap: 4px; padding: 7px 14px; border-bottom: 1px solid var(--line); background: var(--surface-editor-muted); overflow-x: auto; overflow-y: hidden; }
     .doc-tool { width: 31px; height: 31px; flex: 0 0 31px; display: inline-grid; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--stone); }
     .doc-tool:hover, .doc-tool.active { border-color: var(--line); background: var(--paper); }
     .doc-select { height: 31px; border: 1px solid var(--line); border-radius: 7px; background: rgba(251,248,242,.62); padding: 0 25px 0 8px; color: var(--stone); font-size: 11px; outline: none; }
@@ -277,19 +370,19 @@
     .color-control .doc-tool { position: absolute; inset: 0; pointer-events: none; }
     .color-control input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
     .color-swatch { position: absolute; left: 8px; right: 8px; bottom: 4px; height: 3px; border-radius: 2px; background: var(--swatch, var(--stone)); pointer-events: none; }
-    .text-find { display: none; min-height: 44px; flex: 0 0 44px; align-items: center; justify-content: center; gap: 7px; padding: 6px 14px; border-bottom: 1px solid var(--line); background: #e4dacd; }
+    .text-find { display: none; min-height: 44px; flex: 0 0 44px; align-items: center; justify-content: center; gap: 7px; padding: 6px 14px; border-bottom: 1px solid var(--line); background: var(--surface-recessed); }
     .text-find.open { display: flex; animation: dropIn var(--ease); }
     .document-stage { flex: 1; min-height: 0; overflow: auto; padding: 30px 32px 70px; scroll-behavior: smooth; }
-    .document-page { width: min(794px, calc(100vw - 190px)); min-height: 1028px; margin: 0 auto; padding: 74px 82px 92px; border: 1px solid rgba(80,70,61,.14); background: #fffdf8; box-shadow: 0 10px 32px rgba(58,49,41,.12); }
-    #document-editor { min-height: 850px; outline: none; color: #342f2a; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.72; overflow-wrap: break-word; }
-    #document-editor:empty::before { content: "Begin your document…"; color: #aaa097; pointer-events: none; }
+    .document-page { width: min(794px, calc(100vw - 190px)); min-height: 1028px; margin: 0 auto; padding: 74px 82px 92px; border: 1px solid rgba(80,70,61,.14); background: var(--surface-raised); box-shadow: 0 10px 32px rgba(58,49,41,.12); }
+    #document-editor { min-height: 850px; outline: none; color: var(--ink); font-family: Arial, sans-serif; font-size: 15px; line-height: 1.72; overflow-wrap: break-word; }
+    #document-editor:empty::before { content: "Begin your document…"; color: var(--muted); pointer-events: none; }
     #document-editor h1 { margin: 0 0 .75em; font-size: 32px; line-height: 1.2; font-weight: 600; letter-spacing: -.03em; }
     #document-editor h2 { margin: 1.35em 0 .55em; font-size: 23px; line-height: 1.3; font-weight: 600; letter-spacing: -.02em; }
     #document-editor h3 { margin: 1.25em 0 .45em; font-size: 18px; line-height: 1.4; font-weight: 600; }
     #document-editor h4 { margin: 1.2em 0 .4em; font-size: 16px; line-height: 1.45; font-weight: 650; }
     #document-editor p { margin: 0 0 .8em; }
     #document-editor ul, #document-editor ol { margin: .5em 0 1em; padding-left: 2em; }
-    #document-editor a { color: #665448; text-decoration: underline; text-underline-offset: 2px; }
+    #document-editor a { color: var(--stone); text-decoration: underline; text-underline-offset: 2px; }
     .doc-statusbar { height: 29px; flex: 0 0 29px; display: flex; align-items: center; justify-content: flex-end; gap: 18px; padding: 0 22px; border-top: 1px solid var(--line); background: var(--sand); color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
     .export-menu { position: absolute; top: 50px; right: 20px; z-index: 50; width: 170px; padding: 6px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--paper); box-shadow: var(--shadow); animation: dropIn var(--ease); }
     .export-menu[hidden] { display: none; }
@@ -305,7 +398,7 @@
     .modal p { margin: 0 0 17px; color: var(--muted); font-size: 12px; }
     .modal-field { display: grid; gap: 6px; margin: 12px 0; }
     .modal-field label { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; }
-    .modal-field input, .modal-field select { height: 38px; width: 100%; border: 1px solid var(--line-strong); border-radius: 8px; background: #fffdf8; padding: 0 10px; outline: none; }
+    .modal-field input, .modal-field select { height: 38px; width: 100%; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-raised); padding: 0 10px; outline: none; }
     .modal-field input:focus, .modal-field select:focus { border-color: var(--stone); box-shadow: 0 0 0 3px rgba(118,108,99,.09); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 19px; }
     .danger-btn { border-color: #785f52; background: #785f52; color: var(--paper); }
@@ -345,6 +438,9 @@
   </style>
 </head>
 <body>
+  <div id="language-gate" class="language-gate" role="dialog" aria-modal="true" aria-labelledby="language-gate-title" hidden>
+    <div class="language-dialog"><span class="brand-mark"><svg class="icon-lg"><use href="#i-leaf"></use></svg></span><h1 id="language-gate-title">Choose your language · Choisissez votre langue</h1><p>Select a language to begin · Choisissez une langue pour commencer</p><div class="language-choices"><button class="language-choice" type="button" data-language-choice="en" lang="en">English</button><button class="language-choice" type="button" data-language-choice="fr" lang="fr">Français</button></div></div>
+  </div>
   <div class="desktop-only" role="status">
     <div class="desktop-message">
       <svg class="desktop-mark" aria-hidden="true"><use href="#i-monitor"></use></svg>
@@ -513,6 +609,10 @@
           <label class="setting-row"><span>Tab size</span><select id="tab-size-setting"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="8">8 spaces</option></select></label>
           <div class="setting-row"><span>Word wrap</span><button id="wrap-setting" class="switch" type="button" role="switch" aria-checked="false" aria-label="Toggle word wrap"></button></div>
           <div class="setting-row"><span>Auto-save</span><button id="autosave-setting" class="switch on" type="button" role="switch" aria-checked="true" aria-label="Toggle auto-save"></button></div>
+          <h4 class="settings-section-title">Appearance</h4>
+          <label class="setting-row"><span>Theme</span><select id="appearance-setting" aria-label="Appearance"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+          <h4 class="settings-section-title">Language</h4>
+          <label class="setting-row"><span>Language</span><select id="language-setting" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select></label>
         </div>
       </div>
       <main id="code-shell" class="code-shell">
@@ -598,6 +698,120 @@
   (() => {
     'use strict';
 
+    const APPEARANCE_STORAGE_KEY = 'elowen.appearance';
+    const APPEARANCES = new Set(['light', 'dark']);
+    let currentAppearance = APPEARANCES.has(document.documentElement.dataset.appearance) ? document.documentElement.dataset.appearance : 'light';
+    function applyAppearance(appearance, persist = true) {
+      currentAppearance = APPEARANCES.has(appearance) ? appearance : 'light';
+      document.documentElement.dataset.appearance = currentAppearance;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', currentAppearance === 'dark' ? '#1c1b1a' : '#e8dfd1');
+      const setting = document.getElementById('appearance-setting');
+      if (setting) setting.value = currentAppearance;
+      if (persist) { try { localStorage.setItem(APPEARANCE_STORAGE_KEY, currentAppearance); } catch (_) {} }
+    }
+
+    const LANGUAGE_STORAGE_KEY = 'elowen.language';
+    const LANGUAGE_ENTRIES = [
+      ['desktop.title','Elowen is designed for desktop displays in landscape orientation.','Elowen est conçu pour les écrans d’ordinateur en orientation paysage.'],
+      ['desktop.help','Open this workspace on a laptop or desktop and widen the browser window.','Ouvrez cet espace sur un ordinateur portable ou de bureau, puis agrandissez la fenêtre.'],
+      ['nav.home','Elowen home','Accueil d’Elowen'], ['nav.back','Back to Elowen home','Retour à l’accueil d’Elowen'], ['nav.backTitle','Back to Home','Retour à l’accueil'],
+      ['search.tools','Search Elowen tools…','Rechercher dans les outils Elowen…'], ['search.clear','Clear search','Effacer la recherche'], ['search.navigate','navigate','naviguer'], ['search.open','open','ouvrir'],
+      ['home.eyebrow','Your quiet workspace','Votre espace de sérénité'], ['home.title','Three tools. One clear rhythm.','Trois outils. Un rythme fluide.'],
+      ['home.description','Calculate, build, and write without leaving your browser. Your work stays on this device.','Calculez, créez et rédigez sans quitter votre navigateur. Votre travail reste sur cet appareil.'],
+      ['home.tools','Elowen tools','Outils Elowen'], ['tool.calculator','Scientific Calculator','Calculatrice scientifique'], ['tool.calculator.description','Advanced calculations, functions, constants, and history.','Calculs avancés, fonctions, constantes et historique.'], ['tool.calculator.open','Open calculator','Ouvrir la calculatrice'],
+      ['tool.code','Code Editor','Éditeur de code'], ['tool.code.description','Write, edit, preview, and manage code directly in your browser.','Écrivez, modifiez, prévisualisez et gérez du code directement dans votre navigateur.'], ['tool.editor.open','Open editor','Ouvrir l’éditeur'],
+      ['tool.text','Text Editor','Éditeur de texte'], ['tool.text.description','Create and format rich documents in a distraction-free workspace.','Créez et mettez en forme des documents enrichis dans un espace sans distractions.'],
+      ['empty.tools','No tools found.','Aucun outil trouvé.'], ['empty.tools.help','Try “code”, “calculator”, or “text”.','Essayez « code », « calculatrice » ou « texte ».'], ['footer.workspace','Elowen workspace','Espace de travail Elowen'], ['footer.local','Stored locally · No account required','Stockage local · Aucun compte requis'],
+      ['calc.keyboard','Natural keyboard input supported','Saisie naturelle au clavier prise en charge'], ['calc.angle','Angle mode','Mode angulaire'], ['calc.history','History','Historique'], ['calc.keypad','Calculator keypad','Pavé de la calculatrice'], ['calc.expression','Expression','Expression'], ['calc.result','Result','Résultat'], ['calc.memory','Memory controls','Commandes de mémoire'], ['calc.memory.clear','Clear memory','Effacer la mémoire'], ['calc.memory.recall','Recall memory','Rappeler la mémoire'], ['calc.memory.add','Add to memory','Ajouter à la mémoire'], ['calc.memory.subtract','Subtract from memory','Soustraire de la mémoire'], ['calc.memory.store','Store in memory','Enregistrer en mémoire'], ['calc.scientific','Scientific functions','Fonctions scientifiques'], ['calc.basic','Basic operations','Opérations de base'], ['calc.backspace','Backspace','Retour arrière'], ['calc.historyLabel','Calculation history','Historique des calculs'], ['common.clear','Clear','Effacer'],
+      ['code.workspace','Browser workspace','Espace de travail du navigateur'], ['common.save','Save','Enregistrer'], ['common.run','Run','Exécuter'], ['code.toolbar','Code editor toolbar','Barre d’outils de l’éditeur de code'], ['common.files','Files','Fichiers'], ['files.toggle','Toggle files','Afficher ou masquer les fichiers'], ['common.undo','Undo','Annuler'], ['common.redo','Redo','Rétablir'], ['common.find','Find','Rechercher'], ['common.replace','Replace','Remplacer'], ['find.replace','Find and replace','Rechercher et remplacer'], ['find.shortcut','Find (Ctrl/Cmd+F)','Rechercher (Ctrl/Cmd+F)'], ['replace.shortcut','Find and replace (Ctrl/Cmd+H)','Rechercher et remplacer (Ctrl/Cmd+H)'], ['code.comment','Comment','Commenter'], ['code.commentToggle','Toggle comment (Ctrl/Cmd+/)','Ajouter ou retirer le commentaire (Ctrl/Cmd+/)'], ['common.download','Download','Télécharger'], ['code.downloadCurrent','Download current file','Télécharger le fichier actuel'], ['code.preview','Preview','Aperçu'], ['code.previewToggle','Toggle preview','Afficher ou masquer l’aperçu'], ['common.settings','Settings','Réglages'], ['code.editorSettings','Editor settings','Réglages de l’éditeur'],
+      ['settings.fontSize','Font size','Taille de police'], ['settings.tabSize','Tab size','Taille de tabulation'], ['settings.twoSpaces','2 spaces','2 espaces'], ['settings.fourSpaces','4 spaces','4 espaces'], ['settings.eightSpaces','8 spaces','8 espaces'], ['settings.wrap','Word wrap','Retour à la ligne'], ['settings.wrapToggle','Toggle word wrap','Activer ou désactiver le retour à la ligne'], ['settings.autosave','Auto-save','Enregistrement automatique'], ['settings.autosaveToggle','Toggle auto-save','Activer ou désactiver l’enregistrement automatique'], ['settings.language','Language','Langue'],
+      ['settings.appearance','Appearance','Apparence'], ['settings.theme','Theme','Thème'], ['settings.light','Light','Clair'], ['settings.dark','Dark','Sombre'],
+      ['files.new','New file','Nouveau fichier'], ['files.rename','Rename','Renommer'], ['files.delete','Delete','Supprimer'], ['files.resize','Resize file panel','Redimensionner le panneau des fichiers'], ['code.area','Code editing area','Zone d’édition du code'], ['find.text','Find text','Texte à rechercher'], ['replace.text','Replacement text','Texte de remplacement'], ['find.previous','Previous match','Occurrence précédente'], ['find.next','Next match','Occurrence suivante'], ['common.all','All','Tout'], ['common.close','Close','Fermer'], ['find.close','Close find','Fermer la recherche'], ['code.editor','Code editor','Éditeur de code'], ['code.languageMode','Language mode','Mode de langage'], ['code.plainText','Plain Text','Texte brut'], ['preview.resize','Resize preview panel','Redimensionner le panneau d’aperçu'], ['preview.live','Live preview','Aperçu en direct'], ['preview.refresh','Refresh preview','Actualiser l’aperçu'], ['preview.expand','Expand preview','Agrandir l’aperçu'], ['preview.close','Close preview','Fermer l’aperçu'], ['preview.frame','Code preview','Aperçu du code'], ['preview.console','Console','Console'],
+      ['text.untitled','Untitled document','Document sans titre'], ['text.documentTitle','Document title','Titre du document'], ['common.saved','Saved','Enregistré'], ['common.print','Print','Imprimer'], ['text.htmlDocument','HTML document','Document HTML'], ['text.plainText','Plain text','Texte brut'], ['text.wordDocument','Word-compatible .doc','Document .doc compatible avec Word'], ['text.toolbar','Formatting toolbar','Barre d’outils de mise en forme'], ['text.paragraphStyle','Paragraph style','Style de paragraphe'], ['text.normal','Normal text','Texte normal'], ['text.title','Title','Titre'], ['text.heading1','Heading 1','Titre 1'], ['text.heading2','Heading 2','Titre 2'], ['text.heading3','Heading 3','Titre 3'], ['text.fontFamily','Font family','Police'], ['text.bold','Bold','Gras'], ['text.italic','Italic','Italique'], ['text.underline','Underline','Souligné'], ['text.strike','Strikethrough','Barré'], ['text.color','Text color','Couleur du texte'], ['text.highlight','Highlight color','Couleur de surlignage'], ['text.alignLeft','Align left','Aligner à gauche'], ['text.alignCenter','Align center','Centrer'], ['text.alignRight','Align right','Aligner à droite'], ['text.justify','Justify','Justifier'], ['text.bullets','Bulleted list','Liste à puces'], ['text.numbered','Numbered list','Liste numérotée'], ['text.outdent','Decrease indent','Diminuer le retrait'], ['text.indent','Increase indent','Augmenter le retrait'], ['text.insertLink','Insert link','Insérer un lien'], ['text.removeLink','Remove link','Supprimer le lien'], ['text.clearFormat','Clear formatting','Effacer la mise en forme'], ['text.findDocument','Find in document','Rechercher dans le document'], ['text.replaceWith','Replace with','Remplacer par'], ['text.content','Document content','Contenu du document'],
+      ['common.cancel','Cancel','Annuler'], ['common.confirm','Confirm','Confirmer'], ['common.saving','Saving…','Enregistrement…'], ['common.modified','Modified','Modifié'], ['code.unsaved','Unsaved changes','Modifications non enregistrées']
+    ];
+    const TRANSLATIONS = { en: {}, fr: {} };
+    const SOURCE_TO_KEY = new Map();
+    LANGUAGE_ENTRIES.forEach(([key, en, fr]) => { TRANSLATIONS.en[key] = en; TRANSLATIONS.fr[key] = fr; SOURCE_TO_KEY.set(en, key); SOURCE_TO_KEY.set(fr, key); });
+    let currentLanguage = 'en';
+    const t = (key, values = {}) => {
+      let result = (TRANSLATIONS[currentLanguage] && TRANSLATIONS[currentLanguage][key]) || TRANSLATIONS.en[key] || key;
+      Object.entries(values).forEach(([name, value]) => { result = result.replaceAll(`{${name}}`, value); });
+      return result;
+    };
+    function tr(message) {
+      const source = String(message ?? '');
+      const key = SOURCE_TO_KEY.get(source);
+      if (key) return t(key);
+      if (currentLanguage !== 'fr') return source;
+      const exact = {
+        'No calculations yet':'Aucun calcul pour le moment', 'Completed results will appear here.':'Les résultats terminés apparaîtront ici.',
+        'Invalid calculation':'Calcul non valide', 'Memory cleared':'Mémoire effacée', 'Calculation history cleared':'Historique des calculs effacé',
+        'Missing closing parenthesis':'Parenthèse fermante manquante', 'Incomplete expression':'Expression incomplète', 'Check the expression':'Vérifiez l’expression', 'Result is outside the supported range':'Le résultat dépasse la plage prise en charge', 'Cannot divide by zero':'Division par zéro impossible',
+        'Factorial needs a non-negative integer':'La factorielle exige un entier positif ou nul', 'Factorial is limited to 170':'La factorielle est limitée à 170', 'asin accepts values from −1 to 1':'asin accepte les valeurs de −1 à 1', 'acos accepts values from −1 to 1':'acos accepte les valeurs de −1 à 1', 'Logarithm needs a positive value':'Le logarithme exige une valeur positive', 'Natural log needs a positive value':'Le logarithme naturel exige une valeur positive', 'Square root needs a non-negative value':'La racine carrée exige une valeur positive ou nulle',
+        '0 results':'0 résultat', 'Stored data could not be read. A safe workspace was restored.':'Les données enregistrées n’ont pas pu être lues. Un espace de travail sûr a été restauré.',
+        'This browser could not save your latest changes.':'Ce navigateur n’a pas pu enregistrer vos dernières modifications.', 'The file could not be downloaded.':'Le fichier n’a pas pu être téléchargé.',
+        'Enhanced syntax highlighting is unavailable; the editor is using its reliable fallback.':'La coloration syntaxique avancée est indisponible ; l’éditeur utilise son mode de secours fiable.',
+        'Enter a file name.':'Saisissez un nom de fichier.', 'A file with that name already exists.':'Un fichier portant ce nom existe déjà.', 'File renamed':'Fichier renommé', 'File deleted':'Fichier supprimé',
+        'Preview could not run':'Impossible d’exécuter l’aperçu', 'Preview could not run. Check the console.':'Impossible d’exécuter l’aperçu. Consultez la console.',
+        'That formatting action is not supported by this browser.':'Cette action de mise en forme n’est pas prise en charge par ce navigateur.', 'Enter a valid http, https, or email link.':'Saisissez un lien HTTP, HTTPS ou une adresse courriel valide.',
+        'Document downloaded':'Document téléchargé', 'Document saved':'Document enregistré', 'Restore preview':'Rétablir l’aperçu',
+        'Create a new file':'Créer un fichier', 'Choose a name and editing mode.':'Choisissez un nom et un mode d’édition.', 'Create file':'Créer le fichier', 'File name':'Nom du fichier',
+        'Clear calculation history?':'Effacer l’historique des calculs ?', 'This removes all saved calculations from this browser.':'Cette action supprime du navigateur tous les calculs enregistrés.', 'Clear history':'Effacer l’historique',
+        'Rename file':'Renommer le fichier', 'Update the file name or its editing mode.':'Modifiez le nom du fichier ou son mode d’édition.', 'This removes the virtual file from this browser.':'Cette action supprime le fichier virtuel de ce navigateur.', 'Delete file':'Supprimer le fichier',
+        'Insert link':'Insérer un lien', 'Enter a secure web address for the selected text.':'Saisissez une adresse Web sécurisée pour le texte sélectionné.', 'Web address':'Adresse Web'
+      };
+      if (exact[source]) return exact[source];
+      let match;
+      if ((match = source.match(/^(\d+) of (\d+)$/))) return `${match[1]} sur ${match[2]}`;
+      if ((match = source.match(/^(\d+) results?$/))) return `${match[1]} résultat${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^(\d+) words?$/))) return `${match[1]} mot${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^(\d+) characters?$/))) return `${match[1]} caractère${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^(\d+) replacements? made$/))) return `${match[1]} remplacement${match[1] === '1' ? '' : 's'} effectué${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^Delete (.+)\?$/))) return `Supprimer ${match[1]} ?`;
+      if ((match = source.match(/^Unknown symbol “(.+)”$/))) return `Symbole inconnu « ${match[1]} »`;
+      if ((match = source.match(/^Unknown function “(.+)”$/))) return `Fonction inconnue « ${match[1]} »`;
+      if ((match = source.match(/^Memory: (.+)$/))) return `Mémoire : ${match[1]}`;
+      if ((match = source.match(/^Reuse (.+)$/))) return `Réutiliser ${match[1]}`;
+      if ((match = source.match(/^(.+) saved$/))) return `${match[1]} enregistré`;
+      if ((match = source.match(/^(.+) downloaded$/))) return `${match[1]} téléchargé`;
+      if ((match = source.match(/^Spaces: (\d+)$/))) return `Espaces : ${match[1]}`;
+      if ((match = source.match(/^Ln (\d+), Col (\d+)$/))) return `Lig. ${match[1]}, Col. ${match[2]}`;
+      return source;
+    }
+    function translateInterface(root = document) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        if (node.parentElement && node.parentElement.closest('script,style,[contenteditable="true"],#language-gate')) return;
+        const raw = node.nodeValue; const trimmed = raw.trim(); const key = SOURCE_TO_KEY.get(trimmed);
+        if (key) node.nodeValue = raw.replace(trimmed, t(key));
+      });
+      root.querySelectorAll?.('[aria-label],[title],[placeholder]').forEach(element => ['aria-label','title','placeholder'].forEach(attr => {
+        if (!element.hasAttribute(attr)) return; const key = SOURCE_TO_KEY.get(element.getAttribute(attr)); if (key) element.setAttribute(attr, t(key));
+      }));
+    }
+    function applyLanguage(language, persist = true) {
+      currentLanguage = ['en','fr'].includes(language) ? language : 'en';
+      document.documentElement.lang = currentLanguage;
+      if (persist) { try { localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage); } catch (_) {} }
+      translateInterface();
+      const setting = document.getElementById('language-setting'); if (setting) setting.value = currentLanguage;
+      document.dispatchEvent(new CustomEvent('elowen:languagechange', { detail: { language: currentLanguage } }));
+    }
+    let savedLanguage = null;
+    try { savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch (_) {}
+    if (['en','fr'].includes(savedLanguage)) applyLanguage(savedLanguage, false);
+    window.addEventListener('DOMContentLoaded', () => {
+      applyAppearance(currentAppearance, false);
+      document.getElementById('appearance-setting')?.addEventListener('change', event => applyAppearance(event.target.value));
+      if (['en','fr'].includes(savedLanguage)) applyLanguage(savedLanguage, false);
+      else { const gate = document.getElementById('language-gate'); gate.hidden = false; gate.querySelector('[data-language-choice="en"]').focus(); }
+      document.querySelectorAll('[data-language-choice]').forEach(button => button.addEventListener('click', () => { applyLanguage(button.dataset.languageChoice); document.getElementById('language-gate').hidden = true; }));
+      document.getElementById('language-setting')?.addEventListener('change', event => applyLanguage(event.target.value));
+    });
+
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -613,7 +827,7 @@
       if (!region) return;
       const item = document.createElement('div');
       item.className = `toast ${type === 'error' ? 'error' : ''}`;
-      item.textContent = message;
+      item.textContent = tr(message);
       region.appendChild(item);
       window.setTimeout(() => {
         item.classList.add('out');
@@ -677,7 +891,7 @@
       if (!views[name]) return;
       Object.entries(views).forEach(([key, view]) => view.classList.toggle('active', key === name));
       currentView = name;
-      document.title = name === 'home' ? 'Elowen' : `${name === 'calculator' ? 'Scientific Calculator' : name === 'code' ? 'Code Editor' : 'Text Editor'} — Elowen`;
+      document.title = name === 'home' ? 'Elowen' : `${name === 'calculator' ? t('tool.calculator') : name === 'code' ? t('tool.code') : t('tool.text')} — Elowen`;
       if (name === 'code') {
         initializeCodeEditor();
         window.setTimeout(() => { refreshEditor(); editorFocus(); }, 190);
@@ -772,8 +986,8 @@
 
     function openModal(config) {
       modalLastFocus = document.activeElement;
-      $('#modal-title').textContent = config.title || 'Confirm';
-      $('#modal-description').textContent = config.description || '';
+      $('#modal-title').textContent = tr(config.title || 'Confirm');
+      $('#modal-description').textContent = tr(config.description || '');
       const fieldsHost = $('#modal-fields');
       fieldsHost.replaceChildren();
       (config.fields || []).forEach(field => {
@@ -781,14 +995,14 @@
         wrap.className = 'modal-field';
         const label = document.createElement('label');
         label.htmlFor = `modal-field-${field.name}`;
-        label.textContent = field.label;
+        label.textContent = tr(field.label);
         let control;
         if (field.type === 'select') {
           control = document.createElement('select');
           (field.options || []).forEach(option => {
             const element = document.createElement('option');
             element.value = option.value;
-            element.textContent = option.label;
+            element.textContent = tr(option.label);
             element.selected = option.value === field.value;
             control.appendChild(element);
           });
@@ -806,7 +1020,7 @@
         fieldsHost.appendChild(wrap);
       });
       const confirm = $('#modal-confirm');
-      confirm.textContent = config.confirmText || 'Confirm';
+      confirm.textContent = tr(config.confirmText || 'Confirm');
       confirm.className = `primary-btn${config.danger ? ' danger-btn' : ''}`;
       modalConfirmHandler = () => {
         const values = {};
@@ -998,7 +1212,7 @@
       const value = $('#calc-value');
       expression.textContent = calcState.expression || '\u00a0';
       value.classList.toggle('error', Boolean(errorMessage));
-      if (errorMessage) value.textContent = errorMessage;
+      if (errorMessage) value.textContent = tr(errorMessage);
       else if (!calcState.expression) value.textContent = formatNumber(calcState.value || 0);
       else {
         try { value.textContent = formatNumber(calculate(calcState.expression)); }
@@ -1017,7 +1231,7 @@
       if (!calcState.history.length) {
         const empty = document.createElement('div');
         empty.className = 'history-empty';
-        empty.innerHTML = '<div><strong>No calculations yet</strong><br>Completed results will appear here.</div>';
+        empty.innerHTML = `<div><strong>${tr('No calculations yet')}</strong><br>${tr('Completed results will appear here.')}</div>`;
         list.appendChild(empty);
         return;
       }
@@ -1032,7 +1246,7 @@
         result.className = 'history-result';
         result.textContent = `= ${item.result}`;
         button.append(expression, result);
-        button.title = `Reuse ${item.result}`;
+        button.title = tr(`Reuse ${item.result}`);
         button.addEventListener('click', () => {
           calcState.expression = item.result;
           calcState.value = Number(item.result);
@@ -1302,12 +1516,12 @@
       $('#wrap-setting').setAttribute('aria-checked', String(codeState.prefs.wrap));
       $('#autosave-setting').classList.toggle('on', codeState.prefs.autoSave);
       $('#autosave-setting').setAttribute('aria-checked', String(codeState.prefs.autoSave));
-      $('#indent-status').textContent = `Spaces: ${codeState.prefs.tabSize}`;
+      $('#indent-status').textContent = tr(`Spaces: ${codeState.prefs.tabSize}`);
     }
 
     function updateCursorStatus() {
       const cursor = editorCursor();
-      $('#cursor-position').textContent = `Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`;
+      $('#cursor-position').textContent = tr(`Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`);
     }
 
     function handleCodeChange() {
@@ -1319,7 +1533,7 @@
       persistCodeState();
       window.clearTimeout(codeAutoSaveTimer);
       if (codeState.prefs.autoSave) {
-        $('#editor-save-state').textContent = 'Saving…';
+        $('#editor-save-state').textContent = t('common.saving');
         codeAutoSaveTimer = window.setTimeout(() => {
           file.savedContent = file.content;
           writeStorage(STORAGE.code, codeState);
@@ -1331,8 +1545,8 @@
 
     function updateCodeSaveStatus() {
       const modified = fileModified(activeFile());
-      $('#editor-save-state').textContent = modified ? (codeState.prefs.autoSave ? 'Saving…' : 'Modified') : 'Saved';
-      $('#code-header-status').textContent = modified ? 'Unsaved changes' : 'Browser workspace';
+      $('#editor-save-state').textContent = modified ? (codeState.prefs.autoSave ? t('common.saving') : t('common.modified')) : t('common.saved');
+      $('#code-header-status').textContent = modified ? t('code.unsaved') : t('code.workspace');
     }
 
     function initializeCodeEditor() {
@@ -1792,12 +2006,12 @@
       const text = (documentEditor.innerText || '').replace(/\u00a0/g, ' ').trim();
       const words = text ? (text.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu) || []).length : 0;
       const characters = (documentEditor.innerText || '').replace(/\n$/, '').length;
-      $('#word-count').textContent = `${words} word${words === 1 ? '' : 's'}`;
-      $('#character-count').textContent = `${characters} character${characters === 1 ? '' : 's'}`;
+      $('#word-count').textContent = tr(`${words} word${words === 1 ? '' : 's'}`);
+      $('#character-count').textContent = tr(`${characters} character${characters === 1 ? '' : 's'}`);
     }
 
     function setDocumentSaveStatus(label) {
-      $('#document-save-status span').textContent = label;
+      $('#document-save-status span').textContent = tr(label);
       $('#document-save-status svg').style.opacity = label === 'Saved' ? '1' : '.35';
     }
 
@@ -1941,7 +2155,7 @@
       const map = documentTextMap();
       textFindOccurrences = findAllIndices(map.text, query);
       if (reset) textFindIndex = textFindOccurrences.length ? 0 : -1;
-      $('#text-find-count').textContent = textFindOccurrences.length ? `${textFindIndex + 1} of ${textFindOccurrences.length}` : '0 results';
+      $('#text-find-count').textContent = tr(textFindOccurrences.length ? `${textFindIndex + 1} of ${textFindOccurrences.length}` : '0 results');
       if (textFindIndex >= 0) selectTextOccurrence(map, query);
     }
 
@@ -1954,14 +2168,14 @@
       selection.removeAllRanges(); selection.addRange(range);
       range.startContainer.parentElement?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       savedTextRange = range.cloneRange();
-      $('#text-find-count').textContent = `${textFindIndex + 1} of ${textFindOccurrences.length}`;
+      $('#text-find-count').textContent = tr(`${textFindIndex + 1} of ${textFindOccurrences.length}`);
     }
 
     function moveTextFind(direction) {
       const query = $('#text-find-input').value;
       const map = documentTextMap();
       textFindOccurrences = findAllIndices(map.text, query);
-      if (!textFindOccurrences.length) { textFindIndex = -1; $('#text-find-count').textContent = '0 results'; return; }
+      if (!textFindOccurrences.length) { textFindIndex = -1; $('#text-find-count').textContent = tr('0 results'); return; }
       textFindIndex = (textFindIndex + direction + textFindOccurrences.length) % textFindOccurrences.length;
       selectTextOccurrence(map, query);
     }
@@ -2026,7 +2240,7 @@
       const title = documentTitle.value.trim() || 'Untitled document';
       const safeTitle = title.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
       const content = sanitizeDocumentHTML(documentEditor.innerHTML);
-      return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{max-width:720px;margin:64px auto;padding:0 32px;color:#342f2a;font:15px/1.72 Arial,sans-serif}h1{font-size:32px}h2{font-size:23px}h3{font-size:18px}a{color:#665448}@media print{body{margin:0;max-width:none}}</style></head><body>${content}</body></html>`;
+      return `<!doctype html><html lang="${currentLanguage}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{max-width:720px;margin:64px auto;padding:0 32px;color:#342f2a;font:15px/1.72 Arial,sans-serif}h1{font-size:32px}h2{font-size:23px}h3{font-size:18px}a{color:#665448}@media print{body{margin:0;max-width:none}}</style></head><body>${content}</body></html>`;
     }
     $$('[data-export]').forEach(button => button.addEventListener('click', () => {
       saveDocument(true);
@@ -2034,7 +2248,7 @@
       if (type === 'html') downloadBlob(safeDocumentFilename('html'), exportedDocumentHTML(), 'text/html;charset=utf-8');
       if (type === 'txt') downloadBlob(safeDocumentFilename('txt'), documentEditor.innerText, 'text/plain;charset=utf-8');
       if (type === 'doc') {
-        const content = exportedDocumentHTML().replace('<html lang="en">', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="en">');
+        const content = exportedDocumentHTML().replace(`<html lang="${currentLanguage}">`, `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="${currentLanguage}">`);
         downloadBlob(safeDocumentFilename('doc'), '\ufeff' + content, 'application/msword');
       }
       $('#export-menu').hidden = true;
@@ -2072,6 +2286,11 @@
       toast(`Elowen recovered from an error: ${event.message}`, 'error', 5000);
     });
 
+    document.addEventListener('elowen:languagechange', () => {
+      updateToolSearch(); renderHistory(); documentCounts();
+      if (codeInitialized) { updateCodeSaveStatus(); updateCursorStatus(); setEditorOptions(); }
+      openView(currentView);
+    });
     updateToolSearch();
   })();
   </script>
