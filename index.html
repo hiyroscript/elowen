@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e8dfd1">
-  <meta id="meta-description" name="description" content="Elowen — a calm desktop workspace for calculation, code, and writing.">
+  <meta id="meta-description" name="description" content="Elowen — a calm desktop workspace for calculation, code, writing, and local device information.">
   <title>Elowen</title>
   <script>
     (() => {
@@ -323,7 +323,7 @@
     .home-intro { display: flex; justify-content: space-between; align-items: end; margin-bottom: clamp(24px, 4vh, 42px); }
     .home-intro h1 { margin: 7px 0 0; font-size: clamp(30px, 3.2vw, 46px); line-height: 1.08; font-weight: 520; letter-spacing: -.05em; }
     .home-intro p { max-width: 360px; margin: 0 0 5px; color: var(--muted); text-align: right; font-size: 13px; }
-    .tool-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(15px, 1.8vw, 28px); flex: 1; min-height: 300px; max-height: 470px; }
+    .tool-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(13px, 1.45vw, 24px); flex: 1; min-height: 300px; max-height: 470px; }
     .tool-card { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: stretch; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-glass-medium); text-align: left; box-shadow: var(--shadow-soft); transition: transform var(--ease), background var(--ease), border-color var(--ease), box-shadow var(--ease); }
     .tool-card:hover, .tool-card.search-active { transform: translateY(-3px); background: var(--paper); border-color: var(--line-strong); box-shadow: var(--shadow); }
     .tool-card:active { transform: translateY(0); background: var(--beige); }
@@ -520,13 +520,85 @@
     .export-menu button { width: 100%; height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; text-align: left; color: var(--stone); font-size: 11px; }
     .export-menu button:hover { background: var(--sand-soft); color: var(--ink); }
 
+    /* Device information */
+    .device-view { background: var(--sand-soft); }
+    .device-view .workspace-bar { gap: 12px; }
+    .device-view .workspace-title { min-width: 210px; }
+    .device-view .workspace-title p { display: flex; align-items: center; gap: 6px; }
+    .device-refresh-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--taupe); }
+    .device-content { flex: 1; min-height: 0; overflow: auto; padding: 18px clamp(20px, 3vw, 46px) 42px; scroll-behavior: smooth; }
+    .device-shell { width: min(1460px, 100%); margin: 0 auto; }
+    .device-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .device-summary-card { min-height: 84px; padding: 15px 16px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-glass-medium); box-shadow: var(--shadow-soft); }
+    .device-summary-card span { display: block; margin-bottom: 8px; color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .device-summary-card strong { display: block; font-size: 17px; font-weight: 590; letter-spacing: -.025em; }
+    .device-summary-card small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .device-toolbar { position: sticky; top: -18px; z-index: 12; display: grid; grid-template-columns: minmax(300px, 1fr) auto; align-items: center; gap: 12px; margin-bottom: 12px; padding: 10px 0; background: var(--sand-soft); }
+    .device-filter { height: 40px; display: flex; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--paper); box-shadow: var(--shadow-soft); }
+    .device-filter:focus-within { border-color: var(--stone); box-shadow: 0 0 0 3px var(--focus-ring); }
+    .device-filter input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 12px; }
+    .device-toolbar-actions { display: flex; gap: 7px; }
+    .device-toolbar-actions .soft-btn { white-space: nowrap; }
+    .device-loading, .device-empty-state { min-height: 250px; display: grid; place-items: center; padding: 36px; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); background: var(--surface-glass-soft); text-align: center; color: var(--muted); }
+    .device-loading[hidden], .device-empty-state[hidden] { display: none; }
+    .device-loading-mark { width: 34px; height: 34px; margin: 0 auto 14px; animation: deviceSpin 1.15s linear infinite; }
+    @keyframes deviceSpin { to { transform: rotate(360deg); } }
+    .device-sections { display: grid; gap: 10px; }
+    .device-section { overflow: clip; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); box-shadow: var(--shadow-soft); }
+    .device-section[hidden] { display: none; }
+    .device-section > summary { min-height: 52px; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 0 15px; cursor: pointer; list-style: none; user-select: none; }
+    .device-section > summary::-webkit-details-marker { display: none; }
+    .device-section > summary:hover { background: var(--wash-soft); }
+    .device-section > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -3px; }
+    .device-section-chevron { width: 26px; height: 26px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); transition: transform var(--ease), background var(--ease); }
+    .device-section[open] .device-section-chevron { transform: rotate(90deg); background: var(--sand-soft); }
+    .device-section-title { min-width: 0; }
+    .device-section-title h2 { margin: 0; font-size: 13px; font-weight: 650; letter-spacing: -.015em; }
+    .device-section-title p { margin: 2px 0 0; overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .device-section-count { min-width: 28px; padding: 4px 7px; border: 1px solid var(--line); border-radius: 999px; background: var(--sand-soft); color: var(--muted); text-align: center; font-size: 9px; font-variant-numeric: tabular-nums; }
+    .device-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+    .device-row { min-width: 0; display: grid; grid-template-columns: minmax(120px, .72fr) minmax(0, 1.28fr) auto; align-items: start; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    .device-row:nth-child(odd) { border-right: 1px solid var(--line); }
+    .device-row[hidden] { display: none; }
+    .device-property { color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .device-value { min-width: 0; color: var(--ink); font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+    .device-value-main { display: block; font-variant-numeric: tabular-nums; white-space: pre-wrap; }
+    .device-value-raw { display: block; margin-top: 3px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9px; }
+    .device-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+    .device-badge { display: inline-flex; align-items: center; min-height: 20px; padding: 2px 6px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--sand-soft); color: var(--muted); font-size: 8px; font-weight: 720; letter-spacing: .025em; white-space: nowrap; }
+    .device-badge[data-status="supported"], .device-badge[data-status="available"] { border-color: color-mix(in srgb, var(--line-strong) 70%, #718876); color: var(--stone); }
+    .device-badge[data-status="permission"], .device-badge[data-status="secure"] { border-style: dashed; }
+    .device-copy-value { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); }
+    .device-copy-value:hover { background: var(--sand-soft); color: var(--ink); }
+    .device-permission-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 13px; border-top: 1px solid var(--line); }
+    .device-permission-card { min-width: 0; display: flex; flex-direction: column; padding: 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--sand-soft); }
+    .device-permission-card h3 { margin: 0 0 5px; font-size: 12px; }
+    .device-permission-card p { min-height: 48px; margin: 0 0 12px; color: var(--muted); font-size: 9px; line-height: 1.55; }
+    .device-permission-card .device-permission-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+    .device-permission-result { display: grid; gap: 5px; margin: 11px 0 0; padding-top: 10px; border-top: 1px solid var(--line); font-size: 9px; overflow-wrap: anywhere; }
+    .device-permission-result:empty { display: none; }
+    .device-limitations { margin: 0; padding: 13px 17px 17px 38px; border-top: 1px solid var(--line); color: var(--muted); columns: 2; column-gap: 38px; font-size: 10px; line-height: 1.65; }
+    .device-consent-modal { width: min(560px, 92vw); }
+    .device-consent-modal .consent-mark { width: 42px; height: 42px; display: grid; place-items: center; margin-bottom: 14px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--sand-soft); color: var(--stone); }
+    .device-consent-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 11px; line-height: 1.65; }
+    .device-consent-note { margin-top: 13px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--sand-soft); color: var(--stone); font-size: 10px; line-height: 1.5; }
+
+    @media (max-width: 1280px) {
+      .device-view .workspace-title { min-width: 170px; }
+      .device-view .workspace-bar .soft-btn span { display: none; }
+      .device-view .workspace-bar .soft-btn { width: 36px; padding: 0; }
+      .device-permission-grid { grid-template-columns: 1fr; }
+      .device-permission-card p { min-height: 0; }
+    }
+
     /* Modal and toast */
-    #modal-layer, #settings-layer, #language-layer { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: var(--overlay); opacity: 0; visibility: hidden; transition: opacity var(--ease), visibility 0s linear 180ms; }
-    #modal-layer.open, #settings-layer.open, #language-layer.open, .language-pending #language-layer { opacity: 1; visibility: visible; transition-delay: 0s; }
+    #modal-layer, #settings-layer, #language-layer, #device-consent-layer { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: var(--overlay); opacity: 0; visibility: hidden; transition: opacity var(--ease), visibility 0s linear 180ms; }
+    #modal-layer.open, #settings-layer.open, #language-layer.open, #device-consent-layer.open, .language-pending #language-layer { opacity: 1; visibility: visible; transition-delay: 0s; }
     #settings-layer { z-index: 130; }
     #language-layer { z-index: 10000; background: var(--overlay-strong); }
+    #device-consent-layer { z-index: 10010; background: var(--overlay-strong); }
     .modal { width: min(410px, 92vw); padding: 22px; border: 1px solid var(--line-strong); border-radius: 15px; background: var(--paper); box-shadow: var(--modal-shadow); transform: translateY(7px); transition: transform var(--ease); }
-    #modal-layer.open .modal, #settings-layer.open .modal, #language-layer.open .modal, .language-pending #language-layer .modal { transform: none; }
+    #modal-layer.open .modal, #settings-layer.open .modal, #language-layer.open .modal, #device-consent-layer.open .modal, .language-pending #language-layer .modal { transform: none; }
     .modal h2 { margin: 0 0 6px; font-size: 17px; font-weight: 630; letter-spacing: -.02em; }
     .modal p { margin: 0 0 17px; color: var(--muted); font-size: 12px; }
     .modal-field { display: grid; gap: 6px; margin: 12px 0; }
@@ -580,15 +652,19 @@
       .preview-panel.expanded { top: 56px; }
       .doc-toolbar { min-height: 45px; padding-top: 5px; padding-bottom: 5px; }
       .document-stage { padding-top: 22px; }
+      .device-content { padding-top: 12px; }
+      .device-summary-card { min-height: 72px; padding: 11px 13px; }
+      .device-summary-card small { display: none; }
+      .device-toolbar { top: -12px; }
     }
 
     @media (max-width: 1050px), (orientation: portrait) {
-      #language-layer, #settings-layer { display: none !important; }
+      #language-layer, #settings-layer, #device-consent-layer { display: none !important; }
     }
 
     @media print {
       html, body { overflow: visible !important; background: white !important; }
-      #app > .view:not(#text-view), .workspace-bar, .doc-toolbar, .text-find, .doc-statusbar, #modal-layer, #settings-layer, #language-layer, #toast-region { display: none !important; }
+      #app > .view:not(#text-view), .workspace-bar, .doc-toolbar, .text-find, .doc-statusbar, #modal-layer, #settings-layer, #language-layer, #device-consent-layer, #toast-region { display: none !important; }
       #text-view { position: static !important; display: block !important; opacity: 1 !important; visibility: visible !important; transform: none !important; background: white !important; }
       .document-stage { overflow: visible !important; padding: 0 !important; }
       .document-page { width: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
@@ -635,6 +711,12 @@
       <symbol id="i-comment" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="m8 9-2 2 2 2M16 9l2 2-2 2M13 7l-2 8"/></symbol>
       <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
       <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+      <symbol id="i-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-location" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2"/></symbol>
+      <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4 16 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3l1.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></symbol>
       <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></symbol>
       <symbol id="i-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></symbol>
       <symbol id="i-bold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h7a4 4 0 0 1 0 8H6zM6 12h8a4 4 0 0 1 0 8H6z"/></symbol>
@@ -681,21 +763,25 @@
       </header>
       <main class="home-main">
         <div class="home-intro">
-          <div><div class="eyebrow">Your quiet workspace</div><h1 id="home-title">Three tools. One clear rhythm.</h1></div>
-          <p>Calculate, build, and write without leaving your browser. Your work stays on this device.</p>
+          <div><div class="eyebrow">Your quiet workspace</div><h1 id="home-title">Four tools. One clear rhythm.</h1></div>
+          <p>Calculate, build, write, and inspect your browser environment. Your work stays on this device.</p>
         </div>
         <div id="tool-list" class="tool-list" role="listbox" aria-label="Elowen tools">
           <button id="tool-calculator" class="tool-card" type="button" data-tool="calculator" data-search="scientific calculator advanced calculations functions constants history math" role="option" aria-selected="false">
-            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-calculator"></use></svg></span><span class="tool-index">01 / 03</span></span>
+            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-calculator"></use></svg></span><span class="tool-index">01 / 04</span></span>
             <span class="tool-card-body"><h2>Scientific Calculator</h2><p>Advanced calculations, functions, constants, and history.</p><span class="tool-open"><span>Open calculator</span><svg class="icon"><use href="#i-arrow"></use></svg></span></span>
           </button>
           <button id="tool-code" class="tool-card" type="button" data-tool="code" data-search="code editor html css javascript json markdown plain text preview console" role="option" aria-selected="false">
-            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-code"></use></svg></span><span class="tool-index">02 / 03</span></span>
+            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-code"></use></svg></span><span class="tool-index">02 / 04</span></span>
             <span class="tool-card-body"><h2>Code Editor</h2><p>Write, edit, preview, and manage code directly in your browser.</p><span class="tool-open"><span>Open editor</span><svg class="icon"><use href="#i-arrow"></use></svg></span></span>
           </button>
           <button id="tool-text" class="tool-card" type="button" data-tool="text" data-search="text editor rich document writing formatting word processor" role="option" aria-selected="false">
-            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-file-text"></use></svg></span><span class="tool-index">03 / 03</span></span>
+            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-file-text"></use></svg></span><span class="tool-index">03 / 04</span></span>
             <span class="tool-card-body"><h2>Text Editor</h2><p>Create and format rich documents in a distraction-free workspace.</p><span class="tool-open"><span>Open editor</span><svg class="icon"><use href="#i-arrow"></use></svg></span></span>
+          </button>
+          <button id="tool-device" class="tool-card" type="button" data-tool="device" data-search="device browser system hardware screen information computer environment capabilities storage network" role="option" aria-selected="false">
+            <span class="tool-card-top"><span class="tool-symbol"><svg class="icon-lg"><use href="#i-cpu"></use></svg></span><span class="tool-index">04 / 04</span></span>
+            <span class="tool-card-body"><h2>Device Information</h2><p>View detailed information about your device, browser, display, capabilities, and local environment.</p><span class="tool-open"><span>Open information</span><svg class="icon"><use href="#i-arrow"></use></svg></span></span>
           </button>
         </div>
         <div id="empty-tools" class="empty-tools"><div><strong>No tools found.</strong><br><span>Try “code”, “calculator”, or “text”.</span></div></div>
@@ -840,6 +926,64 @@
       <main class="document-stage"><article class="document-page"><div id="document-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Document content" spellcheck="true"></div></article></main>
       <footer class="doc-statusbar"><span id="word-count">0 words</span><span id="character-count">0 characters</span></footer>
     </section>
+
+    <section id="device-view" class="view workspace-view device-view" aria-label="Device Information">
+      <header class="workspace-bar">
+        <button class="back-btn" type="button" data-back aria-label="Back to Elowen home" title="Back to Home"><svg class="icon"><use href="#i-back"></use></svg></button>
+        <div class="bar-separator"></div>
+        <div class="workspace-title"><h1>Device Information</h1><p><span class="device-refresh-dot" aria-hidden="true"></span><span id="device-last-refreshed">Not collected yet</span></p></div>
+        <div class="bar-spacer"></div>
+        <button id="device-refresh" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-refresh"></use></svg><span>Refresh information</span></button>
+        <button id="device-copy-report" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-copy"></use></svg><span>Copy report</span></button>
+        <button id="device-download-report" class="primary-btn" type="button"><svg class="icon-sm"><use href="#i-download"></use></svg><span>Download JSON</span></button>
+        <button class="icon-btn" type="button" data-open-app-settings aria-label="Settings" title="Settings"><svg class="icon-sm"><use href="#i-settings"></use></svg></button>
+      </header>
+      <main class="device-content">
+        <div class="device-shell">
+          <section class="device-summary" aria-label="Report overview">
+            <div class="device-summary-card"><span id="device-summary-privacy-label">Privacy</span><strong id="device-summary-privacy">On-device only</strong><small id="device-summary-privacy-note">Nothing is transmitted or fingerprinted.</small></div>
+            <div class="device-summary-card"><span id="device-summary-properties-label">Visible properties</span><strong id="device-summary-properties">0</strong><small id="device-summary-properties-note">Reported, unavailable, and restricted values.</small></div>
+            <div class="device-summary-card"><span id="device-summary-sections-label">Information sections</span><strong id="device-summary-sections">0</strong><small id="device-summary-sections-note">Independently collected and error-isolated.</small></div>
+            <div class="device-summary-card"><span id="device-summary-network-label">External requests</span><strong id="device-summary-network">0</strong><small id="device-summary-network-note">No lookup services are contacted.</small></div>
+          </section>
+          <div class="device-toolbar">
+            <label class="device-filter" for="device-filter"><svg class="icon-sm" aria-hidden="true"><use href="#i-search"></use></svg><input id="device-filter" type="search" autocomplete="off" spellcheck="false" placeholder="Filter properties, values, or statuses…"><button id="device-filter-clear" class="device-copy-value" type="button" aria-label="Clear filter" title="Clear filter" hidden><svg class="icon-sm"><use href="#i-x"></use></svg></button></label>
+            <div class="device-toolbar-actions">
+              <button id="device-expand-all" class="soft-btn" type="button">Expand all</button>
+              <button id="device-collapse-all" class="soft-btn" type="button">Collapse all</button>
+              <button id="device-revoke" class="soft-btn danger-btn" type="button">Revoke consent</button>
+            </div>
+          </div>
+          <div id="device-loading" class="device-loading" role="status" hidden><div><svg class="device-loading-mark" aria-hidden="true"><use href="#i-refresh"></use></svg><strong id="device-loading-title">Collecting browser-provided information…</strong><p id="device-loading-description">Unsupported APIs will be marked without interrupting the report.</p></div></div>
+          <div id="device-empty-state" class="device-empty-state"><div><svg class="icon-lg" aria-hidden="true"><use href="#i-shield"></use></svg><h2 id="device-empty-title">Consent is required</h2><p id="device-empty-description">Review the privacy notice before collecting any browser-provided information.</p><button id="device-review-consent" class="primary-btn" type="button">Review consent</button></div></div>
+          <div id="device-sections" class="device-sections"></div>
+          <details id="device-permissions-section" class="device-section" open hidden>
+            <summary><span class="device-section-chevron"><svg class="icon-sm"><use href="#i-chevron"></use></svg></span><span class="device-section-title"><h2 id="device-permissions-title">Additional information requiring permission</h2><p id="device-permissions-subtitle">These permissions are never requested automatically.</p></span><span class="device-section-count">3</span></summary>
+            <div class="device-permission-grid">
+              <article class="device-permission-card">
+                <h3 id="device-location-title">Location</h3><p id="device-location-description">Can reveal your precise physical location. Coordinates stay in this page and are never reverse-geocoded.</p>
+                <div class="device-permission-actions"><button id="device-location-allow" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-location"></use></svg><span>Allow location access</span></button><button id="device-location-clear" class="soft-btn" type="button" hidden>Clear location</button></div>
+                <div id="device-location-result" class="device-permission-result" aria-live="polite"></div>
+              </article>
+              <article class="device-permission-card">
+                <h3 id="device-camera-title">Camera information</h3><p id="device-camera-description">Requests camera access only to read browser-exposed device details. No preview or recording is created, and tracks stop immediately.</p>
+                <div class="device-permission-actions"><button id="device-camera-allow" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-camera"></use></svg><span>Allow camera details</span></button><button id="device-camera-clear" class="soft-btn" type="button" hidden>Clear details</button></div>
+                <div id="device-camera-result" class="device-permission-result" aria-live="polite"></div>
+              </article>
+              <article class="device-permission-card">
+                <h3 id="device-microphone-title">Microphone information</h3><p id="device-microphone-description">Requests microphone access only to read browser-exposed device details. Nothing is recorded, and tracks stop immediately.</p>
+                <div class="device-permission-actions"><button id="device-microphone-allow" class="soft-btn" type="button"><svg class="icon-sm"><use href="#i-mic"></use></svg><span>Allow microphone details</span></button><button id="device-microphone-clear" class="soft-btn" type="button" hidden>Clear details</button></div>
+                <div id="device-microphone-result" class="device-permission-result" aria-live="polite"></div>
+              </article>
+            </div>
+          </details>
+          <details id="device-limitations-section" class="device-section" hidden>
+            <summary><span class="device-section-chevron"><svg class="icon-sm"><use href="#i-chevron"></use></svg></span><span class="device-section-title"><h2 id="device-limitations-title">Information this page cannot reliably know</h2><p id="device-limitations-subtitle">Elowen does not guess or contact an external service to fill these gaps.</p></span><span class="device-section-count">12</span></summary>
+            <ul id="device-limitations-list" class="device-limitations"></ul>
+          </details>
+        </div>
+      </main>
+    </section>
   </div>
 
   <div id="modal-layer" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><h2 id="modal-title"></h2><p id="modal-description"></p><div id="modal-fields"></div><div class="modal-actions"><button id="modal-cancel" class="soft-btn" type="button">Cancel</button><button id="modal-confirm" class="primary-btn" type="button">Confirm</button></div></div></div>
@@ -870,6 +1014,22 @@
       <div class="language-options"><button class="language-choice" type="button" data-language-choice="en">English</button><button class="language-choice" type="button" data-language-choice="fr">Français</button></div>
     </div>
   </div>
+  <div id="device-consent-layer" aria-hidden="true">
+    <div class="modal device-consent-modal" role="dialog" aria-modal="true" aria-labelledby="device-consent-title" aria-describedby="device-consent-description">
+      <span class="consent-mark" aria-hidden="true"><svg class="icon-lg"><use href="#i-shield"></use></svg></span>
+      <h2 id="device-consent-title">Before Device Information collects anything</h2>
+      <p id="device-consent-description">Elowen can build a detailed, read-only report from information your browser already exposes to this page.</p>
+      <ul class="device-consent-list">
+        <li id="device-consent-api">Information is read directly from standard browser-provided APIs.</li>
+        <li id="device-consent-limits">Some values may be approximate, unavailable, restricted, or deliberately generalized by your browser.</li>
+        <li id="device-consent-local">No information is sent anywhere; it remains entirely inside this browser.</li>
+        <li id="device-consent-fingerprint">Elowen does not create, store, or derive a device fingerprint or tracking identifier.</li>
+        <li id="device-consent-permissions">Sensitive permissions are never requested as part of this consent.</li>
+      </ul>
+      <div id="device-consent-note" class="device-consent-note">Only this consent choice is saved. The collected report is kept in memory and cleared when the page closes or consent is revoked.</div>
+      <div class="modal-actions"><button id="device-consent-cancel" class="soft-btn" type="button">Cancel</button><button id="device-consent-allow" class="primary-btn" type="button">Allow and continue</button></div>
+    </div>
+  </div>
   <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
   <div id="app-tooltip" role="tooltip" hidden></div>
 
@@ -895,7 +1055,8 @@
       code: 'elowen.codeWorkspace.v1',
       document: 'elowen.document.v1',
       language: 'elowen.language.v1',
-      appearance: 'elowen.appearance.v1'
+      appearance: 'elowen.appearance.v1',
+      deviceInfoConsent: 'elowen.deviceInfoConsent.v1'
     };
     const SUPPORTED_LANGUAGES = ['en', 'fr'];
     const SUPPORTED_APPEARANCES = ['light', 'dark'];
@@ -916,7 +1077,7 @@
 
     const TRANSLATIONS = {
       en: {
-        'meta.description': 'Elowen — a calm desktop workspace for calculation, code, and writing.',
+        'meta.description': 'Elowen — a calm desktop workspace for calculation, code, writing, and local device information.',
         'desktop.title': 'Elowen is designed for desktop displays in landscape orientation.',
         'desktop.description': 'Open this workspace on a laptop or desktop and widen the browser window.',
         'language.prompt.title': 'Choose your language',
@@ -942,8 +1103,8 @@
         'home.searchPlaceholder': 'Search Elowen tools…',
         'home.clearSearch': 'Clear search',
         'home.eyebrow': 'Your quiet workspace',
-        'home.title': 'Three tools. One clear rhythm.',
-        'home.description': 'Calculate, build, and write without leaving your browser. Your work stays on this device.',
+        'home.title': 'Four tools. One clear rhythm.',
+        'home.description': 'Calculate, build, write, and inspect your browser environment. Your work stays on this device.',
         'home.toolsLabel': 'Elowen tools',
         'home.calculator.title': 'Scientific Calculator',
         'home.calculator.description': 'Advanced calculations, functions, constants, and history.',
@@ -957,13 +1118,18 @@
         'home.text.description': 'Create and format rich documents in a distraction-free workspace.',
         'home.text.open': 'Open editor',
         'home.text.search': 'text editor rich document writing formatting word processor',
+        'home.device.title': 'Device Information',
+        'home.device.description': 'View detailed information about your device, browser, display, capabilities, and local environment.',
+        'home.device.open': 'Open information',
+        'home.device.search': 'device browser system hardware screen information computer environment display capabilities storage network operating system os graphics media battery web technology',
         'home.empty.title': 'No tools found.',
-        'home.empty.description': 'Try “code”, “calculator”, or “text”.',
+        'home.empty.description': 'Try “code”, “calculator”, “text”, or “device”.',
         'home.footer.workspace': 'Elowen workspace',
         'home.footer.privacy': 'Stored locally · No account required',
         'view.calculator': 'Scientific Calculator',
         'view.code': 'Code Editor',
         'view.text': 'Text Editor',
+        'view.device': 'Device Information',
         'dialog.cancel': 'Cancel',
         'dialog.confirm': 'Confirm',
         'storage.readError': 'Stored data could not be read. A safe workspace was restored.',
@@ -1174,7 +1340,7 @@
         'text.documentSaved': 'Document saved'
       },
       fr: {
-        'meta.description': 'Elowen — un espace de travail serein pour calculer, programmer et écrire.',
+        'meta.description': 'Elowen — un espace de travail serein pour calculer, programmer, écrire et consulter les informations locales de l’appareil.',
         'desktop.title': 'Elowen est conçu pour les écrans d’ordinateur en orientation paysage.',
         'desktop.description': 'Ouvrez cet espace sur un ordinateur portable ou de bureau, puis élargissez la fenêtre du navigateur.',
         'language.prompt.title': 'Choisissez votre langue',
@@ -1200,8 +1366,8 @@
         'home.searchPlaceholder': 'Rechercher un outil Elowen…',
         'home.clearSearch': 'Effacer la recherche',
         'home.eyebrow': 'Votre espace de sérénité',
-        'home.title': 'Trois outils. Un rythme fluide.',
-        'home.description': 'Calculez, programmez et écrivez sans quitter votre navigateur. Votre travail reste sur cet appareil.',
+        'home.title': 'Quatre outils. Un rythme fluide.',
+        'home.description': 'Calculez, programmez, écrivez et consultez l’environnement du navigateur. Votre travail reste sur cet appareil.',
         'home.toolsLabel': 'Outils Elowen',
         'home.calculator.title': 'Calculatrice scientifique',
         'home.calculator.description': 'Calculs avancés, fonctions, constantes et historique.',
@@ -1215,13 +1381,18 @@
         'home.text.description': 'Créez et mettez en forme des documents riches dans un espace sans distraction.',
         'home.text.open': 'Ouvrir l’éditeur',
         'home.text.search': 'éditeur texte document riche écriture mise en forme traitement de texte',
+        'home.device.title': 'Informations sur l’appareil',
+        'home.device.description': 'Consultez des renseignements détaillés sur votre appareil, votre navigateur, l’affichage, les capacités et l’environnement local.',
+        'home.device.open': 'Ouvrir les informations',
+        'home.device.search': 'appareil navigateur système matériel écran information informations ordinateur environnement affichage capacités stockage réseau système exploitation graphique médias batterie technologie web',
         'home.empty.title': 'Aucun outil trouvé.',
-        'home.empty.description': 'Essayez « code », « calculatrice » ou « texte ».',
+        'home.empty.description': 'Essayez « code », « calculatrice », « texte » ou « appareil ».',
         'home.footer.workspace': 'Espace de travail Elowen',
         'home.footer.privacy': 'Enregistré localement · Aucun compte requis',
         'view.calculator': 'Calculatrice scientifique',
         'view.code': 'Éditeur de code',
         'view.text': 'Éditeur de texte',
+        'view.device': 'Informations sur l’appareil',
         'dialog.cancel': 'Annuler',
         'dialog.confirm': 'Confirmer',
         'storage.readError': 'Les données enregistrées n’ont pas pu être lues. Un espace de travail sûr a été restauré.',
@@ -1433,6 +1604,325 @@
       }
     };
 
+    const DEVICE_TRANSLATIONS = {
+      en: {
+        'device.subtitle.notCollected': 'Not collected yet',
+        'device.subtitle.refreshed': 'Last refreshed {time}',
+        'device.subtitle.refreshing': 'Refreshing…',
+        'device.action.refresh': 'Refresh information',
+        'device.action.copyReport': 'Copy report',
+        'device.action.download': 'Download JSON',
+        'device.action.expandAll': 'Expand all',
+        'device.action.collapseAll': 'Collapse all',
+        'device.action.revoke': 'Revoke consent',
+        'device.action.reviewConsent': 'Review consent',
+        'device.action.clear': 'Clear details',
+        'device.action.clearLocation': 'Clear location',
+        'device.action.allowLocation': 'Allow location access',
+        'device.action.allowCamera': 'Allow camera details',
+        'device.action.allowMicrophone': 'Allow microphone details',
+        'device.action.copyValue': 'Copy this value',
+        'device.filter.placeholder': 'Filter properties, values, or statuses…',
+        'device.filter.clear': 'Clear filter',
+        'device.summary.label': 'Report overview',
+        'device.summary.privacyLabel': 'Privacy',
+        'device.summary.privacy': 'On-device only',
+        'device.summary.privacyNote': 'Nothing is transmitted or fingerprinted.',
+        'device.summary.propertiesLabel': 'Visible properties',
+        'device.summary.propertiesNote': 'Reported, unavailable, and restricted values.',
+        'device.summary.sectionsLabel': 'Information sections',
+        'device.summary.sectionsNote': 'Independently collected and error-isolated.',
+        'device.summary.networkLabel': 'External requests',
+        'device.summary.network': '0',
+        'device.summary.networkNote': 'No lookup services are contacted.',
+        'device.loading.title': 'Collecting browser-provided information…',
+        'device.loading.description': 'Unsupported APIs will be marked without interrupting the report.',
+        'device.empty.title': 'Consent is required',
+        'device.empty.description': 'Review the privacy notice before collecting any browser-provided information.',
+        'device.noMatches': 'No properties match this filter.',
+        'device.permissions.title': 'Additional information requiring permission',
+        'device.permissions.subtitle': 'These permissions are never requested automatically.',
+        'device.permissions.locationTitle': 'Location',
+        'device.permissions.locationDescription': 'Can reveal your precise physical location. Coordinates stay in this page and are never reverse-geocoded.',
+        'device.permissions.cameraTitle': 'Camera information',
+        'device.permissions.cameraDescription': 'Requests camera access only to read browser-exposed device details. Browser privacy rules may hide device names until access is granted. No preview or recording is created, and tracks stop immediately.',
+        'device.permissions.microphoneTitle': 'Microphone information',
+        'device.permissions.microphoneDescription': 'Requests microphone access only to read browser-exposed device details. Browser privacy rules may hide device names until access is granted. Nothing is recorded, and tracks stop immediately.',
+        'device.permission.requesting': 'Waiting for your browser…',
+        'device.permission.denied': 'Permission was not granted.',
+        'device.permission.unavailable': 'This browser does not expose the required API.',
+        'device.permission.failed': 'The browser could not provide this information.',
+        'device.permission.cleared': 'Displayed permission-based information cleared.',
+        'device.permission.deviceNamesHidden': 'Device names may remain hidden under browser privacy rules.',
+        'device.consent.title': 'Before Device Information collects anything',
+        'device.consent.description': 'Elowen can build a detailed, read-only report from information your browser already exposes to this page.',
+        'device.consent.api': 'Information is read directly from standard browser-provided APIs.',
+        'device.consent.limits': 'Some values may be approximate, unavailable, restricted, or deliberately generalized by your browser.',
+        'device.consent.local': 'No information is sent anywhere; it remains entirely inside this browser.',
+        'device.consent.fingerprint': 'Elowen does not create, store, or derive a device fingerprint or tracking identifier.',
+        'device.consent.permissions': 'Sensitive permissions are never requested as part of this consent.',
+        'device.consent.note': 'Only this consent choice is saved. The collected report is kept in memory and cleared when the page closes or consent is revoked.',
+        'device.consent.allow': 'Allow and continue',
+        'device.consent.cancel': 'Cancel',
+        'device.limitations.title': 'Information this page cannot reliably know',
+        'device.limitations.subtitle': 'Elowen does not guess or contact an external service to fill these gaps.',
+        'device.limit.exactCpu': 'Exact physical CPU model',
+        'device.limit.exactRam': 'Exact RAM configuration',
+        'device.limit.motherboard': 'Motherboard model',
+        'device.limit.serial': 'Computer or device serial number',
+        'device.limit.mac': 'MAC address',
+        'device.limit.username': 'Local account username',
+        'device.limit.apps': 'Installed applications',
+        'device.limit.files': 'Arbitrary files on the computer',
+        'device.limit.publicIp': 'Public IP address without an external request',
+        'device.limit.isp': 'ISP, ASN, or network owner without an external service',
+        'device.limit.osBuild': 'Exact operating-system build in many browsers',
+        'device.limit.exactModel': 'Precise device model when the browser withholds it',
+        'device.status.available': 'Available',
+        'device.status.supported': 'Supported',
+        'device.status.unsupported': 'Unsupported',
+        'device.status.restricted': 'Browser restricted',
+        'device.status.permission': 'Permission required',
+        'device.status.secure': 'Secure context required',
+        'device.status.notApplicable': 'Not applicable',
+        'device.status.external': 'Unavailable without contacting an external service',
+        'device.status.unavailable': 'Unavailable',
+        'device.status.error': 'Could not read',
+        'device.source.direct': 'Directly reported',
+        'device.source.approximate': 'Approximate',
+        'device.source.inferred': 'Inferred',
+        'device.source.derived': 'Derived',
+        'device.source.legacy': 'Legacy browser property',
+        'device.value.yes': 'Yes',
+        'device.value.no': 'No',
+        'device.value.enabled': 'Enabled',
+        'device.value.disabled': 'Disabled',
+        'device.value.unknown': 'Not reported',
+        'device.value.none': 'None',
+        'device.value.infinity': 'Not currently calculable',
+        'device.value.browserDefault': 'Browser default',
+        'device.value.matches': 'Matches',
+        'device.value.doesNotMatch': 'Does not match',
+        'device.value.raw': 'Raw: {value}',
+        'device.report.title': 'Elowen Device Information report',
+        'device.report.generated': 'Generated',
+        'device.report.notice': 'Created locally. No fingerprint or tracking identifier is included.',
+        'device.toast.refreshed': 'Device information refreshed',
+        'device.toast.copied': 'Report copied',
+        'device.toast.valueCopied': 'Value copied',
+        'device.toast.downloaded': 'JSON report downloaded',
+        'device.toast.copyFailed': 'The report could not be copied.',
+        'device.toast.revoked': 'Device Information consent revoked',
+        'device.toast.consentSaveFailed': 'The consent choice could not be saved on this device.',
+        'device.section.general': 'General device and environment',
+        'device.section.browser': 'Browser',
+        'device.section.language': 'Language, region, and time',
+        'device.section.display': 'Screen and display',
+        'device.section.input': 'Input capabilities',
+        'device.section.hardware': 'Hardware-related information',
+        'device.section.graphics': 'Graphics',
+        'device.section.media': 'Media capabilities',
+        'device.section.storage': 'Storage',
+        'device.section.network': 'Network environment',
+        'device.section.battery': 'Battery and power',
+        'device.section.capabilities': 'Web platform capabilities',
+        'device.section.security': 'Security and page environment',
+        'device.section.performance': 'Performance information',
+        'device.section.css': 'CSS and media features',
+        'device.section.document': 'Document and window',
+        'device.sectionDescription.general': 'Browser-reported device, privacy, and environment signals.',
+        'device.sectionDescription.browser': 'Current browser identity and page-facing properties.',
+        'device.sectionDescription.language': 'Formatting preferences only; no physical location is inferred.',
+        'device.sectionDescription.display': 'Screen, viewport, and display preference signals.',
+        'device.sectionDescription.input': 'Safe feature checks; connected devices are not enumerated.',
+        'device.sectionDescription.hardware': 'Only generalized values exposed by standard APIs.',
+        'device.sectionDescription.graphics': 'Informational graphics limits without fingerprint derivation.',
+        'device.sectionDescription.media': 'Capability checks only; camera and microphone stay inactive.',
+        'device.sectionDescription.storage': 'Local browser storage support and browser-provided estimates.',
+        'device.sectionDescription.network': 'Local API estimates only; no IP or ISP lookup is performed.',
+        'device.sectionDescription.battery': 'Battery Status API values when the browser exposes them.',
+        'device.sectionDescription.capabilities': 'Major web APIs detected without requesting permission.',
+        'device.sectionDescription.security': 'Directly observable page security state, without guesses.',
+        'device.sectionDescription.performance': 'Passive metrics already collected by the browser.',
+        'device.sectionDescription.css': 'Current matchMedia preferences and feature signals.',
+        'device.sectionDescription.document': 'Safe page, document, and window state.',
+        'device.capability.permissionNote': 'API exists; using it requires a separate user action or permission.',
+        'device.capability.secureNote': 'This API is normally available only in a secure context.',
+        'device.capability.noRequest': 'Availability check only; no permission was requested.'
+      },
+      fr: {
+        'device.subtitle.notCollected': 'Aucune collecte pour le moment',
+        'device.subtitle.refreshed': 'Dernière actualisation : {time}',
+        'device.subtitle.refreshing': 'Actualisation…',
+        'device.action.refresh': 'Actualiser les informations',
+        'device.action.copyReport': 'Copier le rapport',
+        'device.action.download': 'Télécharger le JSON',
+        'device.action.expandAll': 'Tout développer',
+        'device.action.collapseAll': 'Tout réduire',
+        'device.action.revoke': 'Révoquer le consentement',
+        'device.action.reviewConsent': 'Voir le consentement',
+        'device.action.clear': 'Effacer les détails',
+        'device.action.clearLocation': 'Effacer la localisation',
+        'device.action.allowLocation': 'Autoriser la localisation',
+        'device.action.allowCamera': 'Autoriser les détails de la caméra',
+        'device.action.allowMicrophone': 'Autoriser les détails du microphone',
+        'device.action.copyValue': 'Copier cette valeur',
+        'device.filter.placeholder': 'Filtrer les propriétés, valeurs ou états…',
+        'device.filter.clear': 'Effacer le filtre',
+        'device.summary.label': 'Aperçu du rapport',
+        'device.summary.privacyLabel': 'Confidentialité',
+        'device.summary.privacy': 'Sur cet appareil seulement',
+        'device.summary.privacyNote': 'Aucune transmission et aucune empreinte numérique.',
+        'device.summary.propertiesLabel': 'Propriétés visibles',
+        'device.summary.propertiesNote': 'Valeurs rapportées, indisponibles et restreintes.',
+        'device.summary.sectionsLabel': 'Sections d’information',
+        'device.summary.sectionsNote': 'Collecte indépendante et erreurs isolées.',
+        'device.summary.networkLabel': 'Requêtes externes',
+        'device.summary.network': '0',
+        'device.summary.networkNote': 'Aucun service de recherche n’est contacté.',
+        'device.loading.title': 'Collecte des informations fournies par le navigateur…',
+        'device.loading.description': 'Les API non prises en charge seront indiquées sans interrompre le rapport.',
+        'device.empty.title': 'Votre consentement est requis',
+        'device.empty.description': 'Consultez l’avis de confidentialité avant toute collecte d’informations fournies par le navigateur.',
+        'device.noMatches': 'Aucune propriété ne correspond à ce filtre.',
+        'device.permissions.title': 'Informations supplémentaires nécessitant une autorisation',
+        'device.permissions.subtitle': 'Ces autorisations ne sont jamais demandées automatiquement.',
+        'device.permissions.locationTitle': 'Localisation',
+        'device.permissions.locationDescription': 'Peut révéler votre position physique précise. Les coordonnées restent dans cette page et ne sont jamais géocodées.',
+        'device.permissions.cameraTitle': 'Informations sur la caméra',
+        'device.permissions.cameraDescription': 'Demande l’accès à la caméra uniquement pour lire les détails exposés par le navigateur. Les règles de confidentialité peuvent masquer les noms avant l’autorisation. Aucun aperçu ni enregistrement; les pistes sont arrêtées immédiatement.',
+        'device.permissions.microphoneTitle': 'Informations sur le microphone',
+        'device.permissions.microphoneDescription': 'Demande l’accès au microphone uniquement pour lire les détails exposés par le navigateur. Les règles de confidentialité peuvent masquer les noms avant l’autorisation. Aucun enregistrement; les pistes sont arrêtées immédiatement.',
+        'device.permission.requesting': 'En attente du navigateur…',
+        'device.permission.denied': 'L’autorisation n’a pas été accordée.',
+        'device.permission.unavailable': 'Ce navigateur n’expose pas l’API requise.',
+        'device.permission.failed': 'Le navigateur n’a pas pu fournir cette information.',
+        'device.permission.cleared': 'Les informations affichées liées à l’autorisation ont été effacées.',
+        'device.permission.deviceNamesHidden': 'Les noms d’appareils peuvent rester masqués par les règles de confidentialité du navigateur.',
+        'device.consent.title': 'Avant toute collecte par Informations sur l’appareil',
+        'device.consent.description': 'Elowen peut créer un rapport détaillé en lecture seule à partir des informations que votre navigateur expose déjà à cette page.',
+        'device.consent.api': 'Les informations sont lues directement à partir des API standard fournies par le navigateur.',
+        'device.consent.limits': 'Certaines valeurs peuvent être approximatives, indisponibles, restreintes ou volontairement généralisées par votre navigateur.',
+        'device.consent.local': 'Aucune information n’est envoyée; tout reste entièrement dans ce navigateur.',
+        'device.consent.fingerprint': 'Elowen ne crée, n’enregistre et ne déduit aucune empreinte d’appareil ni aucun identifiant de suivi.',
+        'device.consent.permissions': 'Aucune autorisation sensible n’est demandée dans le cadre de ce consentement.',
+        'device.consent.note': 'Seul ce choix de consentement est enregistré. Le rapport demeure en mémoire et est effacé à la fermeture de la page ou à la révocation du consentement.',
+        'device.consent.allow': 'Autoriser et continuer',
+        'device.consent.cancel': 'Annuler',
+        'device.limitations.title': 'Informations que cette page ne peut pas connaître avec fiabilité',
+        'device.limitations.subtitle': 'Elowen ne fait aucune supposition et ne contacte aucun service externe pour combler ces lacunes.',
+        'device.limit.exactCpu': 'Modèle physique exact du processeur',
+        'device.limit.exactRam': 'Configuration exacte de la mémoire vive',
+        'device.limit.motherboard': 'Modèle de la carte mère',
+        'device.limit.serial': 'Numéro de série de l’ordinateur ou de l’appareil',
+        'device.limit.mac': 'Adresse MAC',
+        'device.limit.username': 'Nom du compte local',
+        'device.limit.apps': 'Applications installées',
+        'device.limit.files': 'Fichiers arbitraires sur l’ordinateur',
+        'device.limit.publicIp': 'Adresse IP publique sans requête externe',
+        'device.limit.isp': 'FAI, ASN ou propriétaire du réseau sans service externe',
+        'device.limit.osBuild': 'Version exacte du système d’exploitation dans de nombreux navigateurs',
+        'device.limit.exactModel': 'Modèle précis de l’appareil lorsque le navigateur le masque',
+        'device.status.available': 'Disponible',
+        'device.status.supported': 'Pris en charge',
+        'device.status.unsupported': 'Non pris en charge',
+        'device.status.restricted': 'Restreint par le navigateur',
+        'device.status.permission': 'Autorisation requise',
+        'device.status.secure': 'Contexte sécurisé requis',
+        'device.status.notApplicable': 'Sans objet',
+        'device.status.external': 'Indisponible sans communiquer avec un service externe',
+        'device.status.unavailable': 'Indisponible',
+        'device.status.error': 'Lecture impossible',
+        'device.source.direct': 'Rapporté directement',
+        'device.source.approximate': 'Approximatif',
+        'device.source.inferred': 'Déduit',
+        'device.source.derived': 'Calculé',
+        'device.source.legacy': 'Propriété de navigateur ancienne',
+        'device.value.yes': 'Oui',
+        'device.value.no': 'Non',
+        'device.value.enabled': 'Activé',
+        'device.value.disabled': 'Désactivé',
+        'device.value.unknown': 'Non rapporté',
+        'device.value.none': 'Aucun',
+        'device.value.infinity': 'Impossible à calculer actuellement',
+        'device.value.browserDefault': 'Valeur par défaut du navigateur',
+        'device.value.matches': 'Correspond',
+        'device.value.doesNotMatch': 'Ne correspond pas',
+        'device.value.raw': 'Valeur brute : {value}',
+        'device.report.title': 'Rapport Informations sur l’appareil d’Elowen',
+        'device.report.generated': 'Généré',
+        'device.report.notice': 'Créé localement. Aucune empreinte ni aucun identifiant de suivi n’est inclus.',
+        'device.toast.refreshed': 'Informations sur l’appareil actualisées',
+        'device.toast.copied': 'Rapport copié',
+        'device.toast.valueCopied': 'Valeur copiée',
+        'device.toast.downloaded': 'Rapport JSON téléchargé',
+        'device.toast.copyFailed': 'Le rapport n’a pas pu être copié.',
+        'device.toast.revoked': 'Consentement à Informations sur l’appareil révoqué',
+        'device.toast.consentSaveFailed': 'Le choix de consentement n’a pas pu être enregistré sur cet appareil.',
+        'device.section.general': 'Appareil et environnement général',
+        'device.section.browser': 'Navigateur',
+        'device.section.language': 'Langue, région et heure',
+        'device.section.display': 'Écran et affichage',
+        'device.section.input': 'Capacités de saisie',
+        'device.section.hardware': 'Informations liées au matériel',
+        'device.section.graphics': 'Graphiques',
+        'device.section.media': 'Capacités multimédias',
+        'device.section.storage': 'Stockage',
+        'device.section.network': 'Environnement réseau',
+        'device.section.battery': 'Batterie et alimentation',
+        'device.section.capabilities': 'Capacités de la plateforme Web',
+        'device.section.security': 'Sécurité et environnement de la page',
+        'device.section.performance': 'Informations sur les performances',
+        'device.section.css': 'Fonctions CSS et médias',
+        'device.section.document': 'Document et fenêtre',
+        'device.sectionDescription.general': 'Signaux d’appareil, de confidentialité et d’environnement rapportés par le navigateur.',
+        'device.sectionDescription.browser': 'Identité actuelle du navigateur et propriétés exposées à la page.',
+        'device.sectionDescription.language': 'Préférences de mise en forme seulement; aucune position physique n’est déduite.',
+        'device.sectionDescription.display': 'Signaux de l’écran, de la fenêtre d’affichage et des préférences visuelles.',
+        'device.sectionDescription.input': 'Vérifications sûres; aucun appareil connecté n’est énuméré.',
+        'device.sectionDescription.hardware': 'Uniquement les valeurs généralisées exposées par les API standard.',
+        'device.sectionDescription.graphics': 'Limites graphiques informatives sans dérivation d’empreinte.',
+        'device.sectionDescription.media': 'Vérification des capacités seulement; caméra et microphone restent inactifs.',
+        'device.sectionDescription.storage': 'Prise en charge du stockage local et estimations du navigateur.',
+        'device.sectionDescription.network': 'Estimations d’API locales seulement; aucune recherche IP ou de FAI.',
+        'device.sectionDescription.battery': 'Valeurs de l’API Battery Status lorsque le navigateur les expose.',
+        'device.sectionDescription.capabilities': 'Principales API Web détectées sans demander d’autorisation.',
+        'device.sectionDescription.security': 'État de sécurité directement observable, sans supposition.',
+        'device.sectionDescription.performance': 'Mesures passives déjà recueillies par le navigateur.',
+        'device.sectionDescription.css': 'Préférences matchMedia et signaux de fonctionnalités actuels.',
+        'device.sectionDescription.document': 'État sûr de la page, du document et de la fenêtre.',
+        'device.capability.permissionNote': 'L’API existe; son utilisation exige une action ou une autorisation distincte.',
+        'device.capability.secureNote': 'Cette API est normalement offerte uniquement dans un contexte sécurisé.',
+        'device.capability.noRequest': 'Vérification de disponibilité seulement; aucune autorisation demandée.'
+      }
+    };
+    Object.assign(TRANSLATIONS.en, DEVICE_TRANSLATIONS.en);
+    Object.assign(TRANSLATIONS.fr, DEVICE_TRANSLATIONS.fr);
+
+    const DEVICE_PROPERTY_TRANSLATIONS = {
+      userAgent: ['User agent', 'Agent utilisateur'], clientHints: ['User-Agent Client Hints', 'Indications client User-Agent'], browserBrands: ['Browser brands', 'Marques du navigateur'], browserVersions: ['Browser versions', 'Versions du navigateur'], platform: ['Platform', 'Plateforme'], platformVersion: ['Platform version', 'Version de la plateforme'], operatingSystem: ['Operating-system information', 'Informations sur le système d’exploitation'], architecture: ['Device architecture', 'Architecture de l’appareil'], bitness: ['CPU bitness', 'Taille des mots du processeur'], deviceModel: ['Device model', 'Modèle de l’appareil'], mobile: ['Mobile-device indicator', 'Indicateur d’appareil mobile'], logicalProcessors: ['Logical processor count', 'Nombre de processeurs logiques'], deviceMemory: ['Approximate device memory', 'Mémoire approximative de l’appareil'], maxTouchPoints: ['Maximum touch points', 'Nombre maximal de points tactiles'], touchSupport: ['Touch support', 'Prise en charge tactile'], primaryPointer: ['Primary pointer type', 'Type de pointeur principal'], hoverCapability: ['Hover capability', 'Capacité de survol'], online: ['Online status', 'État de connexion'], doNotTrack: ['Do Not Track', 'Do Not Track'], globalPrivacyControl: ['Global Privacy Control', 'Global Privacy Control'], pdfViewer: ['PDF viewer availability', 'Disponibilité du lecteur PDF'], cookies: ['Cookie support', 'Prise en charge des témoins'], javaEnabled: ['Java enabled', 'Java activé'], appName: ['navigator.appName', 'navigator.appName'], appVersion: ['navigator.appVersion', 'navigator.appVersion'], product: ['navigator.product', 'navigator.product'], productSub: ['navigator.productSub', 'navigator.productSub'], vendor: ['navigator.vendor', 'navigator.vendor'], vendorSub: ['navigator.vendorSub', 'navigator.vendorSub'], browserLanguage: ['Browser language', 'Langue du navigateur'], preferredLanguages: ['Preferred languages', 'Langues préférées'], clientHintsSupport: ['Client Hints support', 'Prise en charge des indications client'], browserFeatures: ['Browser feature availability', 'Disponibilité des fonctions du navigateur'], secureContext: ['Secure-context status', 'État du contexte sécurisé'], crossOriginIsolation: ['Cross-origin isolation', 'Isolation interorigines'], compatibilityMode: ['Document compatibility mode', 'Mode de compatibilité du document'], pageProtocol: ['Current page protocol', 'Protocole de la page'], pageOrigin: ['Current page origin', 'Origine de la page'], pageHostname: ['Current page hostname', 'Nom d’hôte de la page'], referrer: ['Referrer', 'Référent'], historyLength: ['History length', 'Longueur de l’historique'], intlLocale: ['Locale detected through Intl', 'Paramètres régionaux détectés par Intl'], calendar: ['Calendar system', 'Système de calendrier'], numberingSystem: ['Numbering system', 'Système de numération'], timeZone: ['Time zone', 'Fuseau horaire'], localDateTime: ['Current local date and time', 'Date et heure locales actuelles'], utcOffset: ['UTC offset', 'Décalage UTC'], hourCycle: ['Hour-cycle preference', 'Préférence de cycle horaire'], dateTimeFormat: ['Intl.DateTimeFormat support', 'Prise en charge d’Intl.DateTimeFormat'], relativeTimeFormat: ['Intl.RelativeTimeFormat support', 'Prise en charge d’Intl.RelativeTimeFormat'], pluralRules: ['Intl.PluralRules support', 'Prise en charge d’Intl.PluralRules'], listFormat: ['Intl.ListFormat support', 'Prise en charge d’Intl.ListFormat'], segmenter: ['Intl.Segmenter support', 'Prise en charge d’Intl.Segmenter'], screenWidth: ['Screen width', 'Largeur de l’écran'], screenHeight: ['Screen height', 'Hauteur de l’écran'], availableScreenWidth: ['Available screen width', 'Largeur d’écran disponible'], availableScreenHeight: ['Available screen height', 'Hauteur d’écran disponible'], viewportWidth: ['Viewport width', 'Largeur de la fenêtre d’affichage'], viewportHeight: ['Viewport height', 'Hauteur de la fenêtre d’affichage'], outerWindowWidth: ['Outer window width', 'Largeur extérieure de la fenêtre'], outerWindowHeight: ['Outer window height', 'Hauteur extérieure de la fenêtre'], devicePixelRatio: ['Device pixel ratio', 'Rapport de pixels de l’appareil'], pixelDepth: ['Screen pixel depth', 'Profondeur de pixels'], colorDepth: ['Screen color depth', 'Profondeur de couleur'], orientationType: ['Screen orientation type', 'Type d’orientation de l’écran'], orientationAngle: ['Screen orientation angle', 'Angle d’orientation de l’écran'], displayMode: ['Display mode', 'Mode d’affichage'], fullscreenSupport: ['Fullscreen support', 'Prise en charge du plein écran'], fullscreenState: ['Current fullscreen state', 'État actuel du plein écran'], visualViewportWidth: ['Visual Viewport width', 'Largeur de Visual Viewport'], visualViewportHeight: ['Visual Viewport height', 'Hauteur de Visual Viewport'], visualViewportScale: ['Visual Viewport scale', 'Échelle de Visual Viewport'], colorScheme: ['Preferred color scheme', 'Jeu de couleurs préféré'], contrast: ['Preferred contrast', 'Contraste préféré'], reducedMotion: ['Reduced-motion preference', 'Préférence de mouvement réduit'], reducedTransparency: ['Reduced-transparency preference', 'Préférence de transparence réduite'], forcedColors: ['Forced-colors mode', 'Mode de couleurs forcées'], invertedColors: ['Inverted-colors signal', 'Signal de couleurs inversées'], monochrome: ['Monochrome signal', 'Signal monochrome'], dynamicRange: ['HDR / dynamic range', 'HDR / plage dynamique'], colorGamut: ['Color gamut', 'Gamme de couleurs'], finePointer: ['Fine pointer support', 'Prise en charge d’un pointeur précis'], coarsePointer: ['Coarse pointer support', 'Prise en charge d’un pointeur grossier'], anyFinePointer: ['Any fine pointer', 'Au moins un pointeur précis'], anyCoarsePointer: ['Any coarse pointer', 'Au moins un pointeur grossier'], anyHover: ['Any-hover capability', 'Capacité de survol d’un pointeur'], keyboardApi: ['Keyboard API availability', 'Disponibilité de l’API Keyboard'], gamepadApi: ['Gamepad API availability', 'Disponibilité de l’API Gamepad'], canvas2d: ['Canvas 2D support', 'Prise en charge de Canvas 2D'], webgl: ['WebGL support', 'Prise en charge de WebGL'], webgl2: ['WebGL 2 support', 'Prise en charge de WebGL 2'], webgpu: ['WebGPU support', 'Prise en charge de WebGPU'], webglVendor: ['WebGL vendor', 'Fournisseur WebGL'], webglRenderer: ['WebGL renderer', 'Moteur de rendu WebGL'], gpuAdapter: ['WebGPU adapter', 'Adaptateur WebGPU'], gpuVendor: ['WebGPU vendor', 'Fournisseur WebGPU'], gpuArchitecture: ['WebGPU architecture', 'Architecture WebGPU'], gpuDevice: ['WebGPU device', 'Appareil WebGPU'], gpuDescription: ['WebGPU description', 'Description WebGPU'], maxTextureSize: ['Maximum texture size', 'Taille maximale de texture'], maxCubeMapSize: ['Maximum cube-map texture size', 'Taille maximale de texture cubique'], maxRenderbufferSize: ['Maximum renderbuffer size', 'Taille maximale du tampon de rendu'], maxViewport: ['Maximum viewport dimensions', 'Dimensions maximales de la fenêtre d’affichage'], maxVertexAttribs: ['Maximum vertex attributes', 'Nombre maximal d’attributs de sommets'], maxTextureUnits: ['Maximum combined texture units', 'Nombre maximal d’unités de texture combinées'], webglExtensions: ['Supported WebGL extensions', 'Extensions WebGL prises en charge'], audioElement: ['HTML audio support', 'Prise en charge audio HTML'], videoElement: ['HTML video support', 'Prise en charge vidéo HTML'], webAudio: ['Web Audio support', 'Prise en charge de Web Audio'], mediaSource: ['MediaSource support', 'Prise en charge de MediaSource'], mediaRecorder: ['MediaRecorder support', 'Prise en charge de MediaRecorder'], pictureInPicture: ['Picture-in-Picture support', 'Prise en charge de l’image dans l’image'], webRtc: ['WebRTC support', 'Prise en charge de WebRTC'], getUserMedia: ['getUserMedia availability', 'Disponibilité de getUserMedia'], getDisplayMedia: ['getDisplayMedia availability', 'Disponibilité de getDisplayMedia'], videoCodecs: ['Common video codecs', 'Codecs vidéo courants'], audioCodecs: ['Common audio codecs', 'Codecs audio courants'], mediaCapabilities: ['Media Capabilities API', 'API Media Capabilities'], localStorage: ['localStorage availability', 'Disponibilité de localStorage'], sessionStorage: ['sessionStorage availability', 'Disponibilité de sessionStorage'], indexedDb: ['IndexedDB availability', 'Disponibilité d’IndexedDB'], cacheStorage: ['Cache Storage availability', 'Disponibilité de Cache Storage'], storageManager: ['Storage Manager API', 'API Storage Manager'], storageQuota: ['Estimated storage quota', 'Quota de stockage estimé'], storageUsage: ['Estimated storage usage', 'Utilisation estimée du stockage'], storageFree: ['Approximate free quota', 'Quota libre approximatif'], persistentStorageApi: ['Persistent-storage API', 'API de stockage persistant'], persistentStorageGranted: ['Persistent storage already granted', 'Stockage persistant déjà accordé'], networkInformation: ['Network Information API', 'API Network Information'], effectiveConnectionType: ['Effective connection type', 'Type de connexion effectif'], downlink: ['Downlink estimate', 'Débit descendant estimé'], rtt: ['Round-trip-time estimate', 'Temps aller-retour estimé'], dataSaver: ['Data Saver status', 'État de l’économiseur de données'], connectionType: ['Connection type', 'Type de connexion'], publicIp: ['Public IP address', 'Adresse IP publique'], isp: ['Internet service provider', 'Fournisseur d’accès Internet'], asn: ['Autonomous system number', 'Numéro de système autonome'], externalLocation: ['External approximate location', 'Position approximative externe'], vpnProxy: ['VPN or proxy detection', 'Détection de RPV ou de mandataire'], batteryApi: ['Battery Status API', 'API Battery Status'], batteryLevel: ['Battery percentage', 'Pourcentage de batterie'], charging: ['Charging state', 'État de charge'], chargingTime: ['Charging time', 'Temps de charge'], dischargingTime: ['Remaining discharge time', 'Autonomie restante'], https: ['HTTPS status', 'État HTTPS'], webCrypto: ['Web Crypto availability', 'Disponibilité de Web Crypto'], contentSecurityPolicy: ['Accessible Content Security Policy', 'Politique de sécurité du contenu accessible'], permissionsApi: ['Permissions API availability', 'Disponibilité de l’API Permissions'], storageAvailability: ['Browser storage availability', 'Disponibilité du stockage du navigateur'], thirdPartyCookies: ['Third-party cookie status', 'État des témoins tiers'], navigationType: ['Navigation type', 'Type de navigation'], redirectCount: ['Redirect count', 'Nombre de redirections'], dnsTime: ['DNS lookup timing', 'Temps de recherche DNS'], connectTime: ['Connection timing', 'Temps de connexion'], tlsTime: ['TLS negotiation timing', 'Temps de négociation TLS'], requestTime: ['Request timing', 'Temps de requête'], responseTime: ['Response timing', 'Temps de réponse'], domInteractive: ['DOM interactive timing', 'Temps avant DOM interactif'], domContentLoaded: ['DOMContentLoaded timing', 'Temps avant DOMContentLoaded'], pageLoad: ['Page load timing', 'Temps de chargement de la page'], documentUptime: ['Current document uptime', 'Durée d’activité du document'], timeOrigin: ['Performance time origin', 'Origine temporelle des performances'], loadedResources: ['Loaded resource count', 'Nombre de ressources chargées'], heapLimit: ['JavaScript heap size limit', 'Limite du tas JavaScript'], heapTotal: ['Allocated JavaScript heap', 'Tas JavaScript alloué'], heapUsed: ['Used JavaScript heap', 'Tas JavaScript utilisé'], memoryApi: ['Memory API support', 'Prise en charge de l’API Memory'], longTasks: ['Long Tasks API support', 'Prise en charge de l’API Long Tasks'], performanceObserver: ['PerformanceObserver support', 'Prise en charge de PerformanceObserver'], mediaColorScheme: ['prefers-color-scheme', 'prefers-color-scheme'], mediaReducedMotion: ['prefers-reduced-motion', 'prefers-reduced-motion'], mediaContrast: ['prefers-contrast', 'prefers-contrast'], mediaForcedColors: ['forced-colors', 'forced-colors'], mediaPointer: ['pointer', 'pointer'], mediaHover: ['hover', 'hover'], mediaAnyPointer: ['any-pointer', 'any-pointer'], mediaAnyHover: ['any-hover', 'any-hover'], mediaOrientation: ['orientation', 'orientation'], mediaColorGamut: ['color-gamut', 'color-gamut'], mediaDynamicRange: ['dynamic-range', 'dynamic-range'], viewport: ['Current viewport dimensions', 'Dimensions actuelles de la fenêtre d’affichage'], outerWindow: ['Outer window dimensions', 'Dimensions extérieures de la fenêtre'], scrollPosition: ['Scroll position', 'Position de défilement'], documentDimensions: ['Document dimensions', 'Dimensions du document'], visibilityState: ['Visibility state', 'État de visibilité'], focusState: ['Document focus state', 'État de focus du document'], safeUrl: ['Safe current URL', 'URL actuelle sûre'], pathname: ['URL pathname', 'Chemin de l’URL'], characterEncoding: ['Document character encoding', 'Encodage des caractères du document'], documentLanguage: ['Document language', 'Langue du document'], latitude: ['Latitude', 'Latitude'], longitude: ['Longitude', 'Longitude'], accuracy: ['Accuracy', 'Précision'], altitude: ['Altitude', 'Altitude'], altitudeAccuracy: ['Altitude accuracy', 'Précision de l’altitude'], heading: ['Heading', 'Cap'], speed: ['Speed', 'Vitesse'], timestamp: ['Timestamp', 'Horodatage'], deviceCount: ['Device count', 'Nombre d’appareils'], deviceLabels: ['Browser-exposed device labels', 'Noms d’appareils exposés par le navigateur']
+    };
+    Object.entries(DEVICE_PROPERTY_TRANSLATIONS).forEach(([key, values]) => {
+      TRANSLATIONS.en[`device.property.${key}`] = values[0];
+      TRANSLATIONS.fr[`device.property.${key}`] = values[1];
+    });
+
+    const DEVICE_API_TRANSLATIONS = {
+      webWorkers: ['Web Workers', 'Workers Web'], sharedWorkers: ['Shared Workers', 'Workers partagés'], serviceWorkers: ['Service Workers', 'Service Workers'], webAssembly: ['WebAssembly', 'WebAssembly'], webSockets: ['WebSockets', 'WebSockets'], serverSentEvents: ['Server-Sent Events', 'Événements envoyés par le serveur'], fetch: ['Fetch', 'Fetch'], streams: ['Streams', 'Streams'], webRtc: ['WebRTC', 'WebRTC'], webAudio: ['Web Audio', 'Web Audio'], webGl: ['WebGL', 'WebGL'], webGl2: ['WebGL 2', 'WebGL 2'], webGpu: ['WebGPU', 'WebGPU'], canvas: ['Canvas', 'Canvas'], svg: ['SVG', 'SVG'], indexedDb: ['IndexedDB', 'IndexedDB'], cacheStorage: ['Cache Storage', 'Cache Storage'], fileApi: ['File API', 'API File'], fileSystemAccess: ['File System Access API', 'API File System Access'], clipboard: ['Clipboard API', 'API Clipboard'], notifications: ['Notifications API', 'API Notifications'], permissions: ['Permissions API', 'API Permissions'], geolocation: ['Geolocation API', 'API Geolocation'], webShare: ['Web Share API', 'API Web Share'], webLocks: ['Web Locks', 'Web Locks'], broadcastChannel: ['BroadcastChannel', 'BroadcastChannel'], mutationObserver: ['MutationObserver', 'MutationObserver'], intersectionObserver: ['IntersectionObserver', 'IntersectionObserver'], resizeObserver: ['ResizeObserver', 'ResizeObserver'], performance: ['Performance API', 'API Performance'], navigationTiming: ['Navigation Timing', 'Navigation Timing'], resourceTiming: ['Resource Timing', 'Resource Timing'], userTiming: ['User Timing', 'User Timing'], performanceObserver: ['PerformanceObserver', 'PerformanceObserver'], compressionStreams: ['Compression Streams', 'Compression Streams'], webCrypto: ['Web Crypto', 'Web Crypto'], credentials: ['Credential Management', 'Gestion des identifiants'], paymentRequest: ['Payment Request', 'Payment Request'], pictureInPicture: ['Picture-in-Picture', 'Image dans l’image'], screenOrientation: ['Screen Orientation', 'Orientation de l’écran'], fullscreen: ['Fullscreen API', 'API plein écran'], wakeLock: ['Wake Lock', 'Wake Lock'], bluetooth: ['Web Bluetooth', 'Web Bluetooth'], usb: ['WebUSB', 'WebUSB'], serial: ['Web Serial', 'Web Serial'], hid: ['WebHID', 'WebHID'], midi: ['Web MIDI', 'Web MIDI'], gamepad: ['Gamepad API', 'API Gamepad'], speechRecognition: ['Speech Recognition', 'Reconnaissance vocale'], speechSynthesis: ['Speech Synthesis', 'Synthèse vocale'], mediaDevices: ['MediaDevices', 'MediaDevices'], mediaRecorder: ['MediaRecorder', 'MediaRecorder'], mediaSource: ['MediaSource', 'MediaSource'], offscreenCanvas: ['OffscreenCanvas', 'OffscreenCanvas'], webCodecs: ['WebCodecs', 'WebCodecs'], webTransport: ['WebTransport', 'WebTransport'], webXr: ['WebXR', 'WebXR'], eyeDropper: ['EyeDropper API', 'API EyeDropper'], contacts: ['Contact Picker API', 'API Contact Picker'], shapeDetection: ['Shape Detection APIs', 'API de détection de formes'], idleDetection: ['Idle Detection', 'Détection d’inactivité'], virtualKeyboard: ['Virtual Keyboard API', 'API Virtual Keyboard'], viewTransitions: ['View Transitions API', 'API View Transitions']
+    };
+    Object.entries(DEVICE_API_TRANSLATIONS).forEach(([key, values]) => {
+      TRANSLATIONS.en[`device.api.${key}`] = values[0];
+      TRANSLATIONS.fr[`device.api.${key}`] = values[1];
+    });
+
+    const DEVICE_OPTION_TRANSLATIONS = {
+      light: ['Light', 'Clair'], dark: ['Dark', 'Sombre'], noPreference: ['No preference', 'Aucune préférence'], more: ['More', 'Plus'], less: ['Less', 'Moins'], custom: ['Custom', 'Personnalisé'], active: ['Active', 'Actif'], inactive: ['Inactive', 'Inactif'], fine: ['Fine', 'Précis'], coarse: ['Coarse', 'Grossier'], none: ['None', 'Aucun'], hover: ['Hover', 'Survol'], landscape: ['Landscape', 'Paysage'], portrait: ['Portrait', 'Portrait'], srgb: ['sRGB', 'sRGB'], p3: ['Display P3', 'Display P3'], rec2020: ['Rec. 2020', 'Rec. 2020'], high: ['High', 'Élevée'], standard: ['Standard', 'Standard'], browser: ['Browser tab', 'Onglet du navigateur'], standalone: ['Standalone', 'Autonome'], fullscreen: ['Fullscreen', 'Plein écran'], minimalUi: ['Minimal UI', 'Interface minimale'], online: ['Online', 'En ligne'], offline: ['Offline', 'Hors ligne'], charging: ['Charging', 'En charge'], discharging: ['Not charging', 'Non en charge'], probably: ['Probably', 'Probablement'], maybe: ['Maybe', 'Peut-être'], unsupportedCodec: ['Not supported', 'Non pris en charge'], reload: ['Reload', 'Rechargement'], navigate: ['Navigate', 'Navigation'], backForward: ['Back or forward', 'Précédent ou suivant'], prerender: ['Prerender', 'Prérendu']
+    };
+    Object.entries(DEVICE_OPTION_TRANSLATIONS).forEach(([key, values]) => {
+      TRANSLATIONS.en[`device.option.${key}`] = values[0];
+      TRANSLATIONS.fr[`device.option.${key}`] = values[1];
+    });
+
     function t(key, variables = {}) {
       const source = TRANSLATIONS[currentLanguage]?.[key] ?? TRANSLATIONS.en[key] ?? key;
       return String(source).replace(/\{(\w+)\}/g, (match, name) => Object.prototype.hasOwnProperty.call(variables, name) ? String(variables[name]) : match);
@@ -1552,6 +2042,84 @@
       window.addEventListener('resize', hideTooltip);
     }
 
+    function applyDeviceStaticTranslations() {
+      const textBindings = [
+        ['#tool-device h2', 'home.device.title'],
+        ['#tool-device .tool-card-body > p', 'home.device.description'],
+        ['#tool-device .tool-open span', 'home.device.open'],
+        ['#device-view .workspace-title h1', 'view.device'],
+        ['#device-refresh span', 'device.action.refresh'],
+        ['#device-copy-report span', 'device.action.copyReport'],
+        ['#device-download-report span', 'device.action.download'],
+        ['#device-expand-all', 'device.action.expandAll'],
+        ['#device-collapse-all', 'device.action.collapseAll'],
+        ['#device-revoke', 'device.action.revoke'],
+        ['#device-review-consent', 'device.action.reviewConsent'],
+        ['#device-summary-privacy-label', 'device.summary.privacyLabel'],
+        ['#device-summary-privacy', 'device.summary.privacy'],
+        ['#device-summary-privacy-note', 'device.summary.privacyNote'],
+        ['#device-summary-properties-label', 'device.summary.propertiesLabel'],
+        ['#device-summary-properties-note', 'device.summary.propertiesNote'],
+        ['#device-summary-sections-label', 'device.summary.sectionsLabel'],
+        ['#device-summary-sections-note', 'device.summary.sectionsNote'],
+        ['#device-summary-network-label', 'device.summary.networkLabel'],
+        ['#device-summary-network', 'device.summary.network'],
+        ['#device-summary-network-note', 'device.summary.networkNote'],
+        ['#device-loading-title', 'device.loading.title'],
+        ['#device-loading-description', 'device.loading.description'],
+        ['#device-empty-title', 'device.empty.title'],
+        ['#device-empty-description', 'device.empty.description'],
+        ['#device-permissions-title', 'device.permissions.title'],
+        ['#device-permissions-subtitle', 'device.permissions.subtitle'],
+        ['#device-location-title', 'device.permissions.locationTitle'],
+        ['#device-location-description', 'device.permissions.locationDescription'],
+        ['#device-camera-title', 'device.permissions.cameraTitle'],
+        ['#device-camera-description', 'device.permissions.cameraDescription'],
+        ['#device-microphone-title', 'device.permissions.microphoneTitle'],
+        ['#device-microphone-description', 'device.permissions.microphoneDescription'],
+        ['#device-location-allow span', 'device.action.allowLocation'],
+        ['#device-camera-allow span', 'device.action.allowCamera'],
+        ['#device-microphone-allow span', 'device.action.allowMicrophone'],
+        ['#device-location-clear', 'device.action.clearLocation'],
+        ['#device-camera-clear', 'device.action.clear'],
+        ['#device-microphone-clear', 'device.action.clear'],
+        ['#device-limitations-title', 'device.limitations.title'],
+        ['#device-limitations-subtitle', 'device.limitations.subtitle'],
+        ['#device-consent-title', 'device.consent.title'],
+        ['#device-consent-description', 'device.consent.description'],
+        ['#device-consent-api', 'device.consent.api'],
+        ['#device-consent-limits', 'device.consent.limits'],
+        ['#device-consent-local', 'device.consent.local'],
+        ['#device-consent-fingerprint', 'device.consent.fingerprint'],
+        ['#device-consent-permissions', 'device.consent.permissions'],
+        ['#device-consent-note', 'device.consent.note'],
+        ['#device-consent-cancel', 'device.consent.cancel'],
+        ['#device-consent-allow', 'device.consent.allow']
+      ];
+      textBindings.forEach(([selector, key]) => setTranslatedText(selector, key));
+      const attributes = [
+        ['#device-view', 'aria-label', 'view.device'],
+        ['#device-refresh', 'title', 'device.action.refresh'],
+        ['#device-copy-report', 'title', 'device.action.copyReport'],
+        ['#device-download-report', 'title', 'device.action.download'],
+        ['#device-filter', 'placeholder', 'device.filter.placeholder'],
+        ['#device-filter-clear', 'aria-label', 'device.filter.clear'],
+        ['#device-filter-clear', 'title', 'device.filter.clear'],
+        ['.device-summary', 'aria-label', 'device.summary.label']
+      ];
+      attributes.forEach(([selector, attribute, key]) => setTranslatedAttribute(selector, attribute, key));
+      $('#tool-device').dataset.search = t('home.device.search');
+      const limitationKeys = ['exactCpu', 'exactRam', 'motherboard', 'serial', 'mac', 'username', 'apps', 'files', 'publicIp', 'isp', 'osBuild', 'exactModel'];
+      $('#device-limitations-list').replaceChildren(...limitationKeys.map(key => {
+        const item = document.createElement('li');
+        item.textContent = t(`device.limit.${key}`);
+        return item;
+      }));
+      updateDeviceLastRefreshed();
+      if (deviceReport) renderDeviceInformation();
+      renderDevicePermissionResults();
+    }
+
     function applyStaticTranslations() {
       const textBindings = [
         ['.desktop-message h1', 'desktop.title'],
@@ -1640,6 +2208,7 @@
       $('#tool-calculator').dataset.search = t('home.calculator.search');
       $('#tool-code').dataset.search = t('home.code.search');
       $('#tool-text').dataset.search = t('home.text.search');
+      applyDeviceStaticTranslations();
       $('#tab-size-setting option[value="2"]').textContent = t('code.settings.spaces', { count: 2 });
       $('#tab-size-setting option[value="4"]').textContent = t('code.settings.spaces', { count: 4 });
       $('#tab-size-setting option[value="8"]').textContent = t('code.settings.spaces', { count: 8 });
@@ -1789,7 +2358,7 @@
     }
 
     function updatePageTitle() {
-      const key = currentView === 'calculator' ? 'view.calculator' : currentView === 'code' ? 'view.code' : currentView === 'text' ? 'view.text' : '';
+      const key = currentView === 'calculator' ? 'view.calculator' : currentView === 'code' ? 'view.code' : currentView === 'text' ? 'view.text' : currentView === 'device' ? 'view.device' : '';
       document.title = key ? `${t(key)} — Elowen` : 'Elowen';
     }
 
@@ -2022,13 +2591,1285 @@
       }
     }
 
+    /* Device information */
+    let deviceReport = null;
+    let deviceLastRefreshed = null;
+    let deviceCollecting = false;
+    let deviceSessionConsent = false;
+    let deviceConsentLastFocus = null;
+    let deviceCollectionToken = 0;
+    let deviceUaHintsPromise = null;
+    let deviceGpuInfoPromise = null;
+    let deviceWebglInfoCache = null;
+    const devicePermissionData = { location: null, camera: null, microphone: null };
+
+    function deviceInfoConsentDecision() {
+      try {
+        const value = localStorage.getItem(STORAGE.deviceInfoConsent);
+        return value === 'granted' || value === 'denied' ? value : null;
+      } catch (error) { return null; }
+    }
+
+    function hasDeviceInfoConsent() {
+      return deviceSessionConsent || deviceInfoConsentDecision() === 'granted';
+    }
+
+    function setDeviceConsentOpen(open) {
+      const layer = $('#device-consent-layer');
+      if (open) deviceConsentLastFocus = document.activeElement;
+      layer.classList.toggle('open', open);
+      layer.setAttribute('aria-hidden', String(!open));
+      $('#app').inert = open || document.documentElement.classList.contains('language-pending') || $('#settings-layer').classList.contains('open');
+      if (open) window.setTimeout(() => $('#device-consent-allow').focus(), 30);
+      else if (deviceConsentLastFocus && document.contains(deviceConsentLastFocus) && currentView === 'device') deviceConsentLastFocus.focus();
+    }
+
+    function clearDevicePermissionData() {
+      devicePermissionData.location = null;
+      devicePermissionData.camera = null;
+      devicePermissionData.microphone = null;
+      renderDevicePermissionResults();
+    }
+
+    function clearDeviceReport() {
+      deviceCollectionToken += 1;
+      deviceReport = null;
+      deviceLastRefreshed = null;
+      deviceCollecting = false;
+      $('#device-view').setAttribute('aria-busy', 'false');
+      $('#device-sections').replaceChildren();
+      $('#device-loading').hidden = true;
+      $('#device-empty-state').hidden = false;
+      $('#device-permissions-section').hidden = true;
+      $('#device-limitations-section').hidden = true;
+      $('#device-summary-properties').textContent = '0';
+      $('#device-summary-sections').textContent = '0';
+      updateDeviceLastRefreshed();
+      setDeviceActionAvailability();
+    }
+
+    function revokeDeviceConsent() {
+      deviceSessionConsent = false;
+      try { localStorage.removeItem(STORAGE.deviceInfoConsent); } catch (error) { /* session revocation still applies */ }
+      clearDevicePermissionData();
+      clearDeviceReport();
+      toast(t('device.toast.revoked'));
+      setDeviceConsentOpen(true);
+    }
+
+    function openDeviceInformation() {
+      applyDeviceStaticTranslations();
+      if (!hasDeviceInfoConsent()) {
+        clearDevicePermissionData();
+        clearDeviceReport();
+        if (deviceInfoConsentDecision() === 'denied') window.setTimeout(() => $('#device-review-consent').focus(), 60);
+        else setDeviceConsentOpen(true);
+        return;
+      }
+      $('#device-empty-state').hidden = true;
+      $('#device-permissions-section').hidden = false;
+      $('#device-limitations-section').hidden = false;
+      if (deviceReport) {
+        renderDeviceInformation();
+        window.setTimeout(() => $('#device-filter').focus(), 80);
+      } else {
+        collectDeviceInformation();
+      }
+    }
+
+    function updateDeviceLastRefreshed() {
+      const target = $('#device-last-refreshed');
+      if (!target) return;
+      if (deviceCollecting) target.textContent = t('device.subtitle.refreshing');
+      else if (deviceLastRefreshed) {
+        const formatted = new Intl.DateTimeFormat(currentLanguage, { dateStyle: 'medium', timeStyle: 'medium' }).format(deviceLastRefreshed);
+        target.textContent = t('device.subtitle.refreshed', { time: formatted });
+      } else target.textContent = t('device.subtitle.notCollected');
+    }
+
+    function deviceItem(key, value = null, options = {}) {
+      return {
+        key,
+        value,
+        format: options.format || 'text',
+        status: options.status || (value === null || typeof value === 'undefined' || value === '' ? 'unavailable' : 'available'),
+        source: options.source || 'direct',
+        raw: typeof options.raw === 'undefined' ? null : options.raw,
+        noteKey: options.noteKey || null,
+        labelKey: options.labelKey || `device.property.${key}`
+      };
+    }
+
+    function deviceFeatureItem(key, supported, options = {}) {
+      const status = supported ? (options.permission ? 'permission' : 'supported') : (options.secure && !window.isSecureContext ? 'secure' : 'unsupported');
+      return deviceItem(key, null, { status, source: 'direct', noteKey: supported && options.permission ? 'device.capability.permissionNote' : status === 'secure' ? 'device.capability.secureNote' : options.noteKey });
+    }
+
+    function deviceSection(id, items) {
+      return { id, items: items.filter(Boolean) };
+    }
+
+    function formatDeviceBytes(bytes, exact = false) {
+      if (!Number.isFinite(bytes)) return t('device.value.unknown');
+      if (exact) return `${new Intl.NumberFormat(currentLanguage).format(bytes)} B`;
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      let value = Math.max(0, bytes);
+      let index = 0;
+      while (value >= 1024 && index < units.length - 1) { value /= 1024; index += 1; }
+      return `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: value < 10 && index ? 2 : 1 }).format(value)} ${units[index]}`;
+    }
+
+    function formatDeviceDurationSeconds(value) {
+      if (value === Infinity) return t('device.value.infinity');
+      if (!Number.isFinite(value)) return t('device.value.unknown');
+      if (value < 60) return `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 1 }).format(value)} s`;
+      const hours = Math.floor(value / 3600);
+      const minutes = Math.floor((value % 3600) / 60);
+      return hours ? `${hours} h ${minutes} min` : `${minutes} min`;
+    }
+
+    function formatDeviceValue(item) {
+      const statusOnly = ['supported', 'unsupported', 'restricted', 'permission', 'secure', 'notApplicable', 'external', 'unavailable', 'error'];
+      if ((item.value === null || typeof item.value === 'undefined' || item.value === '') && statusOnly.includes(item.status)) return t(`device.status.${item.status}`);
+      if (item.format === 'boolean') return t(item.value ? 'device.value.yes' : 'device.value.no');
+      if (item.format === 'enabled') return t(item.value ? 'device.value.enabled' : 'device.value.disabled');
+      if (item.format === 'key') return t(String(item.value));
+      if (item.format === 'keyList') {
+        const values = Array.isArray(item.value) ? item.value.map(value => t(String(value))) : [t(String(item.value))];
+        try { return new Intl.ListFormat(currentLanguage, { style: 'long', type: 'conjunction' }).format(values); }
+        catch (error) { return values.join(', '); }
+      }
+      if (item.format === 'bytes') return formatDeviceBytes(Number(item.value));
+      if (item.format === 'percent') return `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 1 }).format(Number(item.value))}%`;
+      if (item.format === 'date') return new Intl.DateTimeFormat(currentLanguage, { dateStyle: 'full', timeStyle: 'long' }).format(new Date(item.value));
+      if (item.format === 'number') return new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 3 }).format(Number(item.value));
+      if (item.format === 'durationSeconds') return formatDeviceDurationSeconds(Number(item.value));
+      if (item.format === 'durationMs') return `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 2 }).format(Number(item.value))} ms`;
+      if (item.format === 'list') {
+        const values = Array.isArray(item.value) ? item.value.map(String) : [String(item.value)];
+        try { return new Intl.ListFormat(currentLanguage, { style: 'long', type: 'conjunction' }).format(values); }
+        catch (error) { return values.join(', '); }
+      }
+      if (item.format === 'json') {
+        try { return JSON.stringify(item.value, null, 2); } catch (error) { return String(item.value); }
+      }
+      if (item.format === 'codecMap') {
+        return Object.entries(item.value || {}).map(([codec, support]) => `${codec}: ${t(`device.option.${support || 'unsupportedCodec'}`)}`).join(' · ');
+      }
+      return String(item.value ?? t(`device.status.${item.status}`));
+    }
+
+    function formatDeviceRaw(item) {
+      if (item.raw === null || typeof item.raw === 'undefined' || item.raw === '') return '';
+      if (item.format === 'bytes' && Number.isFinite(Number(item.raw))) return formatDeviceBytes(Number(item.raw), true);
+      if (typeof item.raw === 'object') {
+        try { return JSON.stringify(item.raw); } catch (error) { return String(item.raw); }
+      }
+      return String(item.raw);
+    }
+
+    function deviceItemSearchText(item) {
+      return [t(item.labelKey), formatDeviceValue(item), formatDeviceRaw(item), t(`device.status.${item.status}`), t(`device.source.${item.source}`), item.noteKey ? t(item.noteKey) : ''].join(' ').toLocaleLowerCase(currentLanguage);
+    }
+
+    function renderDeviceInformation() {
+      if (!deviceReport) return;
+      const host = $('#device-sections');
+      const openSections = new Set($$('.device-section[open]', host).map(section => section.dataset.sectionId));
+      const fragment = document.createDocumentFragment();
+      deviceReport.sections.forEach((section, index) => {
+        const details = document.createElement('details');
+        details.className = 'device-section';
+        details.dataset.sectionId = section.id;
+        details.open = openSections.size ? openSections.has(section.id) : index < 2;
+        const summary = document.createElement('summary');
+        const chevron = document.createElement('span');
+        chevron.className = 'device-section-chevron';
+        chevron.innerHTML = '<svg class="icon-sm" aria-hidden="true"><use href="#i-chevron"></use></svg>';
+        const title = document.createElement('span');
+        title.className = 'device-section-title';
+        const heading = document.createElement('h2');
+        heading.textContent = t(`device.section.${section.id}`);
+        const description = document.createElement('p');
+        description.textContent = t(`device.sectionDescription.${section.id}`);
+        title.append(heading, description);
+        const count = document.createElement('span');
+        count.className = 'device-section-count';
+        count.textContent = String(section.items.length);
+        summary.append(chevron, title, count);
+        const rows = document.createElement('div');
+        rows.className = 'device-rows';
+        section.items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'device-row';
+          row.dataset.searchText = deviceItemSearchText(item);
+          const property = document.createElement('div');
+          property.className = 'device-property';
+          property.textContent = t(item.labelKey);
+          const value = document.createElement('div');
+          value.className = 'device-value';
+          const main = document.createElement('span');
+          main.className = 'device-value-main';
+          main.textContent = formatDeviceValue(item);
+          value.appendChild(main);
+          const rawValue = formatDeviceRaw(item);
+          if (rawValue && rawValue !== main.textContent) {
+            const raw = document.createElement('span');
+            raw.className = 'device-value-raw';
+            raw.textContent = t('device.value.raw', { value: rawValue });
+            value.appendChild(raw);
+          }
+          if (item.noteKey) {
+            const note = document.createElement('span');
+            note.className = 'device-value-raw';
+            note.textContent = t(item.noteKey);
+            value.appendChild(note);
+          }
+          const meta = document.createElement('div');
+          meta.className = 'device-meta';
+          const status = document.createElement('span');
+          status.className = 'device-badge';
+          status.dataset.status = item.status;
+          status.textContent = t(`device.status.${item.status}`);
+          meta.appendChild(status);
+          if (item.source) {
+            const source = document.createElement('span');
+            source.className = 'device-badge';
+            source.textContent = t(`device.source.${item.source}`);
+            meta.appendChild(source);
+          }
+          if (!['unsupported', 'external', 'unavailable', 'error', 'notApplicable'].includes(item.status)) {
+            const copy = document.createElement('button');
+            copy.type = 'button';
+            copy.className = 'device-copy-value';
+            copy.dataset.copyDeviceValue = main.textContent + (rawValue && rawValue !== main.textContent ? `\n${rawValue}` : '');
+            copy.setAttribute('aria-label', t('device.action.copyValue'));
+            copy.title = t('device.action.copyValue');
+            copy.innerHTML = '<svg class="icon-sm" aria-hidden="true"><use href="#i-copy"></use></svg>';
+            meta.appendChild(copy);
+          }
+          row.append(property, value, meta);
+          rows.appendChild(row);
+        });
+        details.append(summary, rows);
+        fragment.appendChild(details);
+      });
+      const noMatches = document.createElement('div');
+      noMatches.id = 'device-no-matches';
+      noMatches.className = 'device-empty-state';
+      noMatches.hidden = true;
+      const noMatchesText = document.createElement('strong');
+      noMatchesText.textContent = t('device.noMatches');
+      noMatches.appendChild(noMatchesText);
+      fragment.appendChild(noMatches);
+      host.replaceChildren(fragment);
+      $('#device-empty-state').hidden = true;
+      $('#device-permissions-section').hidden = false;
+      $('#device-limitations-section').hidden = false;
+      $('#device-summary-properties').textContent = new Intl.NumberFormat(currentLanguage).format(deviceReport.sections.reduce((sum, section) => sum + section.items.length, 0));
+      $('#device-summary-sections').textContent = new Intl.NumberFormat(currentLanguage).format(deviceReport.sections.length);
+      applyDeviceFilter();
+      setDeviceActionAvailability();
+      syncTooltips($('#device-view'));
+    }
+
+    function applyDeviceFilter() {
+      if (!deviceReport) return;
+      const query = $('#device-filter').value.trim().toLocaleLowerCase(currentLanguage);
+      let visibleItems = 0;
+      let visibleSections = 0;
+      $$('.device-section[data-section-id]', $('#device-sections')).forEach(section => {
+        let sectionMatches = 0;
+        $$('.device-row', section).forEach(row => {
+          const matches = !query || row.dataset.searchText.includes(query);
+          row.hidden = !matches;
+          if (matches) sectionMatches += 1;
+        });
+        section.hidden = sectionMatches === 0;
+        $('.device-section-count', section).textContent = String(sectionMatches);
+        if (sectionMatches) { visibleItems += sectionMatches; visibleSections += 1; }
+        if (query && sectionMatches) section.open = true;
+      });
+      const permissionMatches = !query || $('#device-permissions-section').textContent.toLocaleLowerCase(currentLanguage).includes(query);
+      const limitationMatches = !query || $('#device-limitations-section').textContent.toLocaleLowerCase(currentLanguage).includes(query);
+      $('#device-permissions-section').hidden = !permissionMatches;
+      $('#device-limitations-section').hidden = !limitationMatches;
+      const noMatches = $('#device-no-matches');
+      if (noMatches) noMatches.hidden = Boolean(visibleItems || permissionMatches || limitationMatches);
+      $('#device-summary-properties').textContent = new Intl.NumberFormat(currentLanguage).format(visibleItems);
+      $('#device-summary-sections').textContent = new Intl.NumberFormat(currentLanguage).format(visibleSections);
+      $('#device-filter-clear').hidden = !query;
+    }
+
+    function setDeviceActionAvailability() {
+      const unavailable = !deviceReport || deviceCollecting;
+      $('#device-refresh').disabled = deviceCollecting || !hasDeviceInfoConsent();
+      $('#device-copy-report').disabled = unavailable;
+      $('#device-download-report').disabled = unavailable;
+      $('#device-expand-all').disabled = unavailable;
+      $('#device-collapse-all').disabled = unavailable;
+      $('#device-filter').disabled = unavailable;
+    }
+
+    function visibleDeviceReport() {
+      if (!deviceReport) return null;
+      const query = $('#device-filter').value.trim().toLocaleLowerCase(currentLanguage);
+      const sections = deviceReport.sections.map(section => {
+        const items = section.items.filter(item => !query || deviceItemSearchText(item).includes(query)).map(item => {
+          const output = {
+            property: t(item.labelKey),
+            value: formatDeviceValue(item),
+            status: t(`device.status.${item.status}`),
+            source: t(`device.source.${item.source}`)
+          };
+          const raw = formatDeviceRaw(item);
+          if (raw && raw !== output.value) output.rawBrowserValue = raw;
+          if (item.noteKey) output.note = t(item.noteKey);
+          return output;
+        });
+        return items.length ? { section: t(`device.section.${section.id}`), items } : null;
+      }).filter(Boolean);
+      const permissionData = {};
+      const permissionSectionVisible = !query || $('#device-permissions-section').textContent.toLocaleLowerCase(currentLanguage).includes(query);
+      if (permissionSectionVisible && devicePermissionData.location?.status === 'granted') permissionData[t('device.permissions.locationTitle')] = localizedPermissionExport('location');
+      if (permissionSectionVisible && devicePermissionData.camera?.status === 'granted') permissionData[t('device.permissions.cameraTitle')] = localizedPermissionExport('camera');
+      if (permissionSectionVisible && devicePermissionData.microphone?.status === 'granted') permissionData[t('device.permissions.microphoneTitle')] = localizedPermissionExport('microphone');
+      return {
+        title: t('device.report.title'),
+        generatedAt: deviceLastRefreshed?.toISOString() || new Date().toISOString(),
+        notice: t('device.report.notice'),
+        activeFilter: query || null,
+        sections,
+        additionalInformationRequiringPermission: Object.keys(permissionData).length ? permissionData : undefined
+      };
+    }
+
+    function localizedPermissionExport(kind) {
+      const entry = devicePermissionData[kind];
+      if (!entry || entry.status !== 'granted') return null;
+      if (kind === 'location') {
+        return Object.fromEntries(['latitude', 'longitude', 'accuracy', 'altitude', 'altitudeAccuracy', 'heading', 'speed', 'timestamp'].filter(key => entry[key] !== null && typeof entry[key] !== 'undefined').map(key => [t(`device.property.${key}`), key === 'timestamp' ? new Date(entry[key]).toISOString() : entry[key]]));
+      }
+      return {
+        [t('device.property.deviceCount')]: entry.count,
+        [t('device.property.deviceLabels')]: entry.labels.length ? entry.labels : [t('device.permission.deviceNamesHidden')]
+      };
+    }
+
+    function textDeviceReport(report) {
+      const lines = [report.title, `${t('device.report.generated')}: ${new Intl.DateTimeFormat(currentLanguage, { dateStyle: 'full', timeStyle: 'long' }).format(new Date(report.generatedAt))}`, report.notice, ''];
+      report.sections.forEach(section => {
+        lines.push(section.section.toLocaleUpperCase(currentLanguage));
+        section.items.forEach(item => {
+          lines.push(`${item.property}: ${item.value}`);
+          lines.push(`  ${item.status} · ${item.source}`);
+          if (item.rawBrowserValue) lines.push(`  ${t('device.value.raw', { value: item.rawBrowserValue })}`);
+          if (item.note) lines.push(`  ${item.note}`);
+        });
+        lines.push('');
+      });
+      if (report.additionalInformationRequiringPermission) {
+        lines.push(t('device.permissions.title').toLocaleUpperCase(currentLanguage));
+        Object.entries(report.additionalInformationRequiringPermission).forEach(([kind, values]) => {
+          lines.push(kind);
+          Object.entries(values).forEach(([key, value]) => lines.push(`${key}: ${Array.isArray(value) ? value.join(', ') : value}`));
+        });
+      }
+      return lines.join('\n');
+    }
+
+    async function copyTextLocally(textValue) {
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
+        await navigator.clipboard.writeText(textValue);
+        return;
+      }
+      const area = document.createElement('textarea');
+      area.value = textValue;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const copied = document.execCommand('copy');
+      area.remove();
+      if (!copied) throw new Error('copy-failed');
+    }
+
+    async function copyDeviceReport() {
+      const report = visibleDeviceReport();
+      if (!report) return;
+      try { await copyTextLocally(textDeviceReport(report)); toast(t('device.toast.copied')); }
+      catch (error) { toast(t('device.toast.copyFailed'), 'error'); }
+    }
+
+    function downloadDeviceReport() {
+      const report = visibleDeviceReport();
+      if (!report) return;
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      downloadBlob(`elowen-device-information-${stamp}.json`, JSON.stringify(report, null, 2), 'application/json;charset=utf-8');
+      toast(t('device.toast.downloaded'));
+    }
+
+    function renderPermissionRows(host, rows) {
+      host.replaceChildren(...rows.map(([labelKey, value]) => {
+        const row = document.createElement('div');
+        const label = document.createElement('strong');
+        label.textContent = `${t(`device.property.${labelKey}`)}:`;
+        row.append(label, document.createTextNode(` ${value}`));
+        return row;
+      }));
+    }
+
+    function renderDevicePermissionResults() {
+      const location = devicePermissionData.location;
+      const locationHost = $('#device-location-result');
+      if (location?.status === 'requesting') locationHost.textContent = t('device.permission.requesting');
+      else if (location?.status === 'denied') locationHost.textContent = t('device.permission.denied');
+      else if (location?.status === 'unsupported') locationHost.textContent = t('device.permission.unavailable');
+      else if (location?.status === 'error') locationHost.textContent = t('device.permission.failed');
+      else if (location?.status === 'granted') {
+        const rows = [
+          ['latitude', new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 7 }).format(location.latitude)],
+          ['longitude', new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 7 }).format(location.longitude)],
+          ['accuracy', `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 1 }).format(location.accuracy)} m`]
+        ];
+        if (location.altitude !== null) rows.push(['altitude', `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 1 }).format(location.altitude)} m`]);
+        if (location.altitudeAccuracy !== null) rows.push(['altitudeAccuracy', `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 1 }).format(location.altitudeAccuracy)} m`]);
+        if (location.heading !== null) rows.push(['heading', `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 1 }).format(location.heading)}°`]);
+        if (location.speed !== null) rows.push(['speed', `${new Intl.NumberFormat(currentLanguage, { maximumFractionDigits: 2 }).format(location.speed)} m/s`]);
+        rows.push(['timestamp', new Intl.DateTimeFormat(currentLanguage, { dateStyle: 'medium', timeStyle: 'long' }).format(new Date(location.timestamp))]);
+        renderPermissionRows(locationHost, rows);
+      } else locationHost.replaceChildren();
+      $('#device-location-clear').hidden = location?.status !== 'granted';
+
+      ['camera', 'microphone'].forEach(kind => {
+        const entry = devicePermissionData[kind];
+        const host = $(`#device-${kind}-result`);
+        if (entry?.status === 'requesting') host.textContent = t('device.permission.requesting');
+        else if (entry?.status === 'denied') host.textContent = t('device.permission.denied');
+        else if (entry?.status === 'unsupported') host.textContent = t('device.permission.unavailable');
+        else if (entry?.status === 'error') host.textContent = t('device.permission.failed');
+        else if (entry?.status === 'granted') renderPermissionRows(host, [
+          ['deviceCount', new Intl.NumberFormat(currentLanguage).format(entry.count)],
+          ['deviceLabels', entry.labels.length ? entry.labels.join(', ') : t('device.permission.deviceNamesHidden')]
+        ]);
+        else host.replaceChildren();
+        $(`#device-${kind}-clear`).hidden = entry?.status !== 'granted';
+      });
+    }
+
+    function requestDeviceLocation() {
+      if (!navigator.geolocation) {
+        devicePermissionData.location = { status: 'unsupported' };
+        renderDevicePermissionResults();
+        return;
+      }
+      const token = deviceCollectionToken;
+      devicePermissionData.location = { status: 'requesting' };
+      renderDevicePermissionResults();
+      navigator.geolocation.getCurrentPosition(position => {
+        if (token !== deviceCollectionToken || !hasDeviceInfoConsent()) return;
+        const coordinates = position.coords;
+        devicePermissionData.location = {
+          status: 'granted', latitude: coordinates.latitude, longitude: coordinates.longitude, accuracy: coordinates.accuracy,
+          altitude: coordinates.altitude, altitudeAccuracy: coordinates.altitudeAccuracy, heading: coordinates.heading, speed: coordinates.speed,
+          timestamp: position.timestamp
+        };
+        renderDevicePermissionResults();
+      }, error => {
+        if (token !== deviceCollectionToken || !hasDeviceInfoConsent()) return;
+        devicePermissionData.location = { status: error.code === 1 ? 'denied' : 'error' };
+        renderDevicePermissionResults();
+      }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+    }
+
+    async function requestMediaDeviceDetails(kind) {
+      if (!navigator.mediaDevices?.getUserMedia || !navigator.mediaDevices?.enumerateDevices) {
+        devicePermissionData[kind] = { status: 'unsupported' };
+        renderDevicePermissionResults();
+        return;
+      }
+      const token = deviceCollectionToken;
+      devicePermissionData[kind] = { status: 'requesting' };
+      renderDevicePermissionResults();
+      let stream = null;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(kind === 'camera' ? { video: true, audio: false } : { video: false, audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mediaKind = kind === 'camera' ? 'videoinput' : 'audioinput';
+        const matches = devices.filter(device => device.kind === mediaKind);
+        if (token !== deviceCollectionToken || !hasDeviceInfoConsent()) return;
+        devicePermissionData[kind] = { status: 'granted', count: matches.length, labels: matches.map(device => device.label).filter(Boolean) };
+      } catch (error) {
+        if (token === deviceCollectionToken && hasDeviceInfoConsent()) devicePermissionData[kind] = { status: error?.name === 'NotAllowedError' || error?.name === 'SecurityError' ? 'denied' : 'error' };
+      } finally {
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        renderDevicePermissionResults();
+      }
+    }
+
+    function safelyRead(reader, fallback = null) {
+      try { return reader(); } catch (error) { return fallback; }
+    }
+
+    function withDeviceTimeout(promise, milliseconds = 2500) {
+      return Promise.race([
+        Promise.resolve(promise),
+        new Promise((resolve, reject) => window.setTimeout(() => reject(new Error('timeout')), milliseconds))
+      ]);
+    }
+
+    function safePageAddress(input) {
+      if (!input) return '';
+      try {
+        const url = new URL(input, window.location.href);
+        return `${url.origin}${url.pathname}`;
+      } catch (error) {
+        return String(input).split(/[?#]/)[0];
+      }
+    }
+
+    function inferOperatingSystem() {
+      const ua = navigator.userAgent || '';
+      const platform = navigator.platform || '';
+      if (/Windows NT/i.test(ua)) return 'Windows';
+      if (/CrOS/i.test(ua)) return 'ChromeOS';
+      if (/Android/i.test(ua)) return 'Android';
+      if (/iPhone|iPad|iPod/i.test(ua) || (/Mac/i.test(platform) && navigator.maxTouchPoints > 1)) return 'iOS or iPadOS';
+      if (/Mac/i.test(platform) || /Mac OS X/i.test(ua)) return 'macOS';
+      if (/Linux/i.test(platform) || /Linux/i.test(ua)) return 'Linux';
+      return null;
+    }
+
+    function inferBrowserIdentity() {
+      const ua = navigator.userAgent || '';
+      const candidates = [
+        ['Microsoft Edge', /Edg\/([\d.]+)/],
+        ['Opera', /OPR\/([\d.]+)/],
+        ['Firefox', /Firefox\/([\d.]+)/],
+        ['Chrome', /Chrome\/([\d.]+)/],
+        ['Safari', /Version\/([\d.]+).*Safari/]
+      ];
+      for (const [name, expression] of candidates) {
+        const match = ua.match(expression);
+        if (match) return { brands: name, versions: `${name} ${match[1]}` };
+      }
+      return { brands: null, versions: null };
+    }
+
+    async function getDeviceUaHints() {
+      if (deviceUaHintsPromise) return deviceUaHintsPromise;
+      deviceUaHintsPromise = (async () => {
+        const data = navigator.userAgentData;
+        if (!data) return { supported: false, low: null, high: null, error: null };
+        const low = { brands: data.brands || [], mobile: data.mobile, platform: data.platform || '' };
+        if (typeof data.getHighEntropyValues !== 'function') return { supported: true, low, high: null, error: 'restricted' };
+        try {
+          const high = await withDeviceTimeout(data.getHighEntropyValues(['architecture', 'bitness', 'model', 'platformVersion', 'uaFullVersion', 'fullVersionList', 'wow64']), 3500);
+          return { supported: true, low, high, error: null };
+        } catch (error) {
+          return { supported: true, low, high: null, error: 'restricted' };
+        }
+      })();
+      return deviceUaHintsPromise;
+    }
+
+    function getDeviceWebglInfo() {
+      if (deviceWebglInfoCache) return deviceWebglInfoCache;
+      const canvas = document.createElement('canvas');
+      const readContext = type => {
+        try { return canvas.getContext(type, { powerPreference: 'default', failIfMajorPerformanceCaveat: false }); }
+        catch (error) { return null; }
+      };
+      const gl2 = readContext('webgl2');
+      const gl = gl2 || readContext('webgl') || readContext('experimental-webgl');
+      if (!gl) {
+        deviceWebglInfoCache = { webgl: false, webgl2: false };
+        return deviceWebglInfoCache;
+      }
+      const read = parameter => safelyRead(() => gl.getParameter(parameter), null);
+      const info = {
+        webgl: true,
+        webgl2: Boolean(gl2),
+        vendor: read(gl.VENDOR),
+        renderer: read(gl.RENDERER),
+        maxTextureSize: read(gl.MAX_TEXTURE_SIZE),
+        maxCubeMapSize: read(gl.MAX_CUBE_MAP_TEXTURE_SIZE),
+        maxRenderbufferSize: read(gl.MAX_RENDERBUFFER_SIZE),
+        maxViewport: read(gl.MAX_VIEWPORT_DIMS),
+        maxVertexAttribs: read(gl.MAX_VERTEX_ATTRIBS),
+        maxTextureUnits: read(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS),
+        extensions: safelyRead(() => gl.getSupportedExtensions() || [], [])
+      };
+      safelyRead(() => gl.getExtension('WEBGL_lose_context')?.loseContext());
+      deviceWebglInfoCache = info;
+      return info;
+    }
+
+    async function getDeviceGpuInfo() {
+      if (deviceGpuInfoPromise) return deviceGpuInfoPromise;
+      deviceGpuInfoPromise = (async () => {
+        if (!navigator.gpu?.requestAdapter) return { supported: false, adapter: null, info: null, error: null };
+        try {
+          const adapter = await withDeviceTimeout(navigator.gpu.requestAdapter({ powerPreference: 'low-power' }), 3500);
+          if (!adapter) return { supported: true, adapter: null, info: null, error: 'restricted' };
+          const exposed = adapter.info || {};
+          const info = {
+            vendor: exposed.vendor || '', architecture: exposed.architecture || '', device: exposed.device || '', description: exposed.description || ''
+          };
+          return { supported: true, adapter, info, error: null };
+        } catch (error) {
+          return { supported: true, adapter: null, info: null, error: 'restricted' };
+        }
+      })();
+      return deviceGpuInfoPromise;
+    }
+
+    function pointerValue(prefix = 'pointer') {
+      const fine = matchMedia(`(${prefix}: fine)`).matches;
+      const coarse = matchMedia(`(${prefix}: coarse)`).matches;
+      if (fine && coarse) return ['device.option.fine', 'device.option.coarse'];
+      if (fine) return ['device.option.fine'];
+      if (coarse) return ['device.option.coarse'];
+      return ['device.option.none'];
+    }
+
+    function displayModeValue() {
+      const modes = [['fullscreen', 'device.option.fullscreen'], ['standalone', 'device.option.standalone'], ['minimal-ui', 'device.option.minimalUi'], ['browser', 'device.option.browser']];
+      const match = modes.find(([mode]) => matchMedia(`(display-mode: ${mode})`).matches);
+      return { key: match?.[1] || 'device.option.browser', raw: match?.[0] || 'browser' };
+    }
+
+    function colorGamutValue() {
+      if (matchMedia('(color-gamut: rec2020)').matches) return { key: 'device.option.rec2020', raw: 'rec2020' };
+      if (matchMedia('(color-gamut: p3)').matches) return { key: 'device.option.p3', raw: 'p3' };
+      if (matchMedia('(color-gamut: srgb)').matches) return { key: 'device.option.srgb', raw: 'srgb' };
+      return { key: 'device.value.unknown', raw: '' };
+    }
+
+    function mediaQuerySupported(query) {
+      return safelyRead(() => matchMedia(query).media !== 'not all', false);
+    }
+
+    async function collectDeviceGeneral() {
+      const hints = await getDeviceUaHints();
+      const inferredBrowser = inferBrowserIdentity();
+      const brands = hints.low?.brands?.length ? hints.low.brands.map(item => item.brand).join(', ') : inferredBrowser.brands;
+      const directlyReportedVersions = hints.high?.fullVersionList?.length ? hints.high.fullVersionList : hints.low?.brands?.length ? hints.low.brands : null;
+      const versions = directlyReportedVersions ? directlyReportedVersions.map(item => `${item.brand} ${item.version}`).join(', ') : inferredBrowser.versions;
+      const combinedHints = hints.supported ? { ...(hints.low || {}), ...(hints.high || {}) } : null;
+      const unavailableHintStatus = hints.supported ? 'restricted' : 'unsupported';
+      const mobileValue = hints.supported ? Boolean(hints.low?.mobile) : /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+      const primaryPointer = pointerValue('pointer');
+      return deviceSection('general', [
+        deviceItem('userAgent', navigator.userAgent || null, { raw: navigator.userAgent || null }),
+        deviceItem('clientHints', combinedHints, { format: 'json', status: hints.supported ? 'available' : 'unsupported', raw: combinedHints }),
+        deviceItem('browserBrands', brands, { source: hints.low?.brands?.length ? 'direct' : 'inferred', raw: hints.low?.brands || null }),
+        deviceItem('browserVersions', versions, { source: directlyReportedVersions ? 'direct' : 'inferred', raw: directlyReportedVersions }),
+        deviceItem('platform', hints.low?.platform || navigator.platform || null, { source: hints.low?.platform ? 'direct' : 'legacy', raw: navigator.platform || null }),
+        deviceItem('platformVersion', hints.high?.platformVersion || null, { status: hints.high?.platformVersion ? 'available' : unavailableHintStatus }),
+        deviceItem('operatingSystem', inferOperatingSystem(), { source: 'inferred' }),
+        deviceItem('architecture', hints.high?.architecture || null, { status: hints.high?.architecture ? 'available' : unavailableHintStatus }),
+        deviceItem('bitness', hints.high?.bitness || null, { status: hints.high?.bitness ? 'available' : unavailableHintStatus }),
+        deviceItem('wow64', typeof hints.high?.wow64 === 'boolean' ? hints.high.wow64 : null, { format: 'boolean', status: typeof hints.high?.wow64 === 'boolean' ? 'available' : unavailableHintStatus }),
+        deviceItem('deviceModel', hints.high?.model || null, { status: hints.high?.model ? 'available' : unavailableHintStatus }),
+        deviceItem('mobile', mobileValue, { format: 'boolean', source: hints.supported ? 'direct' : 'inferred' }),
+        deviceItem('logicalProcessors', Number.isFinite(navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : null, { format: 'number' }),
+        deviceItem('deviceMemory', Number.isFinite(navigator.deviceMemory) ? `${navigator.deviceMemory} GB` : null, { source: 'approximate', status: Number.isFinite(navigator.deviceMemory) ? 'available' : 'unsupported' }),
+        deviceItem('maxTouchPoints', Number.isFinite(navigator.maxTouchPoints) ? navigator.maxTouchPoints : null, { format: 'number' }),
+        deviceItem('touchSupport', navigator.maxTouchPoints > 0 || 'ontouchstart' in window, { format: 'boolean', source: 'derived' }),
+        deviceItem('primaryPointer', primaryPointer, { format: 'keyList', source: 'derived', raw: primaryPointer.map(value => value.split('.').pop()) }),
+        deviceItem('hoverCapability', matchMedia('(hover: hover)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('online', navigator.onLine ? 'device.option.online' : 'device.option.offline', { format: 'key' }),
+        deviceItem('doNotTrack', navigator.doNotTrack ?? window.doNotTrack ?? navigator.msDoNotTrack ?? null, { raw: navigator.doNotTrack ?? null }),
+        deviceItem('globalPrivacyControl', 'globalPrivacyControl' in navigator ? Boolean(navigator.globalPrivacyControl) : null, { format: 'enabled', status: 'globalPrivacyControl' in navigator ? 'available' : 'unsupported' }),
+        deviceItem('pdfViewer', 'pdfViewerEnabled' in navigator ? Boolean(navigator.pdfViewerEnabled) : null, { format: 'boolean', status: 'pdfViewerEnabled' in navigator ? 'available' : 'unsupported' }),
+        deviceItem('cookies', navigator.cookieEnabled, { format: 'enabled' }),
+        deviceItem('javaEnabled', typeof navigator.javaEnabled === 'function' ? safelyRead(() => navigator.javaEnabled(), false) : null, { format: 'enabled', status: typeof navigator.javaEnabled === 'function' ? 'available' : 'unsupported', source: 'legacy' })
+      ]);
+    }
+
+    async function collectDeviceBrowser() {
+      const hints = await getDeviceUaHints();
+      const featureChecks = [window.fetch, window.WebAssembly, window.Worker, window.WebSocket, window.indexedDB, window.crypto?.subtle, window.PerformanceObserver, navigator.serviceWorker, navigator.mediaDevices, window.RTCPeerConnection];
+      const featureCount = featureChecks.filter(Boolean).length;
+      return deviceSection('browser', [
+        deviceItem('userAgent', navigator.userAgent || null, { raw: navigator.userAgent || null }),
+        deviceItem('appName', navigator.appName || null, { source: 'legacy' }),
+        deviceItem('appVersion', navigator.appVersion || null, { source: 'legacy', raw: navigator.appVersion || null }),
+        deviceItem('product', navigator.product || null, { source: 'legacy' }),
+        deviceItem('productSub', navigator.productSub || null, { source: 'legacy' }),
+        deviceItem('vendor', navigator.vendor || null, { source: 'legacy' }),
+        deviceItem('vendorSub', navigator.vendorSub || null, { source: 'legacy' }),
+        deviceItem('browserLanguage', navigator.language || null),
+        deviceItem('preferredLanguages', navigator.languages || [], { format: 'list', raw: navigator.languages || [] }),
+        deviceItem('platform', navigator.platform || null, { source: 'legacy' }),
+        deviceItem('cookies', navigator.cookieEnabled, { format: 'enabled' }),
+        deviceItem('online', navigator.onLine ? 'device.option.online' : 'device.option.offline', { format: 'key' }),
+        deviceItem('pdfViewer', 'pdfViewerEnabled' in navigator ? Boolean(navigator.pdfViewerEnabled) : null, { format: 'boolean', status: 'pdfViewerEnabled' in navigator ? 'available' : 'unsupported' }),
+        deviceFeatureItem('clientHintsSupport', hints.supported),
+        deviceItem('browserFeatures', `${featureCount} / ${featureChecks.length}`, { source: 'derived' }),
+        deviceItem('secureContext', window.isSecureContext, { format: 'boolean' }),
+        deviceItem('crossOriginIsolation', window.crossOriginIsolated, { format: 'boolean' }),
+        deviceItem('compatibilityMode', document.compatMode || null, { raw: document.compatMode || null }),
+        deviceItem('pageProtocol', location.protocol || null),
+        deviceItem('pageOrigin', location.origin || null),
+        deviceItem('pageHostname', location.hostname || null, { status: location.hostname ? 'available' : 'notApplicable' }),
+        deviceItem('referrer', document.referrer ? safePageAddress(document.referrer) : null, { status: document.referrer ? 'available' : 'notApplicable', raw: document.referrer ? safePageAddress(document.referrer) : null }),
+        deviceItem('historyLength', history.length, { format: 'number' })
+      ]);
+    }
+
+    function collectDeviceLanguage() {
+      const resolved = safelyRead(() => new Intl.DateTimeFormat().resolvedOptions(), {});
+      const now = new Date();
+      const offsetMinutes = -now.getTimezoneOffset();
+      const sign = offsetMinutes >= 0 ? '+' : '−';
+      const absolute = Math.abs(offsetMinutes);
+      const offset = `UTC${sign}${String(Math.floor(absolute / 60)).padStart(2, '0')}:${String(absolute % 60).padStart(2, '0')}`;
+      return deviceSection('language', [
+        deviceItem('browserLanguage', navigator.language || null),
+        deviceItem('preferredLanguages', navigator.languages || [], { format: 'list', raw: navigator.languages || [] }),
+        deviceItem('intlLocale', resolved.locale || null),
+        deviceItem('calendar', resolved.calendar || null),
+        deviceItem('numberingSystem', resolved.numberingSystem || null),
+        deviceItem('timeZone', resolved.timeZone || null),
+        deviceItem('localDateTime', now.toISOString(), { format: 'date', raw: now.toString() }),
+        deviceItem('utcOffset', offset, { source: 'derived', raw: String(now.getTimezoneOffset()) }),
+        deviceItem('hourCycle', resolved.hourCycle || (resolved.hour12 === true ? 'h12' : resolved.hour12 === false ? 'h23' : null)),
+        deviceFeatureItem('dateTimeFormat', typeof Intl.DateTimeFormat === 'function'),
+        deviceFeatureItem('relativeTimeFormat', typeof Intl.RelativeTimeFormat === 'function'),
+        deviceFeatureItem('pluralRules', typeof Intl.PluralRules === 'function'),
+        deviceFeatureItem('listFormat', typeof Intl.ListFormat === 'function'),
+        deviceFeatureItem('segmenter', typeof Intl.Segmenter === 'function')
+      ]);
+    }
+
+    function collectDeviceDisplay() {
+      const orientation = screen.orientation;
+      const mode = displayModeValue();
+      const gamut = colorGamutValue();
+      const contrastSupported = mediaQuerySupported('(prefers-contrast: more)');
+      const transparencySupported = mediaQuerySupported('(prefers-reduced-transparency: reduce)');
+      const invertedSupported = mediaQuerySupported('(inverted-colors: inverted)');
+      const dynamicSupported = mediaQuerySupported('(dynamic-range: high)');
+      const contrastKey = matchMedia('(prefers-contrast: more)').matches ? 'device.option.more' : matchMedia('(prefers-contrast: less)').matches ? 'device.option.less' : matchMedia('(prefers-contrast: custom)').matches ? 'device.option.custom' : 'device.option.noPreference';
+      return deviceSection('display', [
+        deviceItem('screenWidth', screen.width, { format: 'number', raw: `${screen.width} CSS px` }),
+        deviceItem('screenHeight', screen.height, { format: 'number', raw: `${screen.height} CSS px` }),
+        deviceItem('availableScreenWidth', screen.availWidth, { format: 'number', raw: `${screen.availWidth} CSS px` }),
+        deviceItem('availableScreenHeight', screen.availHeight, { format: 'number', raw: `${screen.availHeight} CSS px` }),
+        deviceItem('screenExtended', 'isExtended' in screen ? Boolean(screen.isExtended) : null, { format: 'boolean', status: 'isExtended' in screen ? 'available' : 'unsupported' }),
+        deviceItem('viewportWidth', window.innerWidth, { format: 'number', raw: `${window.innerWidth} CSS px` }),
+        deviceItem('viewportHeight', window.innerHeight, { format: 'number', raw: `${window.innerHeight} CSS px` }),
+        deviceItem('outerWindowWidth', window.outerWidth, { format: 'number', raw: `${window.outerWidth} CSS px` }),
+        deviceItem('outerWindowHeight', window.outerHeight, { format: 'number', raw: `${window.outerHeight} CSS px` }),
+        deviceItem('devicePixelRatio', window.devicePixelRatio, { format: 'number' }),
+        deviceItem('pixelDepth', screen.pixelDepth, { format: 'number', raw: `${screen.pixelDepth} bits` }),
+        deviceItem('colorDepth', screen.colorDepth, { format: 'number', raw: `${screen.colorDepth} bits` }),
+        deviceItem('orientationType', orientation?.type || null, { status: orientation?.type ? 'available' : 'unsupported', raw: orientation?.type || null }),
+        deviceItem('orientationAngle', Number.isFinite(orientation?.angle) ? orientation.angle : null, { format: 'number', status: Number.isFinite(orientation?.angle) ? 'available' : 'unsupported', raw: Number.isFinite(orientation?.angle) ? `${orientation.angle}°` : null }),
+        deviceItem('displayMode', mode.key, { format: 'key', source: 'derived', raw: mode.raw }),
+        deviceFeatureItem('fullscreenSupport', 'fullscreenEnabled' in document ? document.fullscreenEnabled : Boolean(document.documentElement.requestFullscreen)),
+        deviceItem('fullscreenState', Boolean(document.fullscreenElement), { format: 'boolean' }),
+        deviceItem('visualViewportWidth', window.visualViewport?.width ?? null, { format: 'number', status: window.visualViewport ? 'available' : 'unsupported', raw: window.visualViewport ? `${window.visualViewport.width} CSS px` : null }),
+        deviceItem('visualViewportHeight', window.visualViewport?.height ?? null, { format: 'number', status: window.visualViewport ? 'available' : 'unsupported', raw: window.visualViewport ? `${window.visualViewport.height} CSS px` : null }),
+        deviceItem('visualViewportScale', window.visualViewport?.scale ?? null, { format: 'number', status: window.visualViewport ? 'available' : 'unsupported' }),
+        deviceItem('colorScheme', matchMedia('(prefers-color-scheme: dark)').matches ? 'device.option.dark' : 'device.option.light', { format: 'key', source: 'derived' }),
+        deviceItem('contrast', contrastSupported ? contrastKey : null, { format: 'key', status: contrastSupported ? 'available' : 'unsupported', source: 'derived' }),
+        deviceItem('reducedMotion', matchMedia('(prefers-reduced-motion: reduce)').matches, { format: 'enabled', source: 'derived' }),
+        deviceItem('reducedTransparency', transparencySupported ? matchMedia('(prefers-reduced-transparency: reduce)').matches : null, { format: 'enabled', status: transparencySupported ? 'available' : 'unsupported', source: 'derived' }),
+        deviceItem('forcedColors', matchMedia('(forced-colors: active)').matches ? 'device.option.active' : 'device.option.inactive', { format: 'key', source: 'derived' }),
+        deviceItem('invertedColors', invertedSupported ? matchMedia('(inverted-colors: inverted)').matches : null, { format: 'boolean', status: invertedSupported ? 'available' : 'unsupported', source: 'derived' }),
+        deviceItem('monochrome', matchMedia('(monochrome)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('dynamicRange', dynamicSupported ? (matchMedia('(dynamic-range: high)').matches ? 'device.option.high' : 'device.option.standard') : null, { format: 'key', status: dynamicSupported ? 'available' : 'unsupported', source: 'derived' }),
+        deviceItem('colorGamut', gamut.key, { format: 'key', source: 'derived', raw: gamut.raw })
+      ]);
+    }
+
+    function collectDeviceInput() {
+      const primary = pointerValue('pointer');
+      const any = pointerValue('any-pointer');
+      return deviceSection('input', [
+        deviceItem('touchSupport', navigator.maxTouchPoints > 0 || 'ontouchstart' in window, { format: 'boolean', source: 'derived' }),
+        deviceItem('maxTouchPoints', Number.isFinite(navigator.maxTouchPoints) ? navigator.maxTouchPoints : null, { format: 'number' }),
+        deviceItem('primaryPointer', primary, { format: 'keyList', source: 'derived', raw: primary.map(value => value.split('.').pop()) }),
+        deviceItem('finePointer', matchMedia('(pointer: fine)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('coarsePointer', matchMedia('(pointer: coarse)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('hoverCapability', matchMedia('(hover: hover)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('anyFinePointer', matchMedia('(any-pointer: fine)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('anyCoarsePointer', matchMedia('(any-pointer: coarse)').matches, { format: 'boolean', source: 'derived' }),
+        deviceItem('anyHover', matchMedia('(any-hover: hover)').matches, { format: 'boolean', source: 'derived' }),
+        deviceFeatureItem('keyboardApi', Boolean(navigator.keyboard), { secure: true }),
+        deviceFeatureItem('gamepadApi', typeof navigator.getGamepads === 'function')
+      ]);
+    }
+
+    async function collectDeviceHardware() {
+      const hints = await getDeviceUaHints();
+      const gpu = await getDeviceGpuInfo();
+      const gl = getDeviceWebglInfo();
+      const unavailableHintStatus = hints.supported ? 'restricted' : 'unsupported';
+      const mobileValue = hints.supported ? Boolean(hints.low?.mobile) : /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+      return deviceSection('hardware', [
+        deviceItem('logicalProcessors', Number.isFinite(navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : null, { format: 'number' }),
+        deviceItem('deviceMemory', Number.isFinite(navigator.deviceMemory) ? `${navigator.deviceMemory} GB` : null, { source: 'approximate', status: Number.isFinite(navigator.deviceMemory) ? 'available' : 'unsupported' }),
+        deviceItem('architecture', hints.high?.architecture || null, { status: hints.high?.architecture ? 'available' : unavailableHintStatus }),
+        deviceItem('bitness', hints.high?.bitness || null, { status: hints.high?.bitness ? 'available' : unavailableHintStatus }),
+        deviceItem('deviceModel', hints.high?.model || null, { status: hints.high?.model ? 'available' : unavailableHintStatus }),
+        deviceItem('mobile', mobileValue, { format: 'boolean', source: hints.supported ? 'direct' : 'inferred' }),
+        deviceFeatureItem('webgpu', gpu.supported),
+        deviceFeatureItem('webgl', gl.webgl),
+        deviceFeatureItem('webgl2', gl.webgl2)
+      ]);
+    }
+
+    async function collectDeviceGraphics() {
+      const canvas = document.createElement('canvas');
+      const canvas2d = Boolean(safelyRead(() => canvas.getContext('2d'), null));
+      const gl = getDeviceWebglInfo();
+      const gpu = await getDeviceGpuInfo();
+      const gamut = colorGamutValue();
+      const dynamicSupported = mediaQuerySupported('(dynamic-range: high)');
+      const gpuStatus = gpu.supported ? (gpu.adapter ? 'available' : 'restricted') : 'unsupported';
+      return deviceSection('graphics', [
+        deviceFeatureItem('canvas2d', canvas2d),
+        deviceFeatureItem('webgl', gl.webgl),
+        deviceFeatureItem('webgl2', gl.webgl2),
+        deviceFeatureItem('webgpu', gpu.supported),
+        deviceItem('webglVendor', gl.vendor || null, { status: gl.webgl ? (gl.vendor ? 'available' : 'restricted') : 'unsupported' }),
+        deviceItem('webglRenderer', gl.renderer || null, { status: gl.webgl ? (gl.renderer ? 'available' : 'restricted') : 'unsupported' }),
+        deviceItem('gpuAdapter', null, { status: gpuStatus }),
+        deviceItem('gpuVendor', gpu.info?.vendor || null, { status: gpu.supported ? (gpu.info?.vendor ? 'available' : 'restricted') : 'unsupported' }),
+        deviceItem('gpuArchitecture', gpu.info?.architecture || null, { status: gpu.supported ? (gpu.info?.architecture ? 'available' : 'restricted') : 'unsupported' }),
+        deviceItem('gpuDevice', gpu.info?.device || null, { status: gpu.supported ? (gpu.info?.device ? 'available' : 'restricted') : 'unsupported' }),
+        deviceItem('gpuDescription', gpu.info?.description || null, { status: gpu.supported ? (gpu.info?.description ? 'available' : 'restricted') : 'unsupported' }),
+        deviceItem('maxTextureSize', gl.maxTextureSize || null, { format: 'number', status: gl.webgl ? 'available' : 'unsupported' }),
+        deviceItem('maxCubeMapSize', gl.maxCubeMapSize || null, { format: 'number', status: gl.webgl ? 'available' : 'unsupported' }),
+        deviceItem('maxRenderbufferSize', gl.maxRenderbufferSize || null, { format: 'number', status: gl.webgl ? 'available' : 'unsupported' }),
+        deviceItem('maxViewport', gl.maxViewport ? Array.from(gl.maxViewport).join(' × ') : null, { status: gl.webgl ? 'available' : 'unsupported', raw: gl.maxViewport ? Array.from(gl.maxViewport) : null }),
+        deviceItem('maxVertexAttribs', gl.maxVertexAttribs || null, { format: 'number', status: gl.webgl ? 'available' : 'unsupported' }),
+        deviceItem('maxTextureUnits', gl.maxTextureUnits || null, { format: 'number', status: gl.webgl ? 'available' : 'unsupported' }),
+        deviceItem('webglExtensions', gl.extensions || null, { format: 'list', status: gl.webgl ? 'available' : 'unsupported', raw: gl.extensions || null }),
+        deviceItem('colorGamut', gamut.key, { format: 'key', source: 'derived', raw: gamut.raw }),
+        deviceItem('dynamicRange', dynamicSupported ? (matchMedia('(dynamic-range: high)').matches ? 'device.option.high' : 'device.option.standard') : null, { format: 'key', status: dynamicSupported ? 'available' : 'unsupported', source: 'derived' })
+      ]);
+    }
+
+    function mediaCodecSupport(element, tests) {
+      const results = {};
+      Object.entries(tests).forEach(([name, value]) => {
+        const response = safelyRead(() => element.canPlayType(value), '');
+        results[name] = response === 'probably' ? 'probably' : response === 'maybe' ? 'maybe' : 'unsupportedCodec';
+      });
+      return results;
+    }
+
+    function collectDeviceMedia() {
+      const audio = document.createElement('audio');
+      const video = document.createElement('video');
+      const audioCodecs = mediaCodecSupport(audio, {
+        MP3: 'audio/mpeg', AAC: 'audio/mp4; codecs="mp4a.40.2"', Opus: 'audio/ogg; codecs="opus"', Vorbis: 'audio/ogg; codecs="vorbis"', FLAC: 'audio/flac'
+      });
+      const videoCodecs = mediaCodecSupport(video, {
+        'H.264': 'video/mp4; codecs="avc1.42E01E"', VP9: 'video/webm; codecs="vp09.00.10.08"', AV1: 'video/mp4; codecs="av01.0.01M.08"', Theora: 'video/ogg; codecs="theora"'
+      });
+      return deviceSection('media', [
+        deviceFeatureItem('audioElement', typeof audio.canPlayType === 'function'),
+        deviceFeatureItem('videoElement', typeof video.canPlayType === 'function'),
+        deviceFeatureItem('webAudio', Boolean(window.AudioContext || window.webkitAudioContext)),
+        deviceFeatureItem('mediaSource', 'MediaSource' in window),
+        deviceFeatureItem('mediaRecorder', 'MediaRecorder' in window),
+        deviceFeatureItem('pictureInPicture', 'pictureInPictureEnabled' in document || 'requestPictureInPicture' in HTMLVideoElement.prototype),
+        deviceFeatureItem('webRtc', Boolean(window.RTCPeerConnection || window.webkitRTCPeerConnection)),
+        deviceFeatureItem('getUserMedia', Boolean(navigator.mediaDevices?.getUserMedia), { secure: true, permission: Boolean(navigator.mediaDevices?.getUserMedia) }),
+        deviceFeatureItem('getDisplayMedia', Boolean(navigator.mediaDevices?.getDisplayMedia), { secure: true, permission: Boolean(navigator.mediaDevices?.getDisplayMedia) }),
+        deviceItem('videoCodecs', videoCodecs, { format: 'codecMap', source: 'derived' }),
+        deviceItem('audioCodecs', audioCodecs, { format: 'codecMap', source: 'derived' }),
+        deviceFeatureItem('mediaCapabilities', Boolean(navigator.mediaCapabilities))
+      ]);
+    }
+
+    function storageProbe(name) {
+      try {
+        const storage = window[name];
+        const key = '__elowen_device_info_probe__';
+        storage.setItem(key, '1');
+        storage.removeItem(key);
+        return true;
+      } catch (error) { return false; }
+    }
+
+    async function collectDeviceStorage() {
+      const localAvailable = storageProbe('localStorage');
+      const sessionAvailable = storageProbe('sessionStorage');
+      let estimate = null;
+      let estimateError = false;
+      if (navigator.storage?.estimate) {
+        try { estimate = await withDeviceTimeout(navigator.storage.estimate(), 3000); }
+        catch (error) { estimateError = true; }
+      }
+      let persisted = null;
+      if (navigator.storage?.persisted) {
+        try { persisted = await withDeviceTimeout(navigator.storage.persisted(), 3000); }
+        catch (error) { persisted = null; }
+      }
+      const quota = Number.isFinite(estimate?.quota) ? estimate.quota : null;
+      const usage = Number.isFinite(estimate?.usage) ? estimate.usage : null;
+      const free = quota !== null && usage !== null ? Math.max(0, quota - usage) : null;
+      return deviceSection('storage', [
+        deviceFeatureItem('localStorage', localAvailable),
+        deviceFeatureItem('sessionStorage', sessionAvailable),
+        deviceFeatureItem('indexedDb', 'indexedDB' in window),
+        deviceFeatureItem('cacheStorage', 'caches' in window, { secure: true }),
+        deviceFeatureItem('storageManager', Boolean(navigator.storage)),
+        deviceItem('storageQuota', quota, { format: 'bytes', raw: quota, source: 'approximate', status: quota !== null ? 'available' : navigator.storage?.estimate && estimateError ? 'restricted' : 'unsupported' }),
+        deviceItem('storageUsage', usage, { format: 'bytes', raw: usage, source: 'approximate', status: usage !== null ? 'available' : navigator.storage?.estimate && estimateError ? 'restricted' : 'unsupported' }),
+        deviceItem('storageUsageDetails', estimate?.usageDetails || null, { format: 'json', raw: estimate?.usageDetails || null, source: 'approximate', status: estimate?.usageDetails ? 'available' : navigator.storage?.estimate ? 'unavailable' : 'unsupported' }),
+        deviceItem('storageFree', free, { format: 'bytes', raw: free, source: 'derived', status: free !== null ? 'available' : navigator.storage?.estimate ? 'restricted' : 'unsupported' }),
+        deviceFeatureItem('persistentStorageApi', Boolean(navigator.storage?.persisted)),
+        deviceItem('persistentStorageGranted', persisted, { format: 'boolean', status: persisted === null ? (navigator.storage?.persisted ? 'restricted' : 'unsupported') : 'available' }),
+        deviceItem('cookies', navigator.cookieEnabled, { format: 'enabled' })
+      ]);
+    }
+
+    function collectDeviceNetwork() {
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+      return deviceSection('network', [
+        deviceItem('online', navigator.onLine ? 'device.option.online' : 'device.option.offline', { format: 'key' }),
+        deviceFeatureItem('networkInformation', Boolean(connection)),
+        deviceItem('effectiveConnectionType', connection?.effectiveType || null, { status: connection?.effectiveType ? 'available' : 'unsupported', source: 'approximate' }),
+        deviceItem('downlink', Number.isFinite(connection?.downlink) ? `${connection.downlink} Mbps` : null, { status: Number.isFinite(connection?.downlink) ? 'available' : 'unsupported', source: 'approximate', raw: connection?.downlink ?? null }),
+        deviceItem('rtt', Number.isFinite(connection?.rtt) ? connection.rtt : null, { format: 'durationMs', status: Number.isFinite(connection?.rtt) ? 'available' : 'unsupported', source: 'approximate' }),
+        deviceItem('dataSaver', typeof connection?.saveData === 'boolean' ? connection.saveData : null, { format: 'enabled', status: typeof connection?.saveData === 'boolean' ? 'available' : 'unsupported' }),
+        deviceItem('connectionType', connection?.type || null, { status: connection?.type ? 'available' : 'unsupported', source: 'approximate' }),
+        deviceItem('publicIp', null, { status: 'external', source: 'direct' }),
+        deviceItem('isp', null, { status: 'external', source: 'direct' }),
+        deviceItem('asn', null, { status: 'external', source: 'direct' }),
+        deviceItem('externalLocation', null, { status: 'external', source: 'direct' }),
+        deviceItem('vpnProxy', null, { status: 'external', source: 'direct' })
+      ]);
+    }
+
+    async function collectDeviceBattery() {
+      if (typeof navigator.getBattery !== 'function') {
+        return deviceSection('battery', [
+          deviceFeatureItem('batteryApi', false),
+          deviceItem('batteryLevel', null, { status: 'unsupported' }),
+          deviceItem('charging', null, { status: 'unsupported' }),
+          deviceItem('chargingTime', null, { status: 'unsupported' }),
+          deviceItem('dischargingTime', null, { status: 'unsupported' })
+        ]);
+      }
+      try {
+        const battery = await withDeviceTimeout(navigator.getBattery(), 3000);
+        return deviceSection('battery', [
+          deviceFeatureItem('batteryApi', true),
+          deviceItem('batteryLevel', battery.level * 100, { format: 'percent' }),
+          deviceItem('charging', battery.charging ? 'device.option.charging' : 'device.option.discharging', { format: 'key' }),
+          deviceItem('chargingTime', battery.chargingTime, { format: 'durationSeconds' }),
+          deviceItem('dischargingTime', battery.dischargingTime, { format: 'durationSeconds' })
+        ]);
+      } catch (error) {
+        return deviceSection('battery', [
+          deviceItem('batteryApi', null, { status: 'restricted' }),
+          deviceItem('batteryLevel', null, { status: 'restricted' }),
+          deviceItem('charging', null, { status: 'restricted' }),
+          deviceItem('chargingTime', null, { status: 'restricted' }),
+          deviceItem('dischargingTime', null, { status: 'restricted' })
+        ]);
+      }
+    }
+
+    function collectDeviceCapabilities() {
+      const definitions = [
+        { id: 'webWorkers', test: () => typeof Worker !== 'undefined' },
+        { id: 'sharedWorkers', test: () => typeof SharedWorker !== 'undefined' },
+        { id: 'serviceWorkers', test: () => 'serviceWorker' in navigator, secure: true },
+        { id: 'webAssembly', test: () => typeof WebAssembly !== 'undefined' },
+        { id: 'webSockets', test: () => typeof WebSocket !== 'undefined' },
+        { id: 'serverSentEvents', test: () => typeof EventSource !== 'undefined' },
+        { id: 'fetch', test: () => typeof fetch === 'function' },
+        { id: 'streams', test: () => typeof ReadableStream !== 'undefined' && typeof WritableStream !== 'undefined' },
+        { id: 'webRtc', test: () => Boolean(window.RTCPeerConnection || window.webkitRTCPeerConnection) },
+        { id: 'webAudio', test: () => Boolean(window.AudioContext || window.webkitAudioContext) },
+        { id: 'webGl', test: () => getDeviceWebglInfo().webgl },
+        { id: 'webGl2', test: () => getDeviceWebglInfo().webgl2 },
+        { id: 'webGpu', test: () => Boolean(navigator.gpu), secure: true },
+        { id: 'canvas', test: () => typeof HTMLCanvasElement !== 'undefined' },
+        { id: 'svg', test: () => typeof SVGSVGElement !== 'undefined' },
+        { id: 'indexedDb', test: () => 'indexedDB' in window },
+        { id: 'cacheStorage', test: () => 'caches' in window, secure: true },
+        { id: 'fileApi', test: () => typeof File !== 'undefined' && typeof FileReader !== 'undefined' && typeof Blob !== 'undefined' },
+        { id: 'fileSystemAccess', test: () => typeof window.showOpenFilePicker === 'function', secure: true, permission: true },
+        { id: 'clipboard', test: () => Boolean(navigator.clipboard), secure: true, permission: true },
+        { id: 'notifications', test: () => 'Notification' in window, secure: true, permission: true },
+        { id: 'permissions', test: () => Boolean(navigator.permissions), secure: true },
+        { id: 'geolocation', test: () => Boolean(navigator.geolocation), secure: true, permission: true },
+        { id: 'webShare', test: () => typeof navigator.share === 'function', secure: true },
+        { id: 'webLocks', test: () => Boolean(navigator.locks), secure: true },
+        { id: 'broadcastChannel', test: () => typeof BroadcastChannel !== 'undefined' },
+        { id: 'mutationObserver', test: () => typeof MutationObserver !== 'undefined' },
+        { id: 'intersectionObserver', test: () => typeof IntersectionObserver !== 'undefined' },
+        { id: 'resizeObserver', test: () => typeof ResizeObserver !== 'undefined' },
+        { id: 'performance', test: () => Boolean(window.performance) },
+        { id: 'navigationTiming', test: () => typeof PerformanceNavigationTiming !== 'undefined' },
+        { id: 'resourceTiming', test: () => typeof PerformanceResourceTiming !== 'undefined' },
+        { id: 'userTiming', test: () => typeof performance?.mark === 'function' && typeof performance?.measure === 'function' },
+        { id: 'performanceObserver', test: () => typeof PerformanceObserver !== 'undefined' },
+        { id: 'compressionStreams', test: () => typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined' },
+        { id: 'webCrypto', test: () => Boolean(window.crypto?.subtle), secure: true },
+        { id: 'credentials', test: () => Boolean(navigator.credentials), secure: true, permission: true },
+        { id: 'paymentRequest', test: () => typeof PaymentRequest !== 'undefined', secure: true },
+        { id: 'pictureInPicture', test: () => 'pictureInPictureEnabled' in document || 'requestPictureInPicture' in HTMLVideoElement.prototype },
+        { id: 'screenOrientation', test: () => Boolean(screen.orientation) },
+        { id: 'fullscreen', test: () => 'fullscreenEnabled' in document || 'requestFullscreen' in document.documentElement },
+        { id: 'wakeLock', test: () => Boolean(navigator.wakeLock), secure: true, permission: true },
+        { id: 'bluetooth', test: () => Boolean(navigator.bluetooth), secure: true, permission: true },
+        { id: 'usb', test: () => Boolean(navigator.usb), secure: true, permission: true },
+        { id: 'serial', test: () => Boolean(navigator.serial), secure: true, permission: true },
+        { id: 'hid', test: () => Boolean(navigator.hid), secure: true, permission: true },
+        { id: 'midi', test: () => typeof navigator.requestMIDIAccess === 'function', secure: true, permission: true },
+        { id: 'gamepad', test: () => typeof navigator.getGamepads === 'function' },
+        { id: 'speechRecognition', test: () => Boolean(window.SpeechRecognition || window.webkitSpeechRecognition), permission: true },
+        { id: 'speechSynthesis', test: () => 'speechSynthesis' in window },
+        { id: 'mediaDevices', test: () => Boolean(navigator.mediaDevices), secure: true, permission: true },
+        { id: 'mediaRecorder', test: () => typeof MediaRecorder !== 'undefined' },
+        { id: 'mediaSource', test: () => typeof MediaSource !== 'undefined' },
+        { id: 'offscreenCanvas', test: () => typeof OffscreenCanvas !== 'undefined' },
+        { id: 'webCodecs', test: () => typeof VideoEncoder !== 'undefined' || typeof VideoDecoder !== 'undefined', secure: true },
+        { id: 'webTransport', test: () => typeof WebTransport !== 'undefined', secure: true },
+        { id: 'webXr', test: () => Boolean(navigator.xr), secure: true, permission: true },
+        { id: 'eyeDropper', test: () => typeof EyeDropper !== 'undefined', secure: true },
+        { id: 'contacts', test: () => Boolean(navigator.contacts?.select), secure: true, permission: true },
+        { id: 'shapeDetection', test: () => typeof BarcodeDetector !== 'undefined' || typeof FaceDetector !== 'undefined' || typeof TextDetector !== 'undefined' },
+        { id: 'idleDetection', test: () => typeof IdleDetector !== 'undefined', secure: true, permission: true },
+        { id: 'virtualKeyboard', test: () => Boolean(navigator.virtualKeyboard), secure: true },
+        { id: 'viewTransitions', test: () => typeof document.startViewTransition === 'function' }
+      ];
+      const items = definitions.map(definition => {
+        const supported = safelyRead(definition.test, false);
+        const status = supported ? (definition.permission ? 'permission' : 'supported') : (definition.secure && !window.isSecureContext ? 'secure' : 'unsupported');
+        return deviceItem(`api.${definition.id}`, null, {
+          labelKey: `device.api.${definition.id}`,
+          status,
+          source: 'direct',
+          noteKey: supported && definition.permission ? 'device.capability.permissionNote' : status === 'secure' ? 'device.capability.secureNote' : null
+        });
+      });
+      return deviceSection('capabilities', items);
+    }
+
+    function collectDeviceSecurity() {
+      const metaCsp = $('meta[http-equiv="Content-Security-Policy" i]')?.content || '';
+      const storageAvailable = storageProbe('localStorage') || storageProbe('sessionStorage') || 'indexedDB' in window;
+      return deviceSection('security', [
+        deviceItem('https', location.protocol === 'https:', { format: 'boolean' }),
+        deviceItem('secureContext', window.isSecureContext, { format: 'boolean' }),
+        deviceItem('crossOriginIsolation', window.crossOriginIsolated, { format: 'boolean' }),
+        deviceItem('pageOrigin', location.origin || null),
+        deviceItem('pageProtocol', location.protocol || null),
+        deviceItem('cookies', navigator.cookieEnabled, { format: 'enabled' }),
+        deviceFeatureItem('webCrypto', Boolean(window.crypto?.subtle), { secure: true }),
+        deviceItem('contentSecurityPolicy', metaCsp || null, { status: metaCsp ? 'available' : 'unavailable', raw: metaCsp || null }),
+        deviceItem('referrer', document.referrer ? safePageAddress(document.referrer) : null, { status: document.referrer ? 'available' : 'notApplicable' }),
+        deviceFeatureItem('permissionsApi', Boolean(navigator.permissions), { secure: true }),
+        deviceItem('storageAvailability', storageAvailable, { format: 'boolean', source: 'derived' }),
+        deviceItem('thirdPartyCookies', null, { status: 'restricted', source: 'direct' })
+      ]);
+    }
+
+    function navigationTypeTranslation(type) {
+      const map = { reload: 'reload', navigate: 'navigate', back_forward: 'backForward', prerender: 'prerender' };
+      return `device.option.${map[type] || 'navigate'}`;
+    }
+
+    function collectDevicePerformance() {
+      const navigation = safelyRead(() => performance.getEntriesByType('navigation')[0], null);
+      const memory = performance.memory || null;
+      const supportedEntryTypes = typeof PerformanceObserver !== 'undefined' ? PerformanceObserver.supportedEntryTypes || [] : [];
+      const timingItem = (key, value, applicable = true) => deviceItem(key, applicable && Number.isFinite(value) ? value : null, { format: 'durationMs', source: 'derived', status: !applicable ? 'notApplicable' : Number.isFinite(value) ? 'available' : 'unsupported' });
+      return deviceSection('performance', [
+        deviceItem('navigationType', navigation?.type ? navigationTypeTranslation(navigation.type) : null, { format: 'key', status: navigation?.type ? 'available' : 'unsupported', raw: navigation?.type || null }),
+        deviceItem('redirectCount', Number.isFinite(navigation?.redirectCount) ? navigation.redirectCount : null, { format: 'number', status: navigation ? 'available' : 'unsupported' }),
+        timingItem('dnsTime', navigation ? navigation.domainLookupEnd - navigation.domainLookupStart : null),
+        timingItem('connectTime', navigation ? navigation.connectEnd - navigation.connectStart : null),
+        timingItem('tlsTime', navigation?.secureConnectionStart > 0 ? navigation.connectEnd - navigation.secureConnectionStart : null, location.protocol === 'https:'),
+        timingItem('requestTime', navigation ? navigation.responseStart - navigation.requestStart : null),
+        timingItem('responseTime', navigation ? navigation.responseEnd - navigation.responseStart : null),
+        timingItem('domInteractive', navigation?.domInteractive ?? null),
+        timingItem('domContentLoaded', navigation?.domContentLoadedEventEnd ?? null),
+        timingItem('pageLoad', navigation?.loadEventEnd > 0 ? navigation.loadEventEnd : null),
+        deviceItem('documentUptime', performance.now(), { format: 'durationMs', source: 'derived' }),
+        deviceItem('timeOrigin', performance.timeOrigin || null, { format: 'date', source: 'direct' }),
+        deviceItem('loadedResources', safelyRead(() => performance.getEntriesByType('resource').length, null), { format: 'number', source: 'derived' }),
+        deviceItem('heapLimit', Number.isFinite(memory?.jsHeapSizeLimit) ? memory.jsHeapSizeLimit : null, { format: 'bytes', raw: memory?.jsHeapSizeLimit ?? null, status: memory ? 'available' : 'unsupported', source: 'approximate' }),
+        deviceItem('heapTotal', Number.isFinite(memory?.totalJSHeapSize) ? memory.totalJSHeapSize : null, { format: 'bytes', raw: memory?.totalJSHeapSize ?? null, status: memory ? 'available' : 'unsupported', source: 'approximate' }),
+        deviceItem('heapUsed', Number.isFinite(memory?.usedJSHeapSize) ? memory.usedJSHeapSize : null, { format: 'bytes', raw: memory?.usedJSHeapSize ?? null, status: memory ? 'available' : 'unsupported', source: 'approximate' }),
+        deviceFeatureItem('memoryApi', Boolean(memory)),
+        deviceFeatureItem('longTasks', supportedEntryTypes.includes('longtask')),
+        deviceFeatureItem('performanceObserver', typeof PerformanceObserver !== 'undefined')
+      ]);
+    }
+
+    function collectDeviceCss() {
+      const contrastSupported = mediaQuerySupported('(prefers-contrast: more)');
+      const dynamicSupported = mediaQuerySupported('(dynamic-range: high)');
+      const primary = pointerValue('pointer');
+      const any = pointerValue('any-pointer');
+      const gamut = colorGamutValue();
+      const contrast = matchMedia('(prefers-contrast: more)').matches ? 'device.option.more' : matchMedia('(prefers-contrast: less)').matches ? 'device.option.less' : matchMedia('(prefers-contrast: custom)').matches ? 'device.option.custom' : 'device.option.noPreference';
+      return deviceSection('css', [
+        deviceItem('mediaColorScheme', matchMedia('(prefers-color-scheme: dark)').matches ? 'device.option.dark' : 'device.option.light', { format: 'key', source: 'derived' }),
+        deviceItem('mediaReducedMotion', matchMedia('(prefers-reduced-motion: reduce)').matches, { format: 'enabled', source: 'derived' }),
+        deviceItem('mediaContrast', contrastSupported ? contrast : null, { format: 'key', status: contrastSupported ? 'available' : 'unsupported', source: 'derived' }),
+        deviceItem('mediaForcedColors', matchMedia('(forced-colors: active)').matches ? 'device.option.active' : 'device.option.inactive', { format: 'key', source: 'derived' }),
+        deviceItem('mediaPointer', primary, { format: 'keyList', source: 'derived', raw: primary.map(value => value.split('.').pop()) }),
+        deviceItem('mediaHover', matchMedia('(hover: hover)').matches ? 'device.option.hover' : 'device.option.none', { format: 'key', source: 'derived' }),
+        deviceItem('mediaAnyPointer', any, { format: 'keyList', source: 'derived', raw: any.map(value => value.split('.').pop()) }),
+        deviceItem('mediaAnyHover', matchMedia('(any-hover: hover)').matches ? 'device.option.hover' : 'device.option.none', { format: 'key', source: 'derived' }),
+        deviceItem('mediaOrientation', matchMedia('(orientation: portrait)').matches ? 'device.option.portrait' : 'device.option.landscape', { format: 'key', source: 'derived' }),
+        deviceItem('mediaColorGamut', gamut.key, { format: 'key', source: 'derived', raw: gamut.raw }),
+        deviceItem('mediaDynamicRange', dynamicSupported ? (matchMedia('(dynamic-range: high)').matches ? 'device.option.high' : 'device.option.standard') : null, { format: 'key', status: dynamicSupported ? 'available' : 'unsupported', source: 'derived' })
+      ]);
+    }
+
+    function collectDeviceDocument() {
+      const documentElement = document.documentElement;
+      const body = document.body;
+      const documentWidth = Math.max(documentElement.scrollWidth, documentElement.offsetWidth, body?.scrollWidth || 0, body?.offsetWidth || 0);
+      const documentHeight = Math.max(documentElement.scrollHeight, documentElement.offsetHeight, body?.scrollHeight || 0, body?.offsetHeight || 0);
+      return deviceSection('document', [
+        deviceItem('viewport', `${window.innerWidth} × ${window.innerHeight} CSS px`, { raw: { width: window.innerWidth, height: window.innerHeight } }),
+        deviceItem('outerWindow', `${window.outerWidth} × ${window.outerHeight} CSS px`, { raw: { width: window.outerWidth, height: window.outerHeight } }),
+        deviceItem('scrollPosition', `${Math.round(window.scrollX)} × ${Math.round(window.scrollY)} CSS px`, { raw: { x: window.scrollX, y: window.scrollY } }),
+        deviceItem('documentDimensions', `${documentWidth} × ${documentHeight} CSS px`, { raw: { width: documentWidth, height: documentHeight } }),
+        deviceItem('visibilityState', document.visibilityState || null, { raw: document.visibilityState || null }),
+        deviceItem('focusState', document.hasFocus(), { format: 'boolean' }),
+        deviceItem('fullscreenState', Boolean(document.fullscreenElement), { format: 'boolean' }),
+        deviceItem('historyLength', history.length, { format: 'number' }),
+        deviceItem('safeUrl', safePageAddress(location.href), { raw: safePageAddress(location.href) }),
+        deviceItem('pathname', location.pathname || '/', { raw: location.pathname || '/' }),
+        deviceItem('characterEncoding', document.characterSet || document.charset || null),
+        deviceItem('compatibilityMode', document.compatMode || null, { raw: document.compatMode || null }),
+        deviceItem('documentLanguage', document.documentElement.lang || null)
+      ]);
+    }
+
+    async function collectDeviceInformation({ announce = false } = {}) {
+      if (deviceCollecting || !hasDeviceInfoConsent()) {
+        if (!hasDeviceInfoConsent()) setDeviceConsentOpen(true);
+        return;
+      }
+      deviceCollecting = true;
+      $('#device-view').setAttribute('aria-busy', 'true');
+      const token = ++deviceCollectionToken;
+      deviceUaHintsPromise = null;
+      deviceGpuInfoPromise = null;
+      deviceWebglInfoCache = null;
+      $('#device-empty-state').hidden = true;
+      $('#device-loading').hidden = false;
+      $('#device-sections').replaceChildren();
+      $('#device-permissions-section').hidden = true;
+      $('#device-limitations-section').hidden = true;
+      updateDeviceLastRefreshed();
+      setDeviceActionAvailability();
+      const collectors = [
+        ['general', collectDeviceGeneral], ['browser', collectDeviceBrowser], ['language', collectDeviceLanguage], ['display', collectDeviceDisplay],
+        ['input', collectDeviceInput], ['hardware', collectDeviceHardware], ['graphics', collectDeviceGraphics], ['media', collectDeviceMedia],
+        ['storage', collectDeviceStorage], ['network', collectDeviceNetwork], ['battery', collectDeviceBattery], ['capabilities', collectDeviceCapabilities],
+        ['security', collectDeviceSecurity], ['performance', collectDevicePerformance], ['css', collectDeviceCss], ['document', collectDeviceDocument]
+      ];
+      const sections = await Promise.all(collectors.map(async ([id, collector]) => {
+        try { return await collector(); }
+        catch (error) {
+          return deviceSection(id, [deviceItem('collectionError', null, { status: 'error', raw: error?.name || null })]);
+        }
+      }));
+      if (token !== deviceCollectionToken || !hasDeviceInfoConsent()) {
+        if (token === deviceCollectionToken) {
+          deviceCollecting = false;
+          $('#device-view').setAttribute('aria-busy', 'false');
+          $('#device-loading').hidden = true;
+          setDeviceActionAvailability();
+        }
+        return;
+      }
+      deviceReport = { sections };
+      deviceLastRefreshed = new Date();
+      deviceCollecting = false;
+      $('#device-view').setAttribute('aria-busy', 'false');
+      $('#device-loading').hidden = true;
+      renderDeviceInformation();
+      updateDeviceLastRefreshed();
+      if (announce) toast(t('device.toast.refreshed'));
+    }
+
+    TRANSLATIONS.en['device.property.collectionError'] = 'Section collection error';
+    TRANSLATIONS.fr['device.property.collectionError'] = 'Erreur de collecte de la section';
+    TRANSLATIONS.en['device.property.wow64'] = '32-bit browser on 64-bit Windows (WoW64)';
+    TRANSLATIONS.fr['device.property.wow64'] = 'Navigateur 32 bits sur Windows 64 bits (WoW64)';
+    TRANSLATIONS.en['device.property.screenExtended'] = 'Extended or multiple-screen environment';
+    TRANSLATIONS.fr['device.property.screenExtended'] = 'Environnement à écran étendu ou à plusieurs écrans';
+    TRANSLATIONS.en['device.property.storageUsageDetails'] = 'Storage usage breakdown';
+    TRANSLATIONS.fr['device.property.storageUsageDetails'] = 'Répartition de l’utilisation du stockage';
+
+    $('#device-consent-allow').addEventListener('click', () => {
+      deviceSessionConsent = true;
+      let saved = true;
+      try { localStorage.setItem(STORAGE.deviceInfoConsent, 'granted'); }
+      catch (error) { saved = false; }
+      setDeviceConsentOpen(false);
+      if (!saved) toast(t('device.toast.consentSaveFailed'), 'error', 4200);
+      collectDeviceInformation();
+    });
+    $('#device-consent-cancel').addEventListener('click', () => {
+      deviceSessionConsent = false;
+      try { localStorage.setItem(STORAGE.deviceInfoConsent, 'denied'); } catch (error) { /* a future visit will ask again */ }
+      setDeviceConsentOpen(false);
+      openView('home');
+    });
+    $('#device-consent-layer').addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); return; }
+      if (event.key !== 'Tab') return;
+      const choices = [$('#device-consent-cancel'), $('#device-consent-allow')];
+      const first = choices[0];
+      const last = choices[choices.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+    $('#device-review-consent').addEventListener('click', () => setDeviceConsentOpen(true));
+    $('#device-refresh').addEventListener('click', () => collectDeviceInformation({ announce: true }));
+    $('#device-copy-report').addEventListener('click', copyDeviceReport);
+    $('#device-download-report').addEventListener('click', downloadDeviceReport);
+    $('#device-expand-all').addEventListener('click', () => $$('.device-section:not([hidden])', $('#device-view')).forEach(section => { section.open = true; }));
+    $('#device-collapse-all').addEventListener('click', () => $$('.device-section:not([hidden])', $('#device-view')).forEach(section => { section.open = false; }));
+    $('#device-revoke').addEventListener('click', revokeDeviceConsent);
+    $('#device-filter').addEventListener('input', applyDeviceFilter);
+    $('#device-filter-clear').addEventListener('click', () => { $('#device-filter').value = ''; applyDeviceFilter(); $('#device-filter').focus(); });
+    $('#device-sections').addEventListener('click', async event => {
+      const button = event.target.closest('[data-copy-device-value]');
+      if (!button) return;
+      try { await copyTextLocally(button.dataset.copyDeviceValue); toast(t('device.toast.valueCopied')); }
+      catch (error) { toast(t('device.toast.copyFailed'), 'error'); }
+    });
+    $('#device-location-allow').addEventListener('click', requestDeviceLocation);
+    $('#device-camera-allow').addEventListener('click', () => requestMediaDeviceDetails('camera'));
+    $('#device-microphone-allow').addEventListener('click', () => requestMediaDeviceDetails('microphone'));
+    $('#device-location-clear').addEventListener('click', () => { devicePermissionData.location = null; renderDevicePermissionResults(); toast(t('device.permission.cleared')); });
+    $('#device-camera-clear').addEventListener('click', () => { devicePermissionData.camera = null; renderDevicePermissionResults(); toast(t('device.permission.cleared')); });
+    $('#device-microphone-clear').addEventListener('click', () => { devicePermissionData.microphone = null; renderDevicePermissionResults(); toast(t('device.permission.cleared')); });
+
     /* App navigation and home search */
     let currentView = 'home';
     const views = {
       home: $('#home-view'),
       calculator: $('#calculator-view'),
       code: $('#code-view'),
-      text: $('#text-view')
+      text: $('#text-view'),
+      device: $('#device-view')
     };
 
     function openView(name) {
@@ -2043,6 +3884,8 @@
         window.setTimeout(() => $('#document-editor').focus(), 190);
       } else if (name === 'calculator') {
         window.setTimeout(() => $('#calc-value').scrollLeft = $('#calc-value').scrollWidth, 0);
+      } else if (name === 'device') {
+        window.setTimeout(() => openDeviceInformation(), 40);
       } else {
         window.setTimeout(() => $('#tool-search').focus(), 190);
       }
