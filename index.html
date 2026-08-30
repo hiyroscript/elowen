@@ -62,6 +62,15 @@
     .desktop-mark { width: 56px; height: 56px; margin: 0 auto 22px; color: var(--brown-gray); }
     .desktop-message h1 { margin: 0 0 10px; font-size: 25px; font-weight: 600; letter-spacing: -.02em; }
     .desktop-message p { margin: 0; color: var(--muted); font-size: 15px; }
+    .language-gate { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px; background: rgba(64,58,53,.38); backdrop-filter: blur(8px); }
+    .language-gate[hidden] { display: none; }
+    .language-dialog { width: min(440px, 100%); padding: 34px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--paper); box-shadow: 0 24px 70px rgba(48,44,40,.2); text-align: center; }
+    .language-dialog .brand-mark { margin: 0 auto 14px; }
+    .language-dialog h1 { margin: 0 0 8px; font-size: 24px; }
+    .language-dialog p { margin: 0 0 24px; color: var(--muted); }
+    .language-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .language-choice { min-height: 58px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--sand-soft); font-size: 15px; font-weight: 650; }
+    .language-choice:hover { background: var(--sand-deep); border-color: var(--stone); }
     @media (max-width: 1050px), (orientation: portrait) {
       #app, #modal-layer, #toast-region { display: none !important; }
       .desktop-only { display: grid; }
@@ -345,6 +354,9 @@
   </style>
 </head>
 <body>
+  <div id="language-gate" class="language-gate" role="dialog" aria-modal="true" aria-labelledby="language-gate-title" hidden>
+    <div class="language-dialog"><span class="brand-mark"><svg class="icon-lg"><use href="#i-leaf"></use></svg></span><h1 id="language-gate-title">Choose your language · Choisissez votre langue</h1><p>Select a language to begin · Choisissez une langue pour commencer</p><div class="language-choices"><button class="language-choice" type="button" data-language-choice="en" lang="en">English</button><button class="language-choice" type="button" data-language-choice="fr" lang="fr">Français</button></div></div>
+  </div>
   <div class="desktop-only" role="status">
     <div class="desktop-message">
       <svg class="desktop-mark" aria-hidden="true"><use href="#i-monitor"></use></svg>
@@ -513,6 +525,7 @@
           <label class="setting-row"><span>Tab size</span><select id="tab-size-setting"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="8">8 spaces</option></select></label>
           <div class="setting-row"><span>Word wrap</span><button id="wrap-setting" class="switch" type="button" role="switch" aria-checked="false" aria-label="Toggle word wrap"></button></div>
           <div class="setting-row"><span>Auto-save</span><button id="autosave-setting" class="switch on" type="button" role="switch" aria-checked="true" aria-label="Toggle auto-save"></button></div>
+          <label class="setting-row"><span>Language</span><select id="language-setting" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select></label>
         </div>
       </div>
       <main id="code-shell" class="code-shell">
@@ -598,6 +611,105 @@
   (() => {
     'use strict';
 
+    const LANGUAGE_STORAGE_KEY = 'elowen.language';
+    const LANGUAGE_ENTRIES = [
+      ['desktop.title','Elowen is designed for desktop displays in landscape orientation.','Elowen est conçu pour les écrans d’ordinateur en orientation paysage.'],
+      ['desktop.help','Open this workspace on a laptop or desktop and widen the browser window.','Ouvrez cet espace sur un ordinateur portable ou de bureau, puis agrandissez la fenêtre.'],
+      ['nav.home','Elowen home','Accueil d’Elowen'], ['nav.back','Back to Elowen home','Retour à l’accueil d’Elowen'], ['nav.backTitle','Back to Home','Retour à l’accueil'],
+      ['search.tools','Search Elowen tools…','Rechercher dans les outils Elowen…'], ['search.clear','Clear search','Effacer la recherche'], ['search.navigate','navigate','naviguer'], ['search.open','open','ouvrir'],
+      ['home.eyebrow','Your quiet workspace','Votre espace de sérénité'], ['home.title','Three tools. One clear rhythm.','Trois outils. Un rythme fluide.'],
+      ['home.description','Calculate, build, and write without leaving your browser. Your work stays on this device.','Calculez, créez et rédigez sans quitter votre navigateur. Votre travail reste sur cet appareil.'],
+      ['home.tools','Elowen tools','Outils Elowen'], ['tool.calculator','Scientific Calculator','Calculatrice scientifique'], ['tool.calculator.description','Advanced calculations, functions, constants, and history.','Calculs avancés, fonctions, constantes et historique.'], ['tool.calculator.open','Open calculator','Ouvrir la calculatrice'],
+      ['tool.code','Code Editor','Éditeur de code'], ['tool.code.description','Write, edit, preview, and manage code directly in your browser.','Écrivez, modifiez, prévisualisez et gérez du code directement dans votre navigateur.'], ['tool.editor.open','Open editor','Ouvrir l’éditeur'],
+      ['tool.text','Text Editor','Éditeur de texte'], ['tool.text.description','Create and format rich documents in a distraction-free workspace.','Créez et mettez en forme des documents enrichis dans un espace sans distractions.'],
+      ['empty.tools','No tools found.','Aucun outil trouvé.'], ['empty.tools.help','Try “code”, “calculator”, or “text”.','Essayez « code », « calculatrice » ou « texte ».'], ['footer.workspace','Elowen workspace','Espace de travail Elowen'], ['footer.local','Stored locally · No account required','Stockage local · Aucun compte requis'],
+      ['calc.keyboard','Natural keyboard input supported','Saisie naturelle au clavier prise en charge'], ['calc.angle','Angle mode','Mode angulaire'], ['calc.history','History','Historique'], ['calc.keypad','Calculator keypad','Pavé de la calculatrice'], ['calc.expression','Expression','Expression'], ['calc.result','Result','Résultat'], ['calc.memory','Memory controls','Commandes de mémoire'], ['calc.memory.clear','Clear memory','Effacer la mémoire'], ['calc.memory.recall','Recall memory','Rappeler la mémoire'], ['calc.memory.add','Add to memory','Ajouter à la mémoire'], ['calc.memory.subtract','Subtract from memory','Soustraire de la mémoire'], ['calc.memory.store','Store in memory','Enregistrer en mémoire'], ['calc.scientific','Scientific functions','Fonctions scientifiques'], ['calc.basic','Basic operations','Opérations de base'], ['calc.backspace','Backspace','Retour arrière'], ['calc.historyLabel','Calculation history','Historique des calculs'], ['common.clear','Clear','Effacer'],
+      ['code.workspace','Browser workspace','Espace de travail du navigateur'], ['common.save','Save','Enregistrer'], ['common.run','Run','Exécuter'], ['code.toolbar','Code editor toolbar','Barre d’outils de l’éditeur de code'], ['common.files','Files','Fichiers'], ['files.toggle','Toggle files','Afficher ou masquer les fichiers'], ['common.undo','Undo','Annuler'], ['common.redo','Redo','Rétablir'], ['common.find','Find','Rechercher'], ['common.replace','Replace','Remplacer'], ['find.replace','Find and replace','Rechercher et remplacer'], ['find.shortcut','Find (Ctrl/Cmd+F)','Rechercher (Ctrl/Cmd+F)'], ['replace.shortcut','Find and replace (Ctrl/Cmd+H)','Rechercher et remplacer (Ctrl/Cmd+H)'], ['code.comment','Comment','Commenter'], ['code.commentToggle','Toggle comment (Ctrl/Cmd+/)','Ajouter ou retirer le commentaire (Ctrl/Cmd+/)'], ['common.download','Download','Télécharger'], ['code.downloadCurrent','Download current file','Télécharger le fichier actuel'], ['code.preview','Preview','Aperçu'], ['code.previewToggle','Toggle preview','Afficher ou masquer l’aperçu'], ['common.settings','Settings','Réglages'], ['code.editorSettings','Editor settings','Réglages de l’éditeur'],
+      ['settings.fontSize','Font size','Taille de police'], ['settings.tabSize','Tab size','Taille de tabulation'], ['settings.twoSpaces','2 spaces','2 espaces'], ['settings.fourSpaces','4 spaces','4 espaces'], ['settings.eightSpaces','8 spaces','8 espaces'], ['settings.wrap','Word wrap','Retour à la ligne'], ['settings.wrapToggle','Toggle word wrap','Activer ou désactiver le retour à la ligne'], ['settings.autosave','Auto-save','Enregistrement automatique'], ['settings.autosaveToggle','Toggle auto-save','Activer ou désactiver l’enregistrement automatique'], ['settings.language','Language','Langue'],
+      ['files.new','New file','Nouveau fichier'], ['files.rename','Rename','Renommer'], ['files.delete','Delete','Supprimer'], ['files.resize','Resize file panel','Redimensionner le panneau des fichiers'], ['code.area','Code editing area','Zone d’édition du code'], ['find.text','Find text','Texte à rechercher'], ['replace.text','Replacement text','Texte de remplacement'], ['find.previous','Previous match','Occurrence précédente'], ['find.next','Next match','Occurrence suivante'], ['common.all','All','Tout'], ['common.close','Close','Fermer'], ['find.close','Close find','Fermer la recherche'], ['code.editor','Code editor','Éditeur de code'], ['code.languageMode','Language mode','Mode de langage'], ['code.plainText','Plain Text','Texte brut'], ['preview.resize','Resize preview panel','Redimensionner le panneau d’aperçu'], ['preview.live','Live preview','Aperçu en direct'], ['preview.refresh','Refresh preview','Actualiser l’aperçu'], ['preview.expand','Expand preview','Agrandir l’aperçu'], ['preview.close','Close preview','Fermer l’aperçu'], ['preview.frame','Code preview','Aperçu du code'], ['preview.console','Console','Console'],
+      ['text.untitled','Untitled document','Document sans titre'], ['text.documentTitle','Document title','Titre du document'], ['common.saved','Saved','Enregistré'], ['common.print','Print','Imprimer'], ['text.htmlDocument','HTML document','Document HTML'], ['text.plainText','Plain text','Texte brut'], ['text.wordDocument','Word-compatible .doc','Document .doc compatible avec Word'], ['text.toolbar','Formatting toolbar','Barre d’outils de mise en forme'], ['text.paragraphStyle','Paragraph style','Style de paragraphe'], ['text.normal','Normal text','Texte normal'], ['text.title','Title','Titre'], ['text.heading1','Heading 1','Titre 1'], ['text.heading2','Heading 2','Titre 2'], ['text.heading3','Heading 3','Titre 3'], ['text.fontFamily','Font family','Police'], ['text.bold','Bold','Gras'], ['text.italic','Italic','Italique'], ['text.underline','Underline','Souligné'], ['text.strike','Strikethrough','Barré'], ['text.color','Text color','Couleur du texte'], ['text.highlight','Highlight color','Couleur de surlignage'], ['text.alignLeft','Align left','Aligner à gauche'], ['text.alignCenter','Align center','Centrer'], ['text.alignRight','Align right','Aligner à droite'], ['text.justify','Justify','Justifier'], ['text.bullets','Bulleted list','Liste à puces'], ['text.numbered','Numbered list','Liste numérotée'], ['text.outdent','Decrease indent','Diminuer le retrait'], ['text.indent','Increase indent','Augmenter le retrait'], ['text.insertLink','Insert link','Insérer un lien'], ['text.removeLink','Remove link','Supprimer le lien'], ['text.clearFormat','Clear formatting','Effacer la mise en forme'], ['text.findDocument','Find in document','Rechercher dans le document'], ['text.replaceWith','Replace with','Remplacer par'], ['text.content','Document content','Contenu du document'],
+      ['common.cancel','Cancel','Annuler'], ['common.confirm','Confirm','Confirmer'], ['common.saving','Saving…','Enregistrement…'], ['common.modified','Modified','Modifié'], ['code.unsaved','Unsaved changes','Modifications non enregistrées']
+    ];
+    const TRANSLATIONS = { en: {}, fr: {} };
+    const SOURCE_TO_KEY = new Map();
+    LANGUAGE_ENTRIES.forEach(([key, en, fr]) => { TRANSLATIONS.en[key] = en; TRANSLATIONS.fr[key] = fr; SOURCE_TO_KEY.set(en, key); SOURCE_TO_KEY.set(fr, key); });
+    let currentLanguage = 'en';
+    const t = (key, values = {}) => {
+      let result = (TRANSLATIONS[currentLanguage] && TRANSLATIONS[currentLanguage][key]) || TRANSLATIONS.en[key] || key;
+      Object.entries(values).forEach(([name, value]) => { result = result.replaceAll(`{${name}}`, value); });
+      return result;
+    };
+    function tr(message) {
+      const source = String(message ?? '');
+      const key = SOURCE_TO_KEY.get(source);
+      if (key) return t(key);
+      if (currentLanguage !== 'fr') return source;
+      const exact = {
+        'No calculations yet':'Aucun calcul pour le moment', 'Completed results will appear here.':'Les résultats terminés apparaîtront ici.',
+        'Invalid calculation':'Calcul non valide', 'Memory cleared':'Mémoire effacée', 'Calculation history cleared':'Historique des calculs effacé',
+        'Missing closing parenthesis':'Parenthèse fermante manquante', 'Incomplete expression':'Expression incomplète', 'Check the expression':'Vérifiez l’expression', 'Result is outside the supported range':'Le résultat dépasse la plage prise en charge', 'Cannot divide by zero':'Division par zéro impossible',
+        'Factorial needs a non-negative integer':'La factorielle exige un entier positif ou nul', 'Factorial is limited to 170':'La factorielle est limitée à 170', 'asin accepts values from −1 to 1':'asin accepte les valeurs de −1 à 1', 'acos accepts values from −1 to 1':'acos accepte les valeurs de −1 à 1', 'Logarithm needs a positive value':'Le logarithme exige une valeur positive', 'Natural log needs a positive value':'Le logarithme naturel exige une valeur positive', 'Square root needs a non-negative value':'La racine carrée exige une valeur positive ou nulle',
+        '0 results':'0 résultat', 'Stored data could not be read. A safe workspace was restored.':'Les données enregistrées n’ont pas pu être lues. Un espace de travail sûr a été restauré.',
+        'This browser could not save your latest changes.':'Ce navigateur n’a pas pu enregistrer vos dernières modifications.', 'The file could not be downloaded.':'Le fichier n’a pas pu être téléchargé.',
+        'Enhanced syntax highlighting is unavailable; the editor is using its reliable fallback.':'La coloration syntaxique avancée est indisponible ; l’éditeur utilise son mode de secours fiable.',
+        'Enter a file name.':'Saisissez un nom de fichier.', 'A file with that name already exists.':'Un fichier portant ce nom existe déjà.', 'File renamed':'Fichier renommé', 'File deleted':'Fichier supprimé',
+        'Preview could not run':'Impossible d’exécuter l’aperçu', 'Preview could not run. Check the console.':'Impossible d’exécuter l’aperçu. Consultez la console.',
+        'That formatting action is not supported by this browser.':'Cette action de mise en forme n’est pas prise en charge par ce navigateur.', 'Enter a valid http, https, or email link.':'Saisissez un lien HTTP, HTTPS ou une adresse courriel valide.',
+        'Document downloaded':'Document téléchargé', 'Document saved':'Document enregistré', 'Restore preview':'Rétablir l’aperçu',
+        'Create a new file':'Créer un fichier', 'Choose a name and editing mode.':'Choisissez un nom et un mode d’édition.', 'Create file':'Créer le fichier', 'File name':'Nom du fichier',
+        'Clear calculation history?':'Effacer l’historique des calculs ?', 'This removes all saved calculations from this browser.':'Cette action supprime du navigateur tous les calculs enregistrés.', 'Clear history':'Effacer l’historique',
+        'Rename file':'Renommer le fichier', 'Update the file name or its editing mode.':'Modifiez le nom du fichier ou son mode d’édition.', 'This removes the virtual file from this browser.':'Cette action supprime le fichier virtuel de ce navigateur.', 'Delete file':'Supprimer le fichier',
+        'Insert link':'Insérer un lien', 'Enter a secure web address for the selected text.':'Saisissez une adresse Web sécurisée pour le texte sélectionné.', 'Web address':'Adresse Web'
+      };
+      if (exact[source]) return exact[source];
+      let match;
+      if ((match = source.match(/^(\d+) of (\d+)$/))) return `${match[1]} sur ${match[2]}`;
+      if ((match = source.match(/^(\d+) results?$/))) return `${match[1]} résultat${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^(\d+) words?$/))) return `${match[1]} mot${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^(\d+) characters?$/))) return `${match[1]} caractère${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^(\d+) replacements? made$/))) return `${match[1]} remplacement${match[1] === '1' ? '' : 's'} effectué${match[1] === '1' ? '' : 's'}`;
+      if ((match = source.match(/^Delete (.+)\?$/))) return `Supprimer ${match[1]} ?`;
+      if ((match = source.match(/^Unknown symbol “(.+)”$/))) return `Symbole inconnu « ${match[1]} »`;
+      if ((match = source.match(/^Unknown function “(.+)”$/))) return `Fonction inconnue « ${match[1]} »`;
+      if ((match = source.match(/^Memory: (.+)$/))) return `Mémoire : ${match[1]}`;
+      if ((match = source.match(/^Reuse (.+)$/))) return `Réutiliser ${match[1]}`;
+      if ((match = source.match(/^(.+) saved$/))) return `${match[1]} enregistré`;
+      if ((match = source.match(/^(.+) downloaded$/))) return `${match[1]} téléchargé`;
+      if ((match = source.match(/^Spaces: (\d+)$/))) return `Espaces : ${match[1]}`;
+      if ((match = source.match(/^Ln (\d+), Col (\d+)$/))) return `Lig. ${match[1]}, Col. ${match[2]}`;
+      return source;
+    }
+    function translateInterface(root = document) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        if (node.parentElement && node.parentElement.closest('script,style,[contenteditable="true"],#language-gate')) return;
+        const raw = node.nodeValue; const trimmed = raw.trim(); const key = SOURCE_TO_KEY.get(trimmed);
+        if (key) node.nodeValue = raw.replace(trimmed, t(key));
+      });
+      root.querySelectorAll?.('[aria-label],[title],[placeholder]').forEach(element => ['aria-label','title','placeholder'].forEach(attr => {
+        if (!element.hasAttribute(attr)) return; const key = SOURCE_TO_KEY.get(element.getAttribute(attr)); if (key) element.setAttribute(attr, t(key));
+      }));
+    }
+    function applyLanguage(language, persist = true) {
+      currentLanguage = ['en','fr'].includes(language) ? language : 'en';
+      document.documentElement.lang = currentLanguage;
+      if (persist) { try { localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage); } catch (_) {} }
+      translateInterface();
+      const setting = document.getElementById('language-setting'); if (setting) setting.value = currentLanguage;
+      document.dispatchEvent(new CustomEvent('elowen:languagechange', { detail: { language: currentLanguage } }));
+    }
+    let savedLanguage = null;
+    try { savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch (_) {}
+    if (['en','fr'].includes(savedLanguage)) applyLanguage(savedLanguage, false);
+    window.addEventListener('DOMContentLoaded', () => {
+      if (['en','fr'].includes(savedLanguage)) applyLanguage(savedLanguage, false);
+      else { const gate = document.getElementById('language-gate'); gate.hidden = false; gate.querySelector('[data-language-choice="en"]').focus(); }
+      document.querySelectorAll('[data-language-choice]').forEach(button => button.addEventListener('click', () => { applyLanguage(button.dataset.languageChoice); document.getElementById('language-gate').hidden = true; }));
+      document.getElementById('language-setting')?.addEventListener('change', event => applyLanguage(event.target.value));
+    });
+
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -613,7 +725,7 @@
       if (!region) return;
       const item = document.createElement('div');
       item.className = `toast ${type === 'error' ? 'error' : ''}`;
-      item.textContent = message;
+      item.textContent = tr(message);
       region.appendChild(item);
       window.setTimeout(() => {
         item.classList.add('out');
@@ -677,7 +789,7 @@
       if (!views[name]) return;
       Object.entries(views).forEach(([key, view]) => view.classList.toggle('active', key === name));
       currentView = name;
-      document.title = name === 'home' ? 'Elowen' : `${name === 'calculator' ? 'Scientific Calculator' : name === 'code' ? 'Code Editor' : 'Text Editor'} — Elowen`;
+      document.title = name === 'home' ? 'Elowen' : `${name === 'calculator' ? t('tool.calculator') : name === 'code' ? t('tool.code') : t('tool.text')} — Elowen`;
       if (name === 'code') {
         initializeCodeEditor();
         window.setTimeout(() => { refreshEditor(); editorFocus(); }, 190);
@@ -772,8 +884,8 @@
 
     function openModal(config) {
       modalLastFocus = document.activeElement;
-      $('#modal-title').textContent = config.title || 'Confirm';
-      $('#modal-description').textContent = config.description || '';
+      $('#modal-title').textContent = tr(config.title || 'Confirm');
+      $('#modal-description').textContent = tr(config.description || '');
       const fieldsHost = $('#modal-fields');
       fieldsHost.replaceChildren();
       (config.fields || []).forEach(field => {
@@ -781,14 +893,14 @@
         wrap.className = 'modal-field';
         const label = document.createElement('label');
         label.htmlFor = `modal-field-${field.name}`;
-        label.textContent = field.label;
+        label.textContent = tr(field.label);
         let control;
         if (field.type === 'select') {
           control = document.createElement('select');
           (field.options || []).forEach(option => {
             const element = document.createElement('option');
             element.value = option.value;
-            element.textContent = option.label;
+            element.textContent = tr(option.label);
             element.selected = option.value === field.value;
             control.appendChild(element);
           });
@@ -806,7 +918,7 @@
         fieldsHost.appendChild(wrap);
       });
       const confirm = $('#modal-confirm');
-      confirm.textContent = config.confirmText || 'Confirm';
+      confirm.textContent = tr(config.confirmText || 'Confirm');
       confirm.className = `primary-btn${config.danger ? ' danger-btn' : ''}`;
       modalConfirmHandler = () => {
         const values = {};
@@ -998,7 +1110,7 @@
       const value = $('#calc-value');
       expression.textContent = calcState.expression || '\u00a0';
       value.classList.toggle('error', Boolean(errorMessage));
-      if (errorMessage) value.textContent = errorMessage;
+      if (errorMessage) value.textContent = tr(errorMessage);
       else if (!calcState.expression) value.textContent = formatNumber(calcState.value || 0);
       else {
         try { value.textContent = formatNumber(calculate(calcState.expression)); }
@@ -1017,7 +1129,7 @@
       if (!calcState.history.length) {
         const empty = document.createElement('div');
         empty.className = 'history-empty';
-        empty.innerHTML = '<div><strong>No calculations yet</strong><br>Completed results will appear here.</div>';
+        empty.innerHTML = `<div><strong>${tr('No calculations yet')}</strong><br>${tr('Completed results will appear here.')}</div>`;
         list.appendChild(empty);
         return;
       }
@@ -1032,7 +1144,7 @@
         result.className = 'history-result';
         result.textContent = `= ${item.result}`;
         button.append(expression, result);
-        button.title = `Reuse ${item.result}`;
+        button.title = tr(`Reuse ${item.result}`);
         button.addEventListener('click', () => {
           calcState.expression = item.result;
           calcState.value = Number(item.result);
@@ -1302,12 +1414,12 @@
       $('#wrap-setting').setAttribute('aria-checked', String(codeState.prefs.wrap));
       $('#autosave-setting').classList.toggle('on', codeState.prefs.autoSave);
       $('#autosave-setting').setAttribute('aria-checked', String(codeState.prefs.autoSave));
-      $('#indent-status').textContent = `Spaces: ${codeState.prefs.tabSize}`;
+      $('#indent-status').textContent = tr(`Spaces: ${codeState.prefs.tabSize}`);
     }
 
     function updateCursorStatus() {
       const cursor = editorCursor();
-      $('#cursor-position').textContent = `Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`;
+      $('#cursor-position').textContent = tr(`Ln ${cursor.line + 1}, Col ${cursor.ch + 1}`);
     }
 
     function handleCodeChange() {
@@ -1319,7 +1431,7 @@
       persistCodeState();
       window.clearTimeout(codeAutoSaveTimer);
       if (codeState.prefs.autoSave) {
-        $('#editor-save-state').textContent = 'Saving…';
+        $('#editor-save-state').textContent = t('common.saving');
         codeAutoSaveTimer = window.setTimeout(() => {
           file.savedContent = file.content;
           writeStorage(STORAGE.code, codeState);
@@ -1331,8 +1443,8 @@
 
     function updateCodeSaveStatus() {
       const modified = fileModified(activeFile());
-      $('#editor-save-state').textContent = modified ? (codeState.prefs.autoSave ? 'Saving…' : 'Modified') : 'Saved';
-      $('#code-header-status').textContent = modified ? 'Unsaved changes' : 'Browser workspace';
+      $('#editor-save-state').textContent = modified ? (codeState.prefs.autoSave ? t('common.saving') : t('common.modified')) : t('common.saved');
+      $('#code-header-status').textContent = modified ? t('code.unsaved') : t('code.workspace');
     }
 
     function initializeCodeEditor() {
@@ -1792,12 +1904,12 @@
       const text = (documentEditor.innerText || '').replace(/\u00a0/g, ' ').trim();
       const words = text ? (text.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu) || []).length : 0;
       const characters = (documentEditor.innerText || '').replace(/\n$/, '').length;
-      $('#word-count').textContent = `${words} word${words === 1 ? '' : 's'}`;
-      $('#character-count').textContent = `${characters} character${characters === 1 ? '' : 's'}`;
+      $('#word-count').textContent = tr(`${words} word${words === 1 ? '' : 's'}`);
+      $('#character-count').textContent = tr(`${characters} character${characters === 1 ? '' : 's'}`);
     }
 
     function setDocumentSaveStatus(label) {
-      $('#document-save-status span').textContent = label;
+      $('#document-save-status span').textContent = tr(label);
       $('#document-save-status svg').style.opacity = label === 'Saved' ? '1' : '.35';
     }
 
@@ -1941,7 +2053,7 @@
       const map = documentTextMap();
       textFindOccurrences = findAllIndices(map.text, query);
       if (reset) textFindIndex = textFindOccurrences.length ? 0 : -1;
-      $('#text-find-count').textContent = textFindOccurrences.length ? `${textFindIndex + 1} of ${textFindOccurrences.length}` : '0 results';
+      $('#text-find-count').textContent = tr(textFindOccurrences.length ? `${textFindIndex + 1} of ${textFindOccurrences.length}` : '0 results');
       if (textFindIndex >= 0) selectTextOccurrence(map, query);
     }
 
@@ -1954,14 +2066,14 @@
       selection.removeAllRanges(); selection.addRange(range);
       range.startContainer.parentElement?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       savedTextRange = range.cloneRange();
-      $('#text-find-count').textContent = `${textFindIndex + 1} of ${textFindOccurrences.length}`;
+      $('#text-find-count').textContent = tr(`${textFindIndex + 1} of ${textFindOccurrences.length}`);
     }
 
     function moveTextFind(direction) {
       const query = $('#text-find-input').value;
       const map = documentTextMap();
       textFindOccurrences = findAllIndices(map.text, query);
-      if (!textFindOccurrences.length) { textFindIndex = -1; $('#text-find-count').textContent = '0 results'; return; }
+      if (!textFindOccurrences.length) { textFindIndex = -1; $('#text-find-count').textContent = tr('0 results'); return; }
       textFindIndex = (textFindIndex + direction + textFindOccurrences.length) % textFindOccurrences.length;
       selectTextOccurrence(map, query);
     }
@@ -2026,7 +2138,7 @@
       const title = documentTitle.value.trim() || 'Untitled document';
       const safeTitle = title.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
       const content = sanitizeDocumentHTML(documentEditor.innerHTML);
-      return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{max-width:720px;margin:64px auto;padding:0 32px;color:#342f2a;font:15px/1.72 Arial,sans-serif}h1{font-size:32px}h2{font-size:23px}h3{font-size:18px}a{color:#665448}@media print{body{margin:0;max-width:none}}</style></head><body>${content}</body></html>`;
+      return `<!doctype html><html lang="${currentLanguage}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{max-width:720px;margin:64px auto;padding:0 32px;color:#342f2a;font:15px/1.72 Arial,sans-serif}h1{font-size:32px}h2{font-size:23px}h3{font-size:18px}a{color:#665448}@media print{body{margin:0;max-width:none}}</style></head><body>${content}</body></html>`;
     }
     $$('[data-export]').forEach(button => button.addEventListener('click', () => {
       saveDocument(true);
@@ -2034,7 +2146,7 @@
       if (type === 'html') downloadBlob(safeDocumentFilename('html'), exportedDocumentHTML(), 'text/html;charset=utf-8');
       if (type === 'txt') downloadBlob(safeDocumentFilename('txt'), documentEditor.innerText, 'text/plain;charset=utf-8');
       if (type === 'doc') {
-        const content = exportedDocumentHTML().replace('<html lang="en">', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="en">');
+        const content = exportedDocumentHTML().replace(`<html lang="${currentLanguage}">`, `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="${currentLanguage}">`);
         downloadBlob(safeDocumentFilename('doc'), '\ufeff' + content, 'application/msword');
       }
       $('#export-menu').hidden = true;
@@ -2072,6 +2184,11 @@
       toast(`Elowen recovered from an error: ${event.message}`, 'error', 5000);
     });
 
+    document.addEventListener('elowen:languagechange', () => {
+      updateToolSearch(); renderHistory(); documentCounts();
+      if (codeInitialized) { updateCodeSaveStatus(); updateCursorStatus(); setEditorOptions(); }
+      openView(currentView);
+    });
     updateToolSearch();
   })();
   </script>
