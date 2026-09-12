@@ -1,867 +1,105 @@
-Build Elowen
+Dark mode
 
-Create a complete, polished productivity website called Elowen.
+Add a complete dark mode to Elowen.
 
-Elowen is a collection of useful productivity tools presented through a clean, minimalist, professional interface. The website must be designed as a static website that can be hosted directly on GitHub Pages, without requiring a backend, database, accounts, authentication, or external server.
+The theme system must support:
 
-The repository currently contains:
+* Light mode
+* Dark mode
+* Automatic persistence of the user’s selected theme
 
-* elowen.PNG — the Elowen image/logo. Use this image where appropriate in the website and use it as the favicon.
-* upd — this file contains these build instructions.
-* There may be no other files yet, so create the entire website structure as needed.
+Place a theme toggle in a consistent, easy-to-access location such as the site header.
 
-You are allowed to create, delete, rename, or reorganize files as necessary to produce a clean and maintainable project.
+Use:
 
-Core priorities
+* A sun icon to represent light mode
+* A croissant icon to represent dark mode
 
-The finished website must be:
+Do not use emoji characters for either icon. Use clean SVG icons that visually match the rest of Elowen’s interface.
 
-* Clean
-* Minimalist
-* Professional
-* Fast
-* Responsive
-* Accessible
-* Mobile-friendly
-* Desktop-friendly
-* Easy to maintain
-* Compatible with GitHub Pages
-* Fully usable without an account
-* Fully usable without a backend
+The croissant icon should be simple, recognizable, and styled consistently with the sun icon rather than looking cartoonish.
 
-Do not use emojis as interface icons or decorative UI elements.
+Theme behavior
 
-Use proper SVG icons or CSS-created icons instead.
+When the user changes the theme:
 
-Do not make the site look overly playful, overly rounded, excessively animated, cluttered, or like a generic AI-generated dashboard.
+* Switch themes immediately without reloading the page
+* Save the preference locally
+* Preserve the selected theme across page reloads
+* Preserve the selected theme when navigating between Elowen pages
+* Include the selected theme in Elowen data exports where appropriate
+* Restore the theme when importing an Elowen backup
 
-The design should feel calm, refined, intentional, and mature.
+If the user has never manually selected a theme, Elowen may initially respect the operating system/browser prefers-color-scheme setting.
 
-⸻
+Once the user explicitly chooses a theme, their choice should take priority.
 
-Brand and visual design
+Prevent an incorrect-theme flash while the page is loading whenever reasonably possible.
 
-Brand name
+Dark mode design
 
-The website name is:
+Do not simply invert the existing colors.
 
-Elowen
+Create a deliberate dark version of the Elowen palette that preserves the same warm, natural visual identity.
 
-Use consistent capitalization everywhere.
+The dark theme should use:
 
-Existing image
-
-Use elowen.PNG as:
-
-* The site favicon
-* Branding where appropriate
-* Potentially the logo in navigation or metadata
-
-Do not distort the image.
-
-Preserve its aspect ratio.
-
-Color palette
-
-Build the design around this palette:
-
-* Main UI: Warm Sand
-* Interactive elements: Soft Taupe
-* Dark areas: Desert Stone
-* Press/active animations: Very Light Beige
-* Icons: Warm Brown-Gray
-
-Translate these names into a cohesive set of actual CSS color values.
-
-Create reusable CSS variables such as:
-
---color-background:
---color-surface:
---color-interactive:
---color-interactive-hover:
---color-dark:
---color-pressed:
---color-icon:
---color-text:
---color-text-muted:
---color-border:
---color-focus:
-
-The palette should have sufficient contrast for accessibility.
-
-Avoid pure black unless necessary. Prefer warm dark neutral tones.
-
-Avoid pure white backgrounds if a warmer off-white or sand tone works better.
-
-Typography
-
-Use a clean professional font stack.
-
-Prefer system fonts so that the website does not depend on external font services.
-
-Typography should have clear visual hierarchy.
-
-Use sensible sizes for:
-
-* Page titles
-* Tool titles
-* Section headings
-* Body text
-* Form labels
-* Buttons
-* Calculator display values
-
-Do not use unnecessarily tiny text.
-
-⸻
-
-Responsive design
-
-Elowen must work properly on:
-
-* Large desktop monitors
-* Laptops
-* Tablets
-* Mobile phones
-* Portrait orientation
-* Landscape orientation
-
-There must be no horizontal overflow caused by the interface.
-
-Buttons must remain large enough to tap comfortably on touchscreens.
-
-The layout should adapt gracefully rather than simply shrinking desktop UI.
-
-For the tool grid:
-
-* Large desktop: up to 4 tool cards per row
-* Medium screens: 2–3 cards where appropriate
-* Small screens/mobile: 1–2 cards depending on available width
-
-Use responsive CSS Grid rather than hardcoding fragile dimensions.
-
-⸻
-
-Site architecture
-
-At minimum, create:
-
-1. Home page
-2. Elowen Calculator page
-3. Privacy Policy page
-4. Terms and Conditions page
-5. Custom 404 page
-
-You may create additional files/components/pages if they improve organization.
-
-Use clean relative URLs and paths that work correctly when deployed as a GitHub Pages project site rather than assuming the site is hosted at /.
-
-Do not require a special server configuration.
-
-⸻
-
-Global site interface
-
-Create a consistent global layout.
-
-Include a simple header/navigation system that works well on desktop and mobile.
-
-The navigation should provide access to important pages without overwhelming the interface.
-
-Suggested navigation destinations:
-
-* Home
-* Tools
-* Privacy
-* Terms
-
-If the navigation collapses on mobile, use a proper accessible menu button and an SVG icon rather than an emoji.
-
-The footer should include useful links such as:
-
-* Privacy Policy
-* Terms and Conditions
-* Home
-
-It may also contain a short line identifying Elowen.
-
-Do not add unnecessary social links or placeholder links.
-
-⸻
-
-Home page
-
-The home page is the main tool directory.
-
-The main content should follow this hierarchy:
-
-1. Elowen title
-
-Near the top of the page, prominently display:
-
-Elowen
-
-Keep the presentation clean and spacious.
-
-A short optional subtitle may be added if it improves the design, but do not add marketing-heavy copy.
-
-For example, the general concept can be something similar to:
-
-Simple tools for focused work.
-
-Do not use this exact wording if something better fits the design.
-
-2. Tool search
-
-Below the title, include a search bar that allows users to search the available Elowen tools.
-
-The search must work client-side and filter tool cards immediately.
-
-Requirements:
-
-* Search by tool name
-* Search should be case-insensitive
-* Clear empty state when no tools match
-* Accessible label
-* Search icon can be an SVG
-* Include a clear button when text has been entered if appropriate
-* Pressing Escape may clear the search where sensible
-
-The search system should be built so more tools can easily be added later.
-
-3. Tool grid
-
-Below the search area, display all available tools as cards.
-
-On sufficiently wide screens, display up to 4 cards per row.
-
-Each card should contain:
-
-* Tool name
-* Brief description
-* Appropriate SVG icon
-* Clear clickable area
-
-Cards should have subtle hover, focus, and press states.
-
-Avoid exaggerated shadows or animations.
-
-The current tool list contains only:
-
-Elowen Calculator
-
-Description should explain that it is a full-featured calculator for everyday and advanced calculations.
-
-Clicking the card opens the calculator.
-
-Design the home page architecture so additional tools can later be added easily without redesigning the whole page.
-
-⸻
-
-Elowen Calculator
-
-Build a complete, polished calculator.
-
-It should feel like a real productivity tool rather than a simple four-function demo.
-
-The calculator must work entirely in the browser.
-
-Basic operations
-
-Support:
-
-* Addition
-* Subtraction
-* Multiplication
-* Division
-* Decimal values
-* Positive and negative numbers
-* Percentages
-* Parentheses
-* Clear
-* Clear entry where appropriate
-* Backspace/delete
-* Equals
-* Proper mathematical order of operations
-
-Scientific functionality
-
-Include useful scientific functions such as:
-
-* Square
-* Square root
-* Powers
-* Arbitrary exponentiation
-* Reciprocal
-* Pi
-* Euler’s number
-* Absolute value
-* Factorial where valid
-* Natural logarithm
-* Base-10 logarithm
-* Exponential functions
-* Sine
-* Cosine
-* Tangent
-* Inverse trigonometric functions where practical
-
-Include a switch between:
-
-* Degrees
-* Radians
-
-If useful, scientific controls may be shown through an expandable scientific panel on smaller devices so the mobile interface stays usable.
-
-Memory functions
-
-Include calculator memory functionality:
-
-* MC
-* MR
-* M+
-* M-
-* MS
-
-Clearly indicate when calculator memory contains a value.
-
-History
-
-Include calculation history.
-
-Each history item should show:
-
-* Expression
-* Result
-
-Users should be able to:
-
-* Review previous calculations
-* Reuse a previous result
-* Clear calculator history
-
-History should persist locally between browser sessions unless the user clears it.
-
-Keyboard support
-
-Desktop users should be able to use a physical keyboard.
-
-Support sensible mappings for:
-
-* Numbers
-* Decimal point
-* +
-* -
-* *
-* /
-* Parentheses
-* Enter
-* Equals
-* Backspace
-* Delete/Escape where appropriate
-
-Do not interfere with normal browser shortcuts.
-
-Calculation safety and correctness
-
-Do not implement calculation by blindly passing user-controlled strings into JavaScript eval().
-
-Use a safer parsing/calculation approach.
-
-Handle invalid calculations gracefully.
-
-Examples:
-
-* Division by zero
-* Invalid factorial input
-* Invalid square roots where unsupported
-* Incomplete expressions
-* Overflow
-* Invalid function usage
-
-Display understandable error states instead of crashing.
-
-The calculator must recover easily after an error.
-
-Calculator display
-
-Create a clear display area showing:
-
-* Current expression
-* Current/result value
-
-Large values should remain readable.
-
-Support long expressions without destroying the page layout.
-
-Use appropriate formatting for large or very small results.
-
-Avoid unnecessary floating-point artifacts such as displaying:
-
-0.30000000000000004
-
-for a normal 0.1 + 0.2 calculation.
-
-⸻
-
-Saving, backup, export, and import
-
-Elowen must allow users to keep their work without requiring an account or server.
-
-Use browser-local storage where appropriate.
-
-Possible technologies include:
-
-* localStorage
-* IndexedDB if genuinely useful
-
-Do not send saved data to a remote service.
-
-Automatic local saving
-
-Automatically preserve relevant user data such as:
-
-* Calculator history
-* Calculator memory
-* Tool preferences
-* Relevant Elowen settings
-
-Users should not have to manually save after every action.
-
-Portable data export
-
-Provide a way for users to export their Elowen data into a local backup file.
-
-Use a human-readable structured format such as JSON.
-
-For example, the exported file could use a name similar to:
-
-elowen-backup-YYYY-MM-DD.json
-
-The export should contain:
-
-* Format/version identifier
-* Export date
-* Tool data
-* User preferences supported by the site
-
-Do not include unnecessary browser information or sensitive data.
-
-Data import
-
-Allow users to import an Elowen backup file on another browser or device.
-
-The website must:
-
-1. Let the user select the backup file
-2. Validate its format
-3. Reject malformed or unsupported files gracefully
-4. Load valid data
-5. Restore supported Elowen data
-6. Show a clear success or failure message
-
-Do not trust imported JSON blindly.
-
-Validate fields before storing them.
-
-If importing would overwrite existing local data, warn the user first or clearly explain what will be replaced.
-
-Clear local data
-
-Provide a clear option to erase locally stored Elowen data.
-
-Require confirmation before destructive deletion.
-
-Explain that the deletion affects data stored by Elowen in that browser.
-
-⸻
-
-Settings / data management
-
-Create a sensible location for data-management controls.
-
-This could be a small Settings or Data section accessible from the navigation or calculator interface.
-
-It should contain relevant actions such as:
-
-* Export data
-* Import data
-* Clear local data
-
-Do not clutter the main home page with large technical controls.
-
-⸻
-
-Privacy Policy
-
-Create a dedicated Privacy Policy page written specifically for Elowen.
-
-It should accurately describe the actual website behavior.
-
-Explain clearly that:
-
-* Elowen does not require accounts
-* Elowen does not require users to provide personal information
-* Tool data is stored locally in the user’s browser
-* Exported backups are downloaded to the user’s device
-* Imported backups are processed locally
-* Elowen does not intentionally transmit calculator history or saved work to an Elowen server
-* Clearing browser/site data may remove locally saved Elowen data
-* Users should export backups if they want portable copies
-
-Do not falsely claim guarantees that cannot be technically guaranteed.
-
-If the site uses no analytics, trackers, cookies, advertising, or external APIs, say so.
-
-Do not add analytics or advertising unless explicitly requested.
-
-Include a reasonable “Last updated” field that can easily be changed later.
-
-⸻
-
-Terms and Conditions
-
-Create a concise Terms and Conditions page appropriate for a free browser-based productivity tool.
-
-Include reasonable sections covering:
-
-* Acceptance of terms
-* Use of the service
-* No account requirement
-* User responsibility for backups
-* Availability
-* Accuracy of calculations
-* Disclaimer
-* Limitation of liability
-* Changes to the service
-* Changes to the terms
-
-Make it clear that calculator results should not automatically be relied upon for high-stakes professional, financial, medical, engineering, or legal decisions without independent verification.
-
-Keep the language readable rather than unnecessarily complicated.
-
-⸻
-
-Custom 404 page
-
-Create a custom 404.html compatible with GitHub Pages.
-
-It should:
-
-* Match the rest of the Elowen design
-* Clearly state that the requested page could not be found
-* Include a button or link back to the Elowen home page
-* Avoid technical error dumps
-* Work on mobile and desktop
-
-⸻
-
-Accessibility
-
-Accessibility is required.
-
-Implement:
-
-* Semantic HTML
-* Keyboard navigation
-* Proper <button> elements for actions
-* Form labels
-* Meaningful accessible names
-* Visible keyboard focus states
-* Adequate color contrast
-* Appropriate ARIA attributes only where actually necessary
-* Respect for prefers-reduced-motion
-* Touch-friendly control sizes
-
-Do not rely only on color to communicate important states.
-
-Icons used without accompanying text must have appropriate accessible labels.
-
-Decorative SVGs should be hidden from screen readers where appropriate.
-
-⸻
-
-Animations and interaction design
-
-Animations should be subtle and fast.
-
-Good examples:
-
-* Slight button press feedback
-* Soft hover transitions
-* Small card movement or surface changes
-* Smooth opening/closing of panels
+* Deep warm neutral backgrounds
+* Slightly lighter elevated surfaces
+* Warm taupe interactive elements
+* Soft beige or sand-colored text where appropriate
+* Warm brown-gray icons
+* Subtle borders with sufficient contrast
+* A distinct but restrained hover state
+* A very subtle lighter press state
 
 Avoid:
 
-* Large bouncing effects
-* Excessive scaling
-* Flashy gradients
-* Long transition delays
-* Constant looping animations
-
-Press states should use the Very Light Beige palette color.
-
-Respect the user’s reduced-motion preference.
-
-⸻
-
-Technical requirements
-
-Use standard web technologies that work directly on GitHub Pages:
-
-* HTML
-* CSS
-* JavaScript
-
-A framework is not required.
-
-Prefer a simple implementation with minimal dependencies.
-
-If using a dependency, only use it when it provides a clear benefit.
-
-The website should not require:
-
-* Node.js on the deployed server
-* A backend
-* PHP
-* A database
-* Authentication
-* API keys
-
-GitHub Pages should be able to serve the finished files directly.
-
-Keep JavaScript modular and organized.
-
-Keep CSS organized using reusable variables and components.
-
-Avoid giant unstructured files when reasonable.
-
-⸻
-
-Progressive Web App and offline behavior
-
-If it can be implemented cleanly without compromising GitHub Pages compatibility, make Elowen a lightweight Progressive Web App.
-
-Possible features:
-
-* Web app manifest
-* App icons based on the existing Elowen image where appropriate
-* Installable experience
-* Basic offline support for Elowen’s own static pages and calculator
-
-If implementing a service worker:
-
-* Do not make updates difficult
-* Avoid aggressive caching that causes users to remain stuck on old versions
-* Use a sensible cache versioning strategy
-* Do not cache unrelated third-party resources unnecessarily
-
-The website should remain fully functional as a normal website even if PWA installation is never used.
-
-⸻
-
-Metadata
-
-Add appropriate metadata to each page.
-
-Include:
-
-* Page title
-* Meta description
-* Viewport settings
-* Favicon
-* Theme color where appropriate
-
-Examples of page titles:
-
-* Elowen
-* Calculator — Elowen
-* Privacy Policy — Elowen
-* Terms and Conditions — Elowen
-
-⸻
-
-Search-engine basics
-
-Add basic sensible SEO for a public static website.
-
-Include:
-
-* Semantic headings
-* Descriptive page titles
-* Meta descriptions
-* robots.txt
-* sitemap.xml if it can be generated without knowing an incorrect production URL
-
-If the final GitHub Pages URL is unknown, do not hardcode a fake production domain.
-
-⸻
-
-Security and robustness
-
-Follow safe front-end practices.
-
-Requirements include:
-
-* Do not use unsafe eval() for the calculator
-* Sanitize or safely handle imported data
-* Do not inject imported strings into HTML using unsafe innerHTML
-* Validate imported backup structure
-* Avoid unnecessary third-party scripts
-* Do not include secrets or API keys
-* Do not collect unnecessary information
-
-⸻
-
-Empty states and user feedback
-
-Create polished user feedback for important actions.
-
-Examples:
-
-* No tool matches the current search
-* Backup exported successfully
-* Backup imported successfully
-* Invalid backup file
-* Local data cleared
-* Calculator error
-* History is empty
-
-Use accessible text notifications, banners, or toast-style messages.
-
-Do not use JavaScript alert() for normal interface feedback unless absolutely necessary.
-
-Confirmation dialogs may be used for destructive actions, although a custom accessible confirmation interface is preferred.
-
-⸻
-
-Code quality
-
-The project should be understandable by another developer.
-
-Requirements:
-
-* Sensible file names
-* Clear project structure
-* Reusable functions
-* Minimal duplication
-* Comments only where they add value
-* No dead code
-* No placeholder buttons
-* No unfinished UI
-* No console errors
-* No broken links
-
-Do not leave fake functionality in the interface.
-
-If a button exists, it must work.
-
-⸻
-
-Suggested project structure
-
-You may improve this structure if needed, but a possible implementation is:
-
-/
-├── index.html
-├── calculator.html
-├── privacy.html
-├── terms.html
-├── 404.html
-├── elowen.PNG
-├── manifest.webmanifest
-├── service-worker.js
-├── robots.txt
-├── css/
-│   ├── styles.css
-│   └── calculator.css
-├── js/
-│   ├── app.js
-│   ├── storage.js
-│   ├── calculator.js
-│   └── backup.js
-└── icons/
-
-Do not create directories or files solely to make the project appear more complex.
-
-⸻
-
-Important GitHub Pages requirements
-
-This website will be hosted on GitHub.
-
-Ensure:
-
-* File paths work on GitHub Pages
-* Assets do not incorrectly assume the domain root /
-* Navigation works when deployed inside a repository subdirectory
-* 404.html functions correctly
-* No server-side routing is required
-* The site can be opened from static files during development where reasonably possible
-
-Use relative paths wherever appropriate.
-
-⸻
-
-Future extensibility
-
-Elowen will eventually contain more productivity tools.
-
-Build the website so adding another tool later is straightforward.
-
-Avoid calculator-specific assumptions in global site code.
-
-Where practical, represent tool metadata in a reusable structure containing values such as:
-
-* ID
-* Name
-* Description
-* URL
-* Icon
-* Search keywords
-
-The home page should be able to render or filter this tool collection cleanly.
-
-⸻
-
-Final quality check
-
-Before considering the website complete, inspect and test it.
-
-Verify at minimum:
-
-* Home page loads correctly
-* elowen.PNG loads correctly
-* Favicon works
-* Search correctly finds the calculator
-* No-match search state works
-* Calculator basic arithmetic works
-* Scientific calculator functions work
-* Operator precedence works
-* Parentheses work
-* Keyboard input works
-* Memory functions work
-* Calculator history works
-* Calculator state survives a page reload where intended
-* Data export works
-* Exported JSON is valid
-* Data import works
-* Invalid imports are handled safely
-* Clear-data functionality works
-* Privacy page works
-* Terms page works
-* 404 page works
-* Navigation works
-* Mobile portrait works
-* Mobile landscape works
-* Desktop layout works
-* Keyboard-only navigation works
-* Focus indicators are visible
-* Reduced-motion mode works
-* There are no obvious console errors
-* There are no broken asset paths
-* There is no accidental horizontal scrolling
-
-The finished result should feel like a real, polished productivity website rather than a prototype.
-
-When there is a choice between adding unnecessary visual complexity and keeping Elowen simple, polished, and easy to use, choose simplicity.
+* Pure black backgrounds
+* Pure white text unless necessary for accessibility
+* Neon colors
+* Blue-tinted generic dark-mode colors
+* Excessive contrast
+* Glowing UI elements
+
+All components must support both themes, including:
+
+* Header
+* Navigation
+* Home page
+* Search bar
+* Tool cards
+* Calculator
+* Calculator display
+* Calculator buttons
+* Scientific controls
+* History
+* Settings/data management
+* Notifications
+* Dialogs
+* Privacy Policy
+* Terms and Conditions
+* 404 page
+* Footer
+
+Use CSS custom properties for theming rather than duplicating large amounts of CSS.
+
+A structure similar to this is encouraged:
+
+:root {
+  /* Light theme variables */
+}
+[data-theme="dark"] {
+  /* Dark theme overrides */
+}
+
+Ensure both light and dark themes meet accessibility contrast requirements.
+
+The theme toggle must also be keyboard accessible and have an appropriate accessible label such as:
+
+* Switch to dark mode
+* Switch to light mode
+
+The visible icon should update to clearly communicate the relevant theme state/action.
+
+Use subtle transitions between theme colors, but respect prefers-reduced-motion.
