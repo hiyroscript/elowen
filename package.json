@@ -1,0 +1,13 @@
+{
+  "name": "elowen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static browser-based productivity tools for GitHub Pages",
+  "scripts": {
+    "test": "node --test tests/engine.test.cjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

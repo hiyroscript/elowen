@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found — Elowen</title>
+    <meta
+      name="description"
+      content="This page could not be found. Return to the Elowen toolkit."
+    />
+    <meta name="theme-color" content="#eee8de" />
+    <script>
+      // GitHub Pages serves this file for nested missing paths; resolve assets to the repository root.
+      (function () {
+        var p = location.pathname;
+        var base = document.createElement("base");
+        base.href =
+          location.protocol === "file:"
+            ? new URL(".", location.href).href
+            : p.startsWith("/elowen/")
+              ? "/elowen/"
+              : "/";
+        document.head.append(base);
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="elowen.PNG" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body class="">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Elowen home"
+        ><img src="elowen.PNG" width="36" height="36" alt="" />Elowen</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="index.html">Tools</a><a href="data.html">Your data</a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="not-found">
+        <p class="eyebrow">404 · A WRONG TURN</p>
+        <h1>A little off track.</h1>
+        <p>
+          We couldn’t find that page.<br />Your toolkit is right where you left
+          it.
+        </p>
+        <a class="button primary" href="index.html">Back to Elowen</a>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <span
+        >Elowen
+        <span class="footer-note"
+          >· A little space to get things done.</span
+        ></span
+      >
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="privacy.html">Privacy Policy</a
+        ><a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+    <p id="storage-warning" class="storage-warning" role="status" hidden></p>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <form method="dialog">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" autofocus>Cancel</button
+          ><button value="confirm" class="primary">Continue</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use the calculator, tool search, and data controls.
+        Policy pages are available without it.
+      </p></noscript
+    >
+  </body>
+</html>

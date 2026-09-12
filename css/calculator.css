@@ -1,0 +1,333 @@
+.calculator-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 620px) minmax(240px, 1fr);
+  gap: 42px;
+  align-items: start;
+  max-width: 1050px;
+}
+.calculator {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.calculator-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  gap: 10px;
+}
+.subtle-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+.angle-label {
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.angle-label select {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  border-radius: 5px;
+  min-height: 44px;
+  font-size: 0.75rem;
+}
+.display {
+  background: var(--color-dark);
+  color: #fbf5eb;
+  padding: 22px 25px 16px;
+}
+.display label {
+  font-size: 0.7rem;
+  color: #e0d4c5;
+}
+.display input {
+  width: 100%;
+  min-width: 0;
+  display: block;
+  font-size: 1.15rem;
+  color: #fbf5eb;
+  text-align: right;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  min-height: 44px;
+  padding: 5px 0;
+}
+.display input::placeholder {
+  color: #dfd2c1;
+}
+.display input:focus-visible {
+  outline-color: #e8d5b7;
+}
+.display output {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  text-align: right;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  margin: 7px 0 16px;
+  min-height: 1.35em;
+}
+.display #memory-status {
+  font-size: 0.7rem;
+  color: #e0d4c5;
+  overflow-wrap: anywhere;
+  display: block;
+}
+#calc-error {
+  font-size: 0.85rem;
+  color: #ffe1cb;
+  text-align: right;
+}
+.calculator-controls {
+  padding: 10px 18px 18px;
+}
+.memory-keys {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding-bottom: 8px;
+  gap: 6px;
+}
+.memory-keys button {
+  border: 0;
+  background: transparent;
+  font-size: 0.8rem;
+  padding: 8px 0;
+}
+.memory-keys button:hover {
+  background: var(--color-interactive);
+}
+#scientific {
+  border-top: 1px solid var(--color-border);
+  margin-bottom: 12px;
+}
+summary {
+  cursor: pointer;
+  padding: 13px 0;
+  min-height: 44px;
+  font-size: 0.85rem;
+}
+#scientific summary span {
+  float: right;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  padding-top: 3px;
+}
+.scientific-keys {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 15px;
+}
+.scientific-keys button {
+  padding: 8px 0;
+  font-size: 0.85rem;
+  background: #eee8de;
+}
+.scientific-keys button:hover {
+  background: var(--color-interactive);
+}
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.keypad button {
+  font-size: 1.2rem;
+  min-height: 57px;
+  padding: 8px 0;
+  border-color: #dfd6c9;
+  background: #f0ebe3;
+}
+.keypad button:hover {
+  background: var(--color-interactive);
+}
+.keypad .operator {
+  background: var(--color-interactive);
+}
+.keypad .operator:hover {
+  background: var(--color-interactive-hover);
+}
+.keypad .equals {
+  grid-column: span 2;
+  background: var(--color-dark);
+}
+.keypad .equals:hover {
+  background: #665949;
+}
+.keypad button:active,
+.scientific-keys button:active,
+.memory-keys button:active {
+  background: var(--color-pressed);
+  color: var(--color-text);
+}
+.history-panel {
+  min-width: 0;
+  padding-top: 7px;
+}
+.history-panel .section-heading {
+  margin-bottom: 0;
+}
+.history-caption,
+.history-footnote {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+.history-caption {
+  margin-bottom: 23px;
+}
+.history-empty {
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  padding: 64px 5px;
+  color: var(--color-text-muted);
+}
+.history-empty svg {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 15px;
+}
+.history-empty h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.history-empty p {
+  font-size: 0.8rem;
+  margin: 0;
+}
+.history-footnote {
+  margin-top: 20px;
+}
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 580px;
+  overflow: auto;
+}
+#history-list li {
+  border-top: 1px solid var(--color-border);
+}
+#history-list button {
+  width: 100%;
+  min-width: 0;
+  align-items: flex-end;
+  flex-direction: column;
+  background: transparent;
+  border: 0;
+  padding: 17px 8px;
+  text-align: right;
+  gap: 5px;
+}
+#history-list button:hover {
+  background: #e5ddd1;
+}
+#history-list .history-expression {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+#history-list .history-result {
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+#history-list small {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+.calculator-help {
+  max-width: 620px;
+  margin-top: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+.calculator-help summary {
+  color: var(--color-text-muted);
+}
+.calculator-help p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.calculator-help code {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 850px) {
+  .calculator-layout {
+    grid-template-columns: minmax(0, 1.3fr) minmax(210px, 1fr);
+    gap: 24px;
+  }
+  #scientific summary span {
+    display: none;
+  }
+  .scientific-keys {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .calculator-toolbar {
+    padding: 12px 18px;
+  }
+  .subtle-label {
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+  }
+}
+@media (max-width: 650px) {
+  .calculator-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .calculator {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .history-panel {
+    margin-top: 12px;
+  }
+  .history-empty {
+    padding: 30px 0;
+  }
+  #history-list {
+    max-height: 350px;
+  }
+  .calculator-controls {
+    padding: 8px 12px 12px;
+  }
+  .keypad {
+    gap: 6px;
+  }
+  .keypad button {
+    min-height: 53px;
+  }
+  .display {
+    padding: 17px 20px 13px;
+  }
+  .display output {
+    font-size: 2.6rem;
+  }
+  .scientific-keys {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .page-heading {
+    margin-top: 25px;
+  }
+  .heading-row h1 {
+    font-size: 2.3rem;
+  }
+}
+
+.keypad .operator:active,
+.keypad .equals:active {
+  background: var(--color-pressed);
+  color: var(--color-text);
+}

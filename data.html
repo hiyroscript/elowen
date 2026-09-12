@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your data — Elowen</title>
+    <meta
+      name="description"
+      content="Export, restore, or clear your locally saved Elowen work. No account needed."
+    />
+    <meta name="theme-color" content="#eee8de" />
+    <link rel="icon" type="image/png" href="elowen.PNG" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/backup.js" defer></script>
+  </head>
+  <body class="">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Elowen home"
+        ><img src="elowen.PNG" width="36" height="36" alt="" />Elowen</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="index.html">Tools</a
+        ><a href="data.html" aria-current="page">Your data</a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="narrow page-heading">
+        <p class="eyebrow">YOURS TO KEEP</p>
+        <h1>Your data</h1>
+        <p>
+          Your work is saved automatically in this browser. Take a copy with you
+          whenever you need one.
+        </p>
+      </section>
+      <div class="narrow data-sections">
+        <section class="data-row">
+          <div>
+            <h2>Export a backup</h2>
+            <p>
+              Download your calculator history, memory, current expression, and
+              preferences as a readable JSON file.
+            </p>
+          </div>
+          <button id="export-data" class="primary">Export data</button>
+        </section>
+        <section class="data-row">
+          <div>
+            <h2>Restore your work</h2>
+            <p>
+              Choose an Elowen backup from this or another device. Restoring
+              replaces all current Elowen data in this browser after
+              confirmation.
+            </p>
+            <label for="import-file">Elowen backup (.json, up to 2 MB)</label
+            ><input
+              type="file"
+              id="import-file"
+              accept=".json,application/json"
+            />
+          </div>
+          <button id="import-data">Import data</button>
+        </section>
+        <section class="data-row">
+          <div>
+            <h2>A clean slate</h2>
+            <p>
+              Erase Elowen’s saved work and preferences in this browser.
+              Downloaded backups and other devices are unaffected. This cannot
+              be undone.
+            </p>
+          </div>
+          <button id="clear-data" class="danger">Clear local data</button>
+        </section>
+        <p class="data-note">
+          Browser data can be removed by your browser, private browsing
+          settings, or device cleanup. Export a backup for work you want to
+          keep. <a href="privacy.html">Read our Privacy Policy.</a>
+        </p>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <span
+        >Elowen
+        <span class="footer-note"
+          >· A little space to get things done.</span
+        ></span
+      >
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="privacy.html">Privacy Policy</a
+        ><a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+    <p id="storage-warning" class="storage-warning" role="status" hidden></p>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <form method="dialog">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" autofocus>Cancel</button
+          ><button value="confirm" class="primary">Continue</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use the calculator, tool search, and data controls.
+        Policy pages are available without it.
+      </p></noscript
+    >
+  </body>
+</html>

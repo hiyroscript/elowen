@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculator — Elowen</title>
+    <meta
+      name="description"
+      content="A scientific calculator with keyboard input, memory, and locally saved history."
+    />
+    <meta name="theme-color" content="#eee8de" />
+    <link rel="icon" type="image/png" href="elowen.PNG" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/calculator.css" />
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/engine.js" defer></script>
+    <script src="js/calculator.js" defer></script>
+  </head>
+  <body class="">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Elowen home"
+        ><img src="elowen.PNG" width="36" height="36" alt="" />Elowen</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="index.html">Tools</a><a href="data.html">Your data</a>
+      </nav>
+    </header>
+    <main id="main">
+      <div class="page-heading">
+        <a class="back-link" href="index.html">← All tools</a>
+        <div class="heading-row">
+          <div>
+            <p class="eyebrow">A LITTLE CLARITY IN THE NUMBERS</p>
+            <h1>Calculator</h1>
+            <p>From quick sums to your next big idea.</p>
+          </div>
+          <a class="text-link" href="data.html"
+            >Back up your work
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14m-6-6 6 6-6 6" /></svg
+          ></a>
+        </div>
+      </div>
+      <div class="calculator-layout">
+        <section class="calculator" aria-label="Elowen Calculator">
+          <div class="calculator-toolbar">
+            <span class="subtle-label">ELOWEN CALCULATOR</span
+            ><label class="angle-label"
+              >Angle
+              <select id="angle" aria-label="Angle mode">
+                <option value="deg">DEG</option>
+                <option value="rad">RAD</option>
+              </select></label
+            >
+          </div>
+          <div class="display">
+            <label for="expression">Expression</label
+            ><input
+              id="expression"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="2000"
+              placeholder="0"
+              aria-describedby="expression-help calc-error"
+            /><output id="result" for="expression" aria-live="polite">0</output>
+            <p id="calc-error" role="alert" hidden></p>
+            <span id="memory-status">Memory empty</span>
+          </div>
+          <div class="calculator-controls">
+            <div class="memory-keys" aria-label="Memory controls">
+              <button data-memory="MC" aria-label="Clear memory">MC</button
+              ><button data-memory="MR" aria-label="Recall memory">MR</button
+              ><button data-memory="M+" aria-label="Add to memory">M+</button
+              ><button data-memory="M-" aria-label="Subtract from memory">
+                M-</button
+              ><button data-memory="MS" aria-label="Store in memory">MS</button>
+            </div>
+            <details id="scientific">
+              <summary>
+                Scientific functions <span>Expand your calculation</span>
+              </summary>
+              <div class="scientific-keys">
+                <button
+                  type="button"
+                  data-key="sin("
+                  aria-label="Sine"
+                  class=""
+                >
+                  sin</button
+                ><button
+                  type="button"
+                  data-key="cos("
+                  aria-label="Cosine"
+                  class=""
+                >
+                  cos</button
+                ><button
+                  type="button"
+                  data-key="tan("
+                  aria-label="Tangent"
+                  class=""
+                >
+                  tan</button
+                ><button
+                  type="button"
+                  data-key="asin("
+                  aria-label="Inverse sine"
+                  class=""
+                >
+                  sin⁻¹</button
+                ><button
+                  type="button"
+                  data-key="acos("
+                  aria-label="Inverse cosine"
+                  class=""
+                >
+                  cos⁻¹</button
+                ><button
+                  type="button"
+                  data-key="atan("
+                  aria-label="Inverse tangent"
+                  class=""
+                >
+                  tan⁻¹</button
+                ><button
+                  type="button"
+                  data-key="sqrt("
+                  aria-label="Square root"
+                  class=""
+                >
+                  √x</button
+                ><button
+                  type="button"
+                  data-key="^2"
+                  aria-label="Square"
+                  class=""
+                >
+                  x²</button
+                ><button type="button" data-key="^" aria-label="Power" class="">
+                  xʸ</button
+                ><button
+                  type="button"
+                  data-key="ln("
+                  aria-label="Natural logarithm"
+                  class=""
+                >
+                  ln</button
+                ><button
+                  type="button"
+                  data-key="log("
+                  aria-label="Base-10 logarithm"
+                  class=""
+                >
+                  log</button
+                ><button
+                  type="button"
+                  data-key="exp("
+                  aria-label="Exponential"
+                  class=""
+                >
+                  eˣ</button
+                ><button type="button" data-key="pi" aria-label="Pi" class="">
+                  π</button
+                ><button
+                  type="button"
+                  data-key="e"
+                  aria-label="Euler’s number"
+                  class=""
+                >
+                  e</button
+                ><button
+                  type="button"
+                  data-key="abs("
+                  aria-label="Absolute value"
+                  class=""
+                >
+                  |x|</button
+                ><button
+                  type="button"
+                  data-key="!"
+                  aria-label="Factorial"
+                  class=""
+                >
+                  x!</button
+                ><button
+                  type="button"
+                  data-key="reciprocal"
+                  aria-label="Reciprocal"
+                  class=""
+                >
+                  1/x
+                </button>
+              </div>
+            </details>
+            <div class="keypad">
+              <button
+                type="button"
+                data-key="clear"
+                aria-label="Clear all"
+                class=""
+              >
+                AC</button
+              ><button
+                type="button"
+                data-key="entry"
+                aria-label="Clear entry"
+                class=""
+              >
+                CE</button
+              ><button type="button" data-key="%" aria-label="Percent" class="">
+                %</button
+              ><button
+                type="button"
+                data-key="backspace"
+                aria-label="Backspace"
+                class=""
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  aria-hidden="true"
+                >
+                  <path d="M8 5h13v14H8L2 12 8 5Z" />
+                  <path d="m11 9 6 6m0-6-6 6" />
+                </svg></button
+              ><button
+                type="button"
+                data-key="("
+                aria-label="Open parenthesis"
+                class=""
+              >
+                (</button
+              ><button
+                type="button"
+                data-key=")"
+                aria-label="Close parenthesis"
+                class=""
+              >
+                )</button
+              ><button
+                type="button"
+                data-key="sign"
+                aria-label="Change sign"
+                class=""
+              >
+                ±</button
+              ><button
+                type="button"
+                data-key="/"
+                aria-label="Divide"
+                class="operator"
+              >
+                ÷</button
+              ><button type="button" data-key="7" aria-label="7" class="">
+                7</button
+              ><button type="button" data-key="8" aria-label="8" class="">
+                8</button
+              ><button type="button" data-key="9" aria-label="9" class="">
+                9</button
+              ><button
+                type="button"
+                data-key="*"
+                aria-label="Multiply"
+                class="operator"
+              >
+                ×</button
+              ><button type="button" data-key="4" aria-label="4" class="">
+                4</button
+              ><button type="button" data-key="5" aria-label="5" class="">
+                5</button
+              ><button type="button" data-key="6" aria-label="6" class="">
+                6</button
+              ><button
+                type="button"
+                data-key="-"
+                aria-label="Subtract"
+                class="operator"
+              >
+                −</button
+              ><button type="button" data-key="1" aria-label="1" class="">
+                1</button
+              ><button type="button" data-key="2" aria-label="2" class="">
+                2</button
+              ><button type="button" data-key="3" aria-label="3" class="">
+                3</button
+              ><button
+                type="button"
+                data-key="+"
+                aria-label="Add"
+                class="operator"
+              >
+                +</button
+              ><button type="button" data-key="0" aria-label="0" class="">
+                0</button
+              ><button
+                type="button"
+                data-key="."
+                aria-label="Decimal point"
+                class=""
+              >
+                .</button
+              ><button
+                type="button"
+                data-key="equals"
+                aria-label="Equals"
+                class="equals primary"
+              >
+                =
+              </button>
+            </div>
+          </div>
+        </section>
+        <aside class="history-panel" aria-labelledby="history-title">
+          <div class="section-heading">
+            <h2 id="history-title">History</h2>
+            <button id="clear-history" class="quiet">Clear</button>
+          </div>
+          <p class="history-caption">Pick a result to use it again.</p>
+          <div id="history-empty" class="history-empty">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <rect x="5" y="2" width="14" height="20" rx="2" />
+              <path d="M8 6h8M8 11h2m4 0h2M8 15h2m4 0h2M8 19h2m4 0h2" />
+            </svg>
+            <h3>A fresh start</h3>
+            <p>
+              Your calculations will appear here.<br />They’re saved in this
+              browser.
+            </p>
+          </div>
+          <ol id="history-list"></ol>
+          <p class="history-footnote">Your most recent 500 calculations.</p>
+        </aside>
+      </div>
+      <details class="calculator-help">
+        <summary>How to use the calculator</summary>
+        <div id="expression-help">
+          <p>
+            Type an expression or use the buttons. Press Enter or = to
+            calculate. Escape clears all; Delete and Backspace edit the
+            expression. Standard browser shortcuts remain available.
+          </p>
+          <p>
+            Use parentheses for groups and functions, such as
+            <code>sqrt(16) + sin(30)</code>. Powers are evaluated before a
+            leading minus: <code>-2^2 = -4</code>. Exponents group to the right:
+            <code>2^3^2 = 512</code>. Implicit multiplication is supported, such
+            as <code>2pi</code> and <code>2(3+4)</code>.
+          </p>
+          <p>
+            Percent always divides the preceding value by 100. For 20% of 150,
+            enter <code>150 × 20%</code>; to increase 150 by 20%, enter
+            <code>150 × (1 + 20%)</code>. Functions use real numbers. Results
+            display up to 12 significant digits; calculations use JavaScript
+            floating-point precision.
+          </p>
+          <p>
+            Scientific function buttons wrap a selection or completed result;
+            otherwise they insert a function at the cursor. CE removes the
+            current number or word. MS stores a result, MR inserts it, M+ and M−
+            add or subtract, and MC clears memory.
+          </p>
+        </div>
+      </details>
+    </main>
+    <footer class="site-footer">
+      <span
+        >Elowen
+        <span class="footer-note"
+          >· A little space to get things done.</span
+        ></span
+      >
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="privacy.html">Privacy Policy</a
+        ><a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+    <p id="storage-warning" class="storage-warning" role="status" hidden></p>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <form method="dialog">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" autofocus>Cancel</button
+          ><button value="confirm" class="primary">Continue</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use the calculator, tool search, and data controls.
+        Policy pages are available without it.
+      </p></noscript
+    >
+  </body>
+</html>
