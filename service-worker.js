@@ -1,6 +1,6 @@
 "use strict";
 // Increment this version whenever any cached file changes.
-const CACHE = "elowen-static-v1";
+const CACHE = "elowen-static-v2";
 const FILES = [
   "./",
   "index.html",
@@ -17,6 +17,7 @@ const FILES = [
   "css/calculator.css",
   "js/app.js",
   "js/storage.js",
+  "js/theme.js",
   "js/tools.js",
   "js/engine.js",
   "js/calculator.js",

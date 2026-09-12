@@ -3,7 +3,7 @@
   const KEY = "elowen.data.v1";
   const defaults = () => ({
     calculator: { expression: "", result: null, memory: null, history: [] },
-    preferences: { angle: "deg", scientific: false },
+    preferences: { angle: "deg", scientific: false, theme: null },
   });
   const numberOrNull = (value) =>
     value === null || (typeof value === "number" && Number.isFinite(value));
@@ -20,7 +20,10 @@
       !Array.isArray(c.history) ||
       c.history.length > 500 ||
       !["deg", "rad"].includes(p.angle) ||
-      typeof p.scientific !== "boolean"
+      typeof p.scientific !== "boolean" ||
+      (p.theme !== undefined &&
+        p.theme !== null &&
+        !["light", "dark"].includes(p.theme))
     )
       throw Error("This backup contains invalid Elowen data.");
     const history = c.history.map((item) => {
@@ -46,7 +49,11 @@
         memory: c.memory,
         history,
       },
-      preferences: { angle: p.angle, scientific: p.scientific },
+      preferences: {
+        angle: p.angle,
+        scientific: p.scientific,
+        theme: p.theme ?? null,
+      },
     };
   }
   function parseBackup(text) {

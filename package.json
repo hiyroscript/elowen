@@ -5,7 +5,7 @@
   "description": "Static browser-based productivity tools for GitHub Pages",
   "scripts": {
     "test": "node --test tests/engine.test.cjs",
-    "test:browser": "node tests/browser.cjs"
+    "test:browser": "node tests/browser.cjs && node tests/theme.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
