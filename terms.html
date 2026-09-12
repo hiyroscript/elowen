@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terms and Conditions — Elowen</title>
+    <meta
+      name="description"
+      content="Readable terms for using Elowen’s free browser-based productivity tools."
+    />
+    <meta name="theme-color" content="#eee8de" />
+    <link rel="icon" type="image/png" href="elowen.PNG" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body class="">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Elowen home"
+        ><img src="elowen.PNG" width="36" height="36" alt="" />Elowen</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="index.html">Tools</a><a href="data.html">Your data</a>
+      </nav>
+    </header>
+    <main id="main">
+      <article class="prose">
+        <p class="eyebrow">THE DETAILS</p>
+        <h1>Terms and Conditions</h1>
+        <p class="updated">Last updated: September 12, 2026</p>
+        <h2>Using Elowen</h2>
+        <p>
+          These terms describe your use of Elowen. By using the website, you
+          agree to these terms to the extent permitted by applicable law. Elowen
+          is free to use and does not require an account. Use it lawfully and do
+          not interfere with its operation or other people’s access.
+        </p>
+        <h2>Your work and backups</h2>
+        <p>
+          You remain responsible for your work and for keeping backups. Saved
+          data is held in your browser and can be lost through browser cleanup,
+          storage limits, device loss, or software errors. Export a backup for
+          anything you want to keep.
+        </p>
+        <h2>Calculation accuracy</h2>
+        <p>
+          Elowen uses floating-point arithmetic, which has precision and range
+          limits. Results may contain rounding or other errors. Independently
+          verify results before relying on them for professional, financial,
+          medical, engineering, legal, or other high-stakes decisions. Elowen
+          does not provide professional advice.
+        </p>
+        <h2>Availability and disclaimer</h2>
+        <p>
+          Elowen is provided “as is” and “as available.” To the extent permitted
+          by law, no warranties are made about accuracy, reliability, fitness
+          for a particular purpose, or uninterrupted availability. Features may
+          be changed, interrupted, or discontinued.
+        </p>
+        <h2>Limitation of liability</h2>
+        <p>
+          To the extent permitted by applicable law, Elowen’s maintainers are
+          not liable for losses arising from use of the tools, inaccurate
+          results, unavailable service, or lost data. These terms do not exclude
+          rights or liabilities that cannot legally be excluded.
+        </p>
+        <h2>Changes to these terms</h2>
+        <p>
+          These terms may be revised as the website evolves. Updated terms will
+          be posted on this page with a revised date. Review them when deciding
+          whether to continue using Elowen.
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span
+        >Elowen
+        <span class="footer-note"
+          >· A little space to get things done.</span
+        ></span
+      >
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="privacy.html">Privacy Policy</a
+        ><a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+    <p id="storage-warning" class="storage-warning" role="status" hidden></p>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <form method="dialog">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" autofocus>Cancel</button
+          ><button value="confirm" class="primary">Continue</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use the calculator, tool search, and data controls.
+        Policy pages are available without it.
+      </p></noscript
+    >
+  </body>
+</html>

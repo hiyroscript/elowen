@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Elowen</title>
+    <meta
+      name="description"
+      content="A calm collection of useful tools. Calculate, save your work, and keep everything in your browser."
+    />
+    <meta name="theme-color" content="#eee8de" />
+    <link rel="icon" type="image/png" href="elowen.PNG" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/tools.js" defer></script>
+  </head>
+  <body class="">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Elowen home"
+        ><img src="elowen.PNG" width="36" height="36" alt="" />Elowen</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="index.html" aria-current="page">Tools</a
+        ><a href="data.html">Your data</a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">YOUR EVERYDAY WORKSPACE</p>
+        <h1>Elowen<span class="title-dot">.</span></h1>
+        <p class="hero-description">Useful tools. Room to think.</p>
+        <div class="search-wrap">
+          <label class="sr-only" for="tool-search">Search tools</label
+          ><svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="m16 16 5 5" /></svg
+          ><input
+            id="tool-search"
+            type="search"
+            placeholder="Search tools…"
+            autocomplete="off"
+          /><button
+            id="clear-search"
+            class="quiet"
+            hidden
+            aria-label="Clear search"
+          >
+            Clear
+          </button>
+        </div>
+      </section>
+      <section id="tools" class="directory" aria-labelledby="tools-title">
+        <div class="section-heading">
+          <h2 id="tools-title">The toolkit</h2>
+          <span id="tool-count" aria-live="polite">1 tool</span>
+        </div>
+        <div id="tool-grid" class="tool-grid">
+          <a class="tool-card" href="calculator.html" data-tool="calculator"
+            ><span class="tool-icon"
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <rect x="5" y="2" width="14" height="20" rx="2" />
+                <path
+                  d="M8 6h8M8 11h2m4 0h2M8 15h2m4 0h2M8 19h2m4 0h2"
+                /></svg></span
+            ><span class="card-category">NUMBERS &amp; EQUATIONS</span>
+            <h3>Elowen Calculator</h3>
+            <p>
+              Everyday arithmetic and advanced calculations, with memory and a
+              history you can return to.
+            </p>
+            <span class="card-action"
+              >Open calculator
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14m-6-6 6 6-6 6" /></svg></span
+          ></a>
+        </div>
+        <div id="no-tools" class="empty-search" hidden>
+          <h3>No matching tools</h3>
+          <p>Try “calculator”, “math”, or a shorter search.</p>
+        </div>
+      </section>
+      <div class="home-note">
+        <span class="small-mark" aria-hidden="true"></span>
+        <p>
+          A quiet place for your work.<br /><span
+            >No accounts. Your saved data stays in this browser.</span
+          >
+        </p>
+        <a href="data.html"
+          >Manage your data
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14m-6-6 6 6-6 6" /></svg
+        ></a>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <span
+        >Elowen
+        <span class="footer-note"
+          >· A little space to get things done.</span
+        ></span
+      >
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="privacy.html">Privacy Policy</a
+        ><a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+    <p id="storage-warning" class="storage-warning" role="status" hidden></p>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <form method="dialog">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" autofocus>Cancel</button
+          ><button value="confirm" class="primary">Continue</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use the calculator, tool search, and data controls.
+        Policy pages are available without it.
+      </p></noscript
+    >
+  </body>
+</html>

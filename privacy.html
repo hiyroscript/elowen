@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy — Elowen</title>
+    <meta
+      name="description"
+      content="How Elowen handles local storage, backups, and your privacy."
+    />
+    <meta name="theme-color" content="#eee8de" />
+    <link rel="icon" type="image/png" href="elowen.PNG" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body class="">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Elowen home"
+        ><img src="elowen.PNG" width="36" height="36" alt="" />Elowen</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="index.html">Tools</a><a href="data.html">Your data</a>
+      </nav>
+    </header>
+    <main id="main">
+      <article class="prose">
+        <p class="eyebrow">THE DETAILS</p>
+        <h1>Privacy Policy</h1>
+        <p class="updated">Last updated: September 12, 2026</p>
+        <p>
+          Elowen is a free collection of browser-based tools. You can use it
+          without an account or providing personal information.
+        </p>
+        <h2>Work stored in your browser</h2>
+        <p>
+          Elowen uses localStorage to save calculator history (up to 500
+          entries), calculator memory, your current expression and result, and
+          preferences such as angle mode. This data stays in that browser
+          profile. Anyone with access to the same profile may be able to view
+          it.
+        </p>
+        <h2>Backups are yours</h2>
+        <p>
+          Exported backups download to your device as JSON files. Imports are
+          read and validated locally in your browser. Elowen does not
+          intentionally transmit your calculator history, imported backups, or
+          saved work to an Elowen server. You choose whether and how to share a
+          downloaded backup.
+        </p>
+        <h2>Site hosting and offline files</h2>
+        <p>
+          GitHub Pages serves the website. Like any web host, GitHub may process
+          connection information, including IP addresses and request details,
+          when delivering pages. Its own privacy practices apply to that
+          hosting. Elowen’s service worker caches its own static files for
+          offline use; it does not add saved work to those cached files.
+        </p>
+        <h2>No tracking features</h2>
+        <p>
+          The Elowen application uses no analytics, advertising, tracking
+          scripts, cookies, external fonts, or external data APIs. Local storage
+          and offline caching are used only to provide the features described
+          here.
+        </p>
+        <h2>Control and deletion</h2>
+        <p>
+          You can export or clear saved work on the
+          <a href="data.html">Your data</a> page. Clearing browser or site data
+          may also remove your work and cached files. Private browsing or
+          storage restrictions can prevent data from persisting. Keep exported
+          backups if you want portable copies.
+        </p>
+        <h2>Changes</h2>
+        <p>
+          This policy may change when Elowen’s features change. The date above
+          identifies the latest revision.
+        </p>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <span
+        >Elowen
+        <span class="footer-note"
+          >· A little space to get things done.</span
+        ></span
+      >
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Home</a><a href="privacy.html">Privacy Policy</a
+        ><a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+    <p id="storage-warning" class="storage-warning" role="status" hidden></p>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <form method="dialog">
+        <h2 id="confirm-title">Are you sure?</h2>
+        <p id="confirm-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" autofocus>Cancel</button
+          ><button value="confirm" class="primary">Continue</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use the calculator, tool search, and data controls.
+        Policy pages are available without it.
+      </p></noscript
+    >
+  </body>
+</html>
