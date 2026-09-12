@@ -1,105 +1,368 @@
-Dark mode
+# Elowen Update — Complete Light & Dark Mode System
 
-Add a complete dark mode to Elowen.
+Update the existing Elowen website to add a polished, site-wide light and dark mode system.
 
-The theme system must support:
+This is an UPDATE to the existing website, not a rebuild. Preserve all existing pages, tools, calculator functionality, data storage/export/import behavior, responsive design, accessibility, GitHub Pages compatibility, and the established Elowen visual identity unless a change is specifically required below.
 
-* Light mode
-* Dark mode
-* Automatic persistence of the user’s selected theme
+Do not replace working features or redesign Elowen into a different style just to implement theming.
 
-Place a theme toggle in a consistent, easy-to-access location such as the site header.
+## Main requirement
 
-Use:
+Elowen must have two complete visual themes:
 
-* A sun icon to represent light mode
-* A croissant icon to represent dark mode
+- Light mode
+- Dark mode
 
-Do not use emoji characters for either icon. Use clean SVG icons that visually match the rest of Elowen’s interface.
+Add one accessible theme toggle in a consistent global location, preferably the site header, so it is available throughout the website.
 
-The croissant icon should be simple, recognizable, and styled consistently with the sun icon rather than looking cartoonish.
+The toggle must use proper vector/CSS icons, not emoji characters:
 
-Theme behavior
+- Light mode: a clean sun icon
+- Dark mode: a clean crescent moon icon with a simple croissant-like crescent silhouette
 
-When the user changes the theme:
+The dark-mode icon must look like a moon, not a food croissant and not an emoji.
 
-* Switch themes immediately without reloading the page
-* Save the preference locally
-* Preserve the selected theme across page reloads
-* Preserve the selected theme when navigating between Elowen pages
-* Include the selected theme in Elowen data exports where appropriate
-* Restore the theme when importing an Elowen backup
+Both icons should use the same visual language: simple line/shape geometry, professional proportions, consistent stroke weight, and styling that matches Elowen.
 
-If the user has never manually selected a theme, Elowen may initially respect the operating system/browser prefers-color-scheme setting.
+## Toggle behavior
 
-Once the user explicitly chooses a theme, their choice should take priority.
+The theme button must:
 
-Prevent an incorrect-theme flash while the page is loading whenever reasonably possible.
+- Switch themes immediately without reloading the page
+- Work on every Elowen page
+- Be keyboard accessible
+- Have a visible focus state
+- Have an appropriate accessible name
+- Be comfortable to use on mobile/touch devices
+- Use subtle hover, active, and press feedback
+- Never use emoji
 
-Dark mode design
+When light mode is active, display the sun icon.
 
-Do not simply invert the existing colors.
+When dark mode is active, display the crescent moon icon.
 
-Create a deliberate dark version of the Elowen palette that preserves the same warm, natural visual identity.
+The accessible label/title should communicate the action clearly. For example:
 
-The dark theme should use:
+- In light mode: `Switch to dark mode`
+- In dark mode: `Switch to light mode`
 
-* Deep warm neutral backgrounds
-* Slightly lighter elevated surfaces
-* Warm taupe interactive elements
-* Soft beige or sand-colored text where appropriate
-* Warm brown-gray icons
-* Subtle borders with sufficient contrast
-* A distinct but restrained hover state
-* A very subtle lighter press state
+Do not depend on the icon alone for accessibility.
+
+## Theme persistence
+
+Persist the user's selected theme locally.
+
+Requirements:
+
+- Save the user's explicit theme choice in local storage or Elowen's existing preferences system
+- Preserve it after page refreshes
+- Preserve it while navigating between pages
+- Preserve it after closing and reopening the browser when local storage remains available
+- Do not require an account or server
+
+If the user has never selected a theme, use the operating system/browser `prefers-color-scheme` preference for the initial theme.
+
+Once the user manually chooses light or dark mode, that explicit choice takes priority over the system preference.
+
+If Elowen already exports/imports preferences in its backup system, include the explicit theme preference in exported Elowen data and restore it during a valid import.
+
+Do not break compatibility with existing saved Elowen data that does not contain a theme field.
+
+## Prevent theme flash
+
+Avoid a flash of the wrong theme during initial page loading.
+
+Apply the saved or preferred theme as early as reasonably possible before the main interface is painted.
+
+Do not wait until all page JavaScript has finished loading before deciding the initial theme if that creates an obvious light-to-dark or dark-to-light flash.
+
+The implementation should remain simple and compatible with GitHub Pages.
+
+## Light mode
+
+Keep Elowen's existing warm, calm visual identity.
+
+The light theme should continue to be based around the existing palette:
+
+- Main UI: Warm Sand
+- Interactive elements: Soft Taupe
+- Dark areas/text: Desert Stone
+- Press/active feedback: Very Light Beige
+- Icons: Warm Brown-Gray
+
+Refine exact shades if needed for accessibility or consistency, but do not replace the warm neutral identity with generic white/gray/blue styling.
+
+The light theme should feel:
+
+- Warm
+- Minimal
+- Soft
+- Professional
+- Calm
+- Clear
+
+Avoid harsh pure-white surfaces wherever a warmer neutral works better.
+
+## Dark mode
+
+Create a deliberate dark interpretation of Elowen rather than simply inverting the light theme.
+
+The dark theme should remain warm and natural.
+
+Use a palette direction such as:
+
+- Main background: deep warm charcoal/stone
+- Main surfaces: slightly lighter warm stone
+- Elevated surfaces/cards: subtly lighter than the main surface
+- Interactive elements: muted warm taupe
+- Primary text: soft warm cream/sand
+- Secondary text: muted beige-gray
+- Icons: warm taupe/brown-gray
+- Borders: restrained warm neutral borders
+- Hover states: slightly lighter warm surfaces
+- Press states: subtle warm beige/taupe feedback
+- Focus rings: clearly visible and accessible without becoming neon
 
 Avoid:
 
-* Pure black backgrounds
-* Pure white text unless necessary for accessibility
-* Neon colors
-* Blue-tinted generic dark-mode colors
-* Excessive contrast
-* Glowing UI elements
+- Pure black backgrounds
+- Generic blue-gray dark themes
+- Cold navy backgrounds
+- Neon colors
+- Bright glowing borders
+- Pure white everywhere
+- Excessive contrast
+- Heavy shadows
+- Gradient-heavy styling
 
-All components must support both themes, including:
+Dark mode should feel like the same Elowen product viewed at night, not a separate design.
 
-* Header
-* Navigation
-* Home page
-* Search bar
-* Tool cards
-* Calculator
-* Calculator display
-* Calculator buttons
-* Scientific controls
-* History
-* Settings/data management
-* Notifications
-* Dialogs
-* Privacy Policy
-* Terms and Conditions
-* 404 page
-* Footer
+## Use semantic theme variables
 
-Use CSS custom properties for theming rather than duplicating large amounts of CSS.
+Implement theming primarily through reusable CSS custom properties.
 
-A structure similar to this is encouraged:
+Prefer semantic variables such as:
 
+```css
 :root {
-  /* Light theme variables */
+  --color-bg: ...;
+  --color-surface: ...;
+  --color-surface-elevated: ...;
+  --color-text: ...;
+  --color-text-muted: ...;
+  --color-border: ...;
+  --color-interactive: ...;
+  --color-interactive-hover: ...;
+  --color-interactive-active: ...;
+  --color-icon: ...;
+  --color-focus: ...;
 }
+
 [data-theme="dark"] {
-  /* Dark theme overrides */
+  /* Dark-theme overrides */
 }
+```
 
-Ensure both light and dark themes meet accessibility contrast requirements.
+Use the project's existing naming system if one already exists and is well structured.
 
-The theme toggle must also be keyboard accessible and have an appropriate accessible label such as:
+Do not duplicate entire stylesheets for light and dark mode.
 
-* Switch to dark mode
-* Switch to light mode
+Do not scatter dozens of unrelated hard-coded color values throughout components when a semantic variable can be used instead.
 
-The visible icon should update to clearly communicate the relevant theme state/action.
+## Theme every component
 
-Use subtle transitions between theme colors, but respect prefers-reduced-motion.
+Audit the full existing website. There must not be leftover light-only or dark-only elements.
+
+At minimum, verify both themes for:
+
+- Page background
+- Header
+- Navigation
+- Logo/brand area
+- Theme toggle
+- Home page
+- Search bar
+- Search icons
+- Tool cards
+- Card borders
+- Card hover/focus states
+- Calculator page
+- Calculator shell
+- Calculator display
+- Expression text
+- Result text
+- Number buttons
+- Operator buttons
+- Scientific controls
+- Memory controls
+- Calculator history
+- History items
+- Settings/data-management UI
+- Import/export controls
+- File inputs if present
+- Buttons
+- Inputs
+- Selects
+- Checkboxes/toggles if present
+- Toasts/notifications
+- Error messages
+- Empty states
+- Confirmation dialogs/modals
+- Privacy Policy page
+- Terms and Conditions page
+- Custom 404 page
+- Footer
+- Links
+- Focus indicators
+- Scrollable panels
+
+Also check browser-native controls that may look visibly wrong against the selected theme. Use `color-scheme` appropriately where useful.
+
+## Accessibility
+
+Both themes must be fully accessible.
+
+Requirements:
+
+- Maintain readable text contrast
+- Maintain distinguishable borders and controls
+- Keep keyboard focus highly visible
+- Do not use color alone to communicate state
+- The toggle must be a real button
+- Decorative SVG details should be hidden from assistive technology where appropriate
+- The control needs an accessible label
+- Interactive targets must remain touch friendly
+
+Do not reduce accessibility in dark mode to make it look softer.
+
+## Motion
+
+Theme transitions should be subtle and fast.
+
+It is acceptable to softly transition properties such as:
+
+- Background color
+- Text color
+- Border color
+- Surface color
+- Icon color
+
+Do not animate every layout property.
+
+Do not use dramatic fades, flashes, spins, bouncing, or large scaling effects when switching themes.
+
+Respect `prefers-reduced-motion` and disable/reduce decorative transitions for users who request reduced motion.
+
+## Icons
+
+Use clean inline SVG or equivalent lightweight local vector implementation.
+
+Sun icon requirements:
+
+- Simple circular center
+- Clean rays
+- Balanced proportions
+- No emoji
+
+Dark-mode icon requirements:
+
+- Crescent moon shape
+- Smooth, recognizable crescent
+- Visually comparable in size to the sun icon
+- Croissant-like crescent silhouette only in the geometric sense
+- Must still clearly read as a moon
+- No face
+- No stars unless extremely subtle and genuinely beneficial
+- No emoji
+- No cartoon food styling
+
+The icon should inherit its color from CSS (`currentColor`) where practical so it themes correctly.
+
+## Responsive behavior
+
+The theme toggle must work cleanly on:
+
+- Desktop
+- Laptop
+- Tablet
+- Phone
+- Portrait orientation
+- Landscape orientation
+
+Do not let the toggle cause navigation overflow or awkward wrapping.
+
+Do not reduce the tap target to the tiny visual bounds of the SVG icon. The button itself should have an appropriately sized interactive area.
+
+## Existing functionality must remain intact
+
+Do not break or remove any working feature while implementing the theme system.
+
+Verify that the following still work after the change:
+
+- Home page tool search
+- Tool navigation
+- Calculator arithmetic
+- Scientific calculator functions
+- Calculator keyboard controls
+- Memory controls
+- Calculation history
+- Persistent calculator data
+- Exporting Elowen data
+- Importing Elowen data
+- Clearing local data
+- Privacy page
+- Terms page
+- Custom 404 page
+- GitHub Pages paths
+- Responsive layouts
+- PWA/offline functionality if currently implemented
+
+If Elowen has a service worker/cache, update cache versioning if necessary so users receive the new themed assets instead of remaining stuck on old cached CSS or JavaScript.
+
+## Implementation quality
+
+Keep the implementation maintainable.
+
+Prefer one shared theme system used across the entire site rather than separate page-specific theme scripts.
+
+Avoid:
+
+- Copy-pasted theme code on every page
+- Inline styles for large parts of the theme
+- `!important` everywhere
+- Rewriting unrelated working code
+- Introducing a framework solely for dark mode
+- Adding external icon libraries solely for two icons
+- Adding trackers, analytics, APIs, accounts, or backend services
+
+The website must remain static and compatible with GitHub Pages.
+
+## Final verification
+
+Before finishing, test both light and dark themes across the entire existing site.
+
+Confirm all of the following:
+
+- Light mode renders correctly
+- Dark mode renders correctly
+- Sun icon appears for light mode
+- Crescent moon icon appears for dark mode
+- Icons are SVG/CSS-based and not emoji
+- Theme changes immediately
+- Theme survives refresh
+- Theme survives navigation
+- Initial system preference is respected when the user has no saved choice
+- Explicit user choice overrides system preference
+- No obvious wrong-theme flash occurs on page load
+- Existing backups without theme data still import correctly
+- New backups preserve theme preference where appropriate
+- No unreadable text exists in either theme
+- No component remains accidentally styled for only one theme
+- Hover, active, disabled, error, and focus states work in both themes
+- Mobile layouts remain correct
+- Desktop layouts remain correct
+- No horizontal overflow is introduced
+- No existing Elowen functionality is broken
+- No console errors are introduced
+
+The result should feel native to Elowen: warm, minimal, polished, professional, and consistent in both light and dark environments.
