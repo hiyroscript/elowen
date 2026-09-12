@@ -12,8 +12,10 @@
     <link rel="icon" type="image/png" href="elowen.PNG" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <!-- Resolve the theme before styles and page content are painted. -->
+    <script src="js/storage.js"></script>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/styles.css" />
-    <script src="js/storage.js" defer></script>
     <script src="js/app.js" defer></script>
   </head>
   <body class="">
@@ -39,9 +41,9 @@
         <p>
           Elowen uses localStorage to save calculator history (up to 500
           entries), calculator memory, your current expression and result, and
-          preferences such as angle mode. This data stays in that browser
-          profile. Anyone with access to the same profile may be able to view
-          it.
+          preferences such as angle mode and your explicit light or dark theme
+          choice. This data stays in that browser profile. Anyone with access to
+          the same profile may be able to view it.
         </p>
         <h2>Backups are yours</h2>
         <p>

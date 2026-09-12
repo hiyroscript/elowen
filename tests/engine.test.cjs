@@ -116,3 +116,29 @@ test("reject nonfinite numeric input", () =>
       store.export().replace('"result": null', '"result": 1e999'),
     ),
   ));
+
+test("old backups migrate without an explicit theme", () => {
+  const backup = JSON.parse(store.export());
+  delete backup.data.preferences.theme;
+  assert.equal(
+    store.parseBackup(JSON.stringify(backup)).preferences.theme,
+    null,
+  );
+});
+test("explicit themes survive backup validation", () => {
+  for (const theme of ["light", "dark", null]) {
+    const backup = JSON.parse(store.export());
+    backup.data.preferences.theme = theme;
+    assert.equal(
+      store.parseBackup(JSON.stringify(backup)).preferences.theme,
+      theme,
+    );
+  }
+});
+test("invalid theme fields are rejected", () => {
+  for (const theme of ["blue", "system", 1, {}, false]) {
+    const backup = JSON.parse(store.export());
+    backup.data.preferences.theme = theme;
+    assert.throws(() => store.parseBackup(JSON.stringify(backup)));
+  }
+});

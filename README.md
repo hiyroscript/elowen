@@ -57,3 +57,9 @@ npm run test:browser
 ```
 
 The browser suite starts its own static server under `/elowen/`. It checks search, arithmetic, keyboard input, memory, saved history, reloads, backup download/import, destructive confirmations, hostile imported text, desktop/mobile layouts, asset URLs, visible focus, reduced motion, and offline use. Screenshots go to the ignored `test-results/` directory. No Node.js or npm installation is needed on GitHub Pages.
+
+## Themes
+
+The shared `js/theme.js` runs after `js/storage.js`, before the stylesheets, to apply the theme before the interface paints. All six pages use the same header toggle with sun and crescent SVG icons. Semantic color tokens in `css/styles.css` cover both warm palettes, including calculator-specific surfaces and feedback states.
+
+The optional `preferences.theme` field is `null` (follow system), `"light"`, or `"dark"`. A manual choice overrides system changes and is included in version-1 backups. Older saves and backups without this field migrate to `null`; invalid theme values are rejected. Restoring data applies its theme immediately. Clearing local data returns to the system preference. If storage is blocked, switching still works for the current page; persistence depends on browser storage being available.

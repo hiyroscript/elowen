@@ -15,7 +15,57 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.6;
+  --color-on-dark: #fbf5eb;
+  --color-primary-hover: #665949;
+  --color-link-hover: #715336;
+  --color-accent: #99856b;
+  --color-border-hover: #a99a87;
+  --color-surface-elevated: #fbf8f2;
+  --color-icon-surface: #ece4d7;
+  --color-shadow: #39332c20;
+  --color-backdrop: #39332c66;
+  --color-display: #51483e;
+  --color-display-text: #fbf5eb;
+  --color-display-muted: #e0d4c5;
+  --color-display-focus: #e8d5b7;
+  --color-display-error: #ffe1cb;
+  --color-key-border: #dfd6c9;
+  --color-key-surface: #f0ebe3;
+  --color-history-hover: #e5ddd1;
 }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background: #24211d;
+  --color-surface: #2e2924;
+  --color-surface-elevated: #38312b;
+  --color-interactive: #51463a;
+  --color-interactive-hover: #625342;
+  --color-dark: #c4ad90;
+  --color-on-dark: #29231d;
+  --color-primary-hover: #d5bea1;
+  --color-pressed: #71604d;
+  --color-icon: #c7b59e;
+  --color-text: #eee5d8;
+  --color-text-muted: #bcaf9e;
+  --color-border: #62574a;
+  --color-border-hover: #9a8770;
+  --color-focus: #dfbd8c;
+  --color-error: #f0aa99;
+  --color-link-hover: #e7c49a;
+  --color-accent: #c4ad90;
+  --color-icon-surface: #453b30;
+  --color-shadow: #17141040;
+  --color-backdrop: #17141099;
+  --color-display: #211d19;
+  --color-display-text: #eee5d8;
+  --color-display-muted: #c6b7a3;
+  --color-display-focus: #dfbd8c;
+  --color-display-error: #f0aa99;
+  --color-key-border: #665949;
+  --color-key-surface: #3b332b;
+  --color-history-hover: #3e352c;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -70,13 +120,13 @@ button:disabled {
   cursor: default;
 }
 .primary {
-  color: #fbf5eb;
+  color: var(--color-on-dark);
   background: var(--color-dark);
   border-color: var(--color-dark);
 }
 .primary:hover {
-  color: #fbf5eb;
-  background: #665949;
+  color: var(--color-on-dark);
+  background: var(--color-primary-hover);
 }
 .quiet {
   background: transparent;
@@ -89,7 +139,7 @@ a {
   text-underline-offset: 4px;
 }
 a:hover {
-  color: #715336;
+  color: var(--color-link-hover);
 }
 :focus-visible {
   outline: 3px solid var(--color-focus);
@@ -205,7 +255,7 @@ main {
   line-height: 1.08;
 }
 .title-dot {
-  color: #99856b;
+  color: var(--color-accent);
 }
 .hero-description {
   font-size: 1.3rem;
@@ -275,15 +325,15 @@ main {
 }
 .tool-card:hover {
   color: var(--color-text);
-  border-color: #a99a87;
-  background: #fbf8f2;
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-elevated);
 }
 .tool-icon {
   width: 48px;
   height: 48px;
   display: grid;
   place-items: center;
-  background: #ece4d7;
+  background: var(--color-icon-surface);
   border-radius: 9px;
   margin-bottom: 30px;
 }
@@ -483,8 +533,8 @@ main {
   border: 1px solid var(--color-border);
   border-radius: 7px;
   background: var(--color-dark);
-  color: #fbf5eb;
-  box-shadow: 0 4px 25px #39332c20;
+  color: var(--color-on-dark);
+  box-shadow: 0 4px 25px var(--color-shadow);
   z-index: 10;
 }
 .storage-warning,
@@ -503,7 +553,7 @@ dialog {
   padding: 28px;
 }
 dialog::backdrop {
-  background: #39332c66;
+  background: var(--color-backdrop);
 }
 dialog p {
   color: var(--color-text-muted);
@@ -658,4 +708,44 @@ dialog p {
 .primary:active {
   background: var(--color-pressed);
   color: var(--color-text);
+}
+
+.theme-toggle {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  padding: 10px;
+  background: transparent;
+  border-color: var(--color-border);
+}
+.theme-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+.theme-toggle .moon-icon {
+  display: none;
+}
+[data-theme="dark"] .theme-toggle .sun-icon {
+  display: none;
+}
+[data-theme="dark"] .theme-toggle .moon-icon {
+  display: block;
+}
+@media (max-width: 520px) {
+  .site-header {
+    gap: 10px;
+  }
+  .site-header nav {
+    gap: 10px;
+  }
+  .site-header nav a {
+    font-size: 0.8rem;
+  }
+  .site-header .brand {
+    font-size: 18px;
+  }
+  .site-header .brand img {
+    width: 26px;
+    height: 26px;
+  }
 }

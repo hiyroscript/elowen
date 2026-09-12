@@ -39,20 +39,20 @@
   font-size: 0.75rem;
 }
 .display {
-  background: var(--color-dark);
-  color: #fbf5eb;
+  background: var(--color-display);
+  color: var(--color-display-text);
   padding: 22px 25px 16px;
 }
 .display label {
   font-size: 0.7rem;
-  color: #e0d4c5;
+  color: var(--color-display-muted);
 }
 .display input {
   width: 100%;
   min-width: 0;
   display: block;
   font-size: 1.15rem;
-  color: #fbf5eb;
+  color: var(--color-display-text);
   text-align: right;
   border: 0;
   border-radius: 3px;
@@ -61,10 +61,10 @@
   padding: 5px 0;
 }
 .display input::placeholder {
-  color: #dfd2c1;
+  color: var(--color-display-muted);
 }
 .display input:focus-visible {
-  outline-color: #e8d5b7;
+  outline-color: var(--color-display-focus);
 }
 .display output {
   display: block;
@@ -78,13 +78,13 @@
 }
 .display #memory-status {
   font-size: 0.7rem;
-  color: #e0d4c5;
+  color: var(--color-display-muted);
   overflow-wrap: anywhere;
   display: block;
 }
 #calc-error {
   font-size: 0.85rem;
-  color: #ffe1cb;
+  color: var(--color-display-error);
   text-align: right;
 }
 .calculator-controls {
@@ -130,7 +130,7 @@ summary {
 .scientific-keys button {
   padding: 8px 0;
   font-size: 0.85rem;
-  background: #eee8de;
+  background: var(--color-background);
 }
 .scientific-keys button:hover {
   background: var(--color-interactive);
@@ -144,8 +144,8 @@ summary {
   font-size: 1.2rem;
   min-height: 57px;
   padding: 8px 0;
-  border-color: #dfd6c9;
-  background: #f0ebe3;
+  border-color: var(--color-key-border);
+  background: var(--color-key-surface);
 }
 .keypad button:hover {
   background: var(--color-interactive);
@@ -161,7 +161,7 @@ summary {
   background: var(--color-dark);
 }
 .keypad .equals:hover {
-  background: #665949;
+  background: var(--color-primary-hover);
 }
 .keypad button:active,
 .scientific-keys button:active,
@@ -229,7 +229,7 @@ summary {
   gap: 5px;
 }
 #history-list button:hover {
-  background: #e5ddd1;
+  background: var(--color-history-hover);
 }
 #history-list .history-expression {
   color: var(--color-text-muted);
